@@ -5,9 +5,19 @@
 
 ### List of functions to be added later:
 - [ ] Querying Twitter Search & Streaming APIs'
-- [ ] Output fetched twits in user-friendly manner
-- [ ] Plot frequency graphs: how often searched player or club appears in twits over specific time frame
+    - [ ] Players, e.g. using their names, Twitter screen names or a range of selected keywords or hashtags
+    - [ ] Football teams using their names
+    - [ ] Authors of tweets
+- [ ] Output fetched tweets in user-friendly manner
+    - [ ] Return a list of 300 tweets ( or less, if there are no 300 tweets)
+    - [ ] For each tweet provide following:
+      1. Author, text, time and date
+      2. the link to the original message and
+      3. a link to the author’s page
+- [ ] Plot frequency graphs: how often searched player or club appears in tweets over specific time frame
 - [ ] Store data in MySQL database
+    - [ ] Database should be used as source of data
+    - [ ] Database should be used as a cache to reduce number of queries sent to Twitter API
 - [ ] Build a mobile application with Apache Cordova
 - [ ] Integrate information retrieved from DBPedia (data about clubs and/or players)
   
