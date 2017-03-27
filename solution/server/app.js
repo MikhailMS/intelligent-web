@@ -8,7 +8,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var twitter = require('twitter'); // Twitter API package
-var config = require('./config'); // Get config file
+var config = require('./config'); // Get config fil
 
 // =======================
 // Set up server =======================
