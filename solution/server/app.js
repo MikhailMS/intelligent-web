@@ -40,7 +40,7 @@ stream = null;
 var port = process.env.PORT || 3333 //set up server port
 
 // View engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('../webapp/views/', path.join(__dirname, '../webapp/views/'));
 app.set('view engine', 'pug');
 
 // Uncomment after placing your favicon in /public
@@ -101,7 +101,7 @@ io.sockets.on('connection', function (socket) {
               if (data.text) {
                 text = data.text;
               }
-              // Create JSON object that would be send to client
+              // Create JSON object that would be sent to client
               var tweetData = {"msg": text};
 
               // Send data to client
