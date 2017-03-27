@@ -40,7 +40,7 @@ stream = null;
 var port = process.env.PORT || 3333 //set up server port
 
 // View engine setup
-app.set('../webapp/views/', path.join(__dirname, '../webapp/views/'));
+app.set('../webapp/views', path.join(__dirname, '../webapp/views'));
 app.set('view engine', 'pug');
 
 // Uncomment after placing your favicon in /public
