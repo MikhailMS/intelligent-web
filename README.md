@@ -4,7 +4,7 @@
 ### Application is build upon Twitter Search & Streaming API, to allow you to search for various tweets published on twitter.com in real-time. Application is more focused on football players and clubs, so it would provide extra information about players and clubs, but not, apparently, limited by that.
 
 ### List of functions to be added later:
-- [ x ] Querying Twitter Search & Streaming APIs'
+- [ ] Querying Twitter Search & Streaming APIs'
     - [ ] Players, e.g. using their names, Twitter screen names or a range of selected keywords or hashtags
     - [ ] Football teams using their names
     - [ ] Authors of tweets
