@@ -7,7 +7,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var twitter = require('twitter'); // Twitter API package
+var Twitter = require('twitter'); // Twitter API package
 var config = require('./config'); // Get config file
 var app = express();
 
@@ -25,7 +25,7 @@ var routes = require('./routes/index');
 // =======================
 // Set up Twitter API ==================
 // =======================
-var twit = new twitter({
+var twit = new Twitter({
   consumer_key: config.consumer_key,
   consumer_secret: config.consumer_secret,
   access_token_key: config.access_token_key,
@@ -87,7 +87,6 @@ app.use(function(err, req, res, next) { // Production error handler no stacktrac
 // Emit twitter data ===================
 // =======================
 io.sockets.on('connection', function (socket) {
-
   socket.on("start tweets", function() {
 
     if(stream === null) {
