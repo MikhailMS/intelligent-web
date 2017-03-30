@@ -2,6 +2,9 @@
 	text-align: center;
 }
 
+#label {
+  padding: 0 10px;
+}
 p {
 	text-align: center;
 }
