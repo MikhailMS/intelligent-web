@@ -36,7 +36,7 @@ stream = null;
 // =======================
 // Application configuration ===========
 // =======================
-var port = process.env.PORT || 3333 //set up server port
+var port = process.env.PORT || 3333; //set up server port
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -54,7 +54,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Setting up routes ===================
 // =======================
 app.use('/', routes);
-
 
 // =======================
 // Error handlers ======================
