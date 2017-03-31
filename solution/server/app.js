@@ -11,6 +11,12 @@ var Twitter = require('twitter'); // Twitter API package
 var config = require('./config'); // Get config file
 var app = express();
 
+var db = require('./dbcontrol');
+
+//db.initDatabase(); - call to create tables
+//db.cacheTweets("dgdfglffdagb", ["hehe", "haha"]); //1-query 2-list of tweets
+console.log(db.getTweets("dadas"));
+
 // =======================
 // Set up server =======================
 // =======================
