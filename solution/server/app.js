@@ -91,6 +91,7 @@ io.sockets.on('connection', function (socket) {
     if(stream === null) {
       // Connect to twitter stream passing in filter for entire world.
       twit.stream('statuses/filter', {'locations':'-180,-90,180,90'}, function(stream) {
+          console.log("hello");
           stream.on('data', function(data) {
 
               var text = null;
@@ -104,18 +105,18 @@ io.sockets.on('connection', function (socket) {
               // Send data to client
               socket.broadcast.emit("twitter-stream", tweetData);
               socket.emit('twitter-stream', tweetData);
+          });
 
-              stream.on('limit', function(limitMessage) {
-                return console.log(limitMessage);
-              });
+          stream.on('limit', function(limitMessage) {
+              return console.log(limitMessage);
+          });
 
-              stream.on('warning', function(warning) {
-                return console.log(warning);
-              });
+          stream.on('warning', function(warning) {
+              return console.log(warning);
+          });
 
-              stream.on('disconnect', function(disconnectMessage) {
-                return console.log(disconnectMessage);
-              });
+          stream.on('disconnect', function(disconnectMessage) {
+              return console.log(disconnectMessage);
           });
       });
     }

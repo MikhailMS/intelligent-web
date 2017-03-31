@@ -5,9 +5,13 @@ if (io !== undefined) {
   // This listens on the "twitter-steam" channel and data is
   // received every time a new tweet is received.
 
+  /*socket.on('twitter-rest', function(data) {
+
+  });*/
+
   socket.on('twitter-stream', function(data) {
     if (data.msg != null) {
-      if (data.msg.includes("watching")) {
+      if (data.msg.includes("hey")) {
         $("#resultList").append("<p>" + data.msg + "</p>");
         console.log(data.msg);
       }
