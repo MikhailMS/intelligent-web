@@ -5,13 +5,13 @@ block content
         .page-header
             h1 Twitter Search
         p.lead Enter the search query in the form below:
-        form(action='', class='form-inline', id='query-form')
-            .form-group
-                label(for='key-word') Look for a
-                input.form-control#key-word(name='key-word', placeholder='Key word...')
-            button(type='submit', class='btn btn-default', id='submit') Submit
+        .form-group
+            label(for='key-word') Look for a
+            input.form-control#key-word(name='key-word', placeholder='Key word...')
+            button#submit Submit
         br
         p.lead Here is your result:
+        button#test Hello
         div#resultList
         footer.footer
             .container

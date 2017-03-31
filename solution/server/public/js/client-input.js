@@ -1,10 +1,13 @@
 var advance = io.connect('/advance');
-$('#query-form').submit(function(){
-  var data = {'key-word': $('#key-word').val(), 'lang': $('#language').val()}
-  advance.emit('client query', data); // Send message to server
-  console.log(data)
+
+$('#button').click(function(){
+  //var data = {'key-word': $('#key-word').val(), 'lang': $('#language').val()}
+  advance.emit('start-streaming', $('#key-word').val()); // Send message to server
   return false;
 });
+
+console.log("dadada");
+
 advance.on('client query', function(data){ // Get message from server
   console.log("client query: "+data.lang);
 });

@@ -85,13 +85,91 @@ app.use(function(err, req, res, next) { // Production error handler no stacktrac
 // =======================
 // Emit twitter data ===================
 // =======================
+
+var users = {};
+
 io.sockets.on('connection', function (socket) {
-  socket.on("start tweets", function() {
+
+    function resetStream() {
+
+        var track = "";
+
+        for(var key in users)
+            for(var s in users[key])
+                track += users[key][s] + ",";
+        track = track.substring(0, track.length - 1);
+        console.log(track);
+
+        for(var sock in users) {
+            for(var sess in users[sock]) {
+                var tweetData = {"msg": users[sock][sess], "session": sess};
+                socket.emit('twitter-stream', JSON.stringify(tweetData));
+            }
+        }
+        /*twit.stream('statuses/filter', {'locations':'-180,-90,180,90', 'track': track}, function(stream) {
+            stream.on('data', function(data) {
+                var text = null;
+
+                if (data.text) {
+                    text = data.text;
+                }
+                // Create JSON object that would be send to client
+
+                //console.log(text);
+
+                for(var sock in users) {
+                    for(var sess in users[sock]) {
+                        if(text !== null)
+                            if(text.includes(users[sock][sess])) {
+                                var tweetData = {"msg": text, "session": session};
+                                socket.emit('twitter-stream', tweetData);
+                            }
+                    }
+                }
+            });
+
+            stream.on('limit', function(limitMessage) {
+                return console.log(limitMessage);
+            });
+
+            stream.on('warning', function(warning) {
+                return console.log(warning);
+            });
+
+            stream.on('disconnect', function(disconnectMessage) {
+                return console.log(disconnectMessage);
+            });
+        });*/
+    }
+
+    var session;
+    socket.on('start-streaming', function(data) {
+        if(users[socket] == null)
+            users[socket] = {};
+
+        data = JSON.parse(data);
+
+        if(data['session'] in users[socket]) {
+            session = data['session'];
+        } else {
+            session = Math.random().toString(36).substr(2,16);
+        }
+
+        users[socket][session] = data['keyword'];
+
+        socket.emit('receive-session', session);
+        resetStream();
+
+        //for(var key in users)
+           // console.log(users[key]);
+    });
+
+    /*socket.on("start tweets", function() {
 
     if(stream === null) {
       // Connect to twitter stream passing in filter for entire world.
       twit.stream('statuses/filter', {'locations':'-180,-90,180,90'}, function(stream) {
-          console.log("hello");
+
           stream.on('data', function(data) {
 
               var text = null;
@@ -120,7 +198,18 @@ io.sockets.on('connection', function (socket) {
           });
       });
     }
+  });*/
+
+  socket.on('disconnect', function() {
+      if(session != null) {
+          delete users[socket][session];
+          //users[socket] = users[socket].filter(function(i) {return i != session});
+          if (users[socket] == null)
+              delete users[socket];
+          resetStream();
+      }
   });
+
   // Emits signal to the client telling them that the
   // they are connected and can start receiving Tweets
   socket.emit("connected");
