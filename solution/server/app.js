@@ -26,12 +26,12 @@ var routes = require('./routes/index');
 // Set up Twitter API ==================
 // =======================
 var twit = new Twitter({
-  consumer_key: config.consumer_key,
-  consumer_secret: config.consumer_secret,
-  access_token_key: config.access_token_key,
-  access_token_secret: config.access_token_secret
-}),
-stream = null;
+    consumer_key: config.consumer_key,
+    consumer_secret: config.consumer_secret,
+    access_token_key: config.access_token_key,
+    access_token_secret: config.access_token_secret
+  }),
+  stream = null;
 
 // =======================
 // Application configuration ===========
@@ -55,36 +55,33 @@ app.use(express.static(path.join(__dirname, 'public')));
 // =======================
 app.use('/', routes);
 
-// =======================
-// Error handlers ======================
-// =======================
-app.use(function(req, res, next) { // Catch 404 and forward to error handler
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
-
-
-if (app.get('env') === 'development') { // Development error handler will print stacktrace
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
-  });
-}
-app.use(function(err, req, res, next) { // Production error handler no stacktraces leaked to user
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
-});
-
-// /// =======================
-// // Emit twitter data ===================
 // // =======================
+// // Error handlers ======================
+// // =======================
+// app.use(function(req, res, next) { // Catch 404 and forward to error handler
+//   var err = new Error('Not Found');
+//   err.status = 404;
+//   next(err);
+// });
+//
+//
+// if (app.get('env') === 'development') { // Development error handler will print stacktrace
+//   app.use(function(err, req, res, next) {
+//     res.status(err.status || 500);
+//     res.render('error', {
+//       message: err.message,
+//       error: err
+//     });
+//   });
+// }
+// app.use(function(err, req, res, next) { // Production error handler no stacktraces leaked to user
+//   res.status(err.status || 500);
+//   res.render('error', {
+//     message: err.message,
+//     error: {}
+//   });
+// });
+//
 //
 // var users = {};
 //
@@ -106,40 +103,6 @@ app.use(function(err, req, res, next) { // Production error handler no stacktrac
 //         socket.emit('twitter-stream', JSON.stringify(tweetData));
 //       }
 //     }
-//     /*twit.stream('statuses/filter', {'locations':'-180,-90,180,90', 'track': track}, function(stream) {
-//      stream.on('data', function(data) {
-//      var text = null;
-//
-//      if (data.text) {
-//      text = data.text;
-//      }
-//      // Create JSON object that would be send to client
-//
-//      //console.log(text);
-//
-//      for(var sock in users) {
-//      for(var sess in users[sock]) {
-//      if(text !== null)
-//      if(text.includes(users[sock][sess])) {
-//      var tweetData = {"msg": text, "session": session};
-//      socket.emit('twitter-stream', tweetData);
-//      }
-//      }
-//      }
-//      });
-//
-//      stream.on('limit', function(limitMessage) {
-//      return console.log(limitMessage);
-//      });
-//
-//      stream.on('warning', function(warning) {
-//      return console.log(warning);
-//      });
-//
-//      stream.on('disconnect', function(disconnectMessage) {
-//      return console.log(disconnectMessage);
-//      });
-//      });*/
 //   }
 //
 //   var session;
@@ -163,6 +126,21 @@ app.use(function(err, req, res, next) { // Production error handler no stacktrac
 //     //for(var key in users)
 //     // console.log(users[key]);
 //   });
+//
+//   socket.on('disconnect', function() {
+//     if(session != null) {
+//       delete users[socket][session];
+//       //users[socket] = users[socket].filter(function(i) {return i != session});
+//       if (users[socket] == null)
+//         delete users[socket];
+//       resetStream();
+//     }
+//   });
+//
+//   // Emits signal to the client telling them that the
+//   // they are connected and can start receiving Tweets
+//   socket.emit("connected");
+// });
 
 // handle client query
 io.sockets.on('connection', function(socket) {
@@ -202,29 +180,17 @@ io.sockets.on('connection', function(socket) {
       });
     }
   });
-
-  socket.on('disconnect', function() {
-    if(session != null) {
-      delete users[socket][session];
-      //users[socket] = users[socket].filter(function(i) {return i != session});
-      if (users[socket] == null)
-        delete users[socket];
-      resetStream();
-    }
-  });
-
-
-
   // Emits signal to the client telling them that the
   // they are connected and can start receiving Tweets
   socket.emit("connected");
 });
 
+
 // =======================
 // Start an application ================
 // =======================
-http.listen(port, function(){
- console.log('App listening at http://localhost:'+port);
+http.listen(port, function() {
+  console.log('App listening at http://localhost:' + port);
 });
 
 //module.exports = app;
