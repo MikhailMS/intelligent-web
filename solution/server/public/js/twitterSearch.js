@@ -1,22 +1,23 @@
+/**
+ * Created by pbarzev on 31/03/2017.
+ */
+
 if (io !== undefined) {
-  // Storage for WebSocket connections
   var socket = io.connect('/');
 
-  // This listens on the "twitter-steam" channel and data is
+  // This listens on the "twitterSearch" channel and data is
   // received every time a new tweet is received.
-
-
-  socket.on('twitter-stream', function(data) {
-    if (data.msg != null) {
-      if (data.msg.includes("hey")) {
-        $("#resultList").append("<p>" + data.msg + "</p>");
-        console.log(data.msg);
-      }
-    }
+  socket.on('twitterSearch', function(payload) {
+    console.log('Received Payload', payload);
+    payload.statuses.forEach(function (el) {
+      var tweetText = el.text;
+      console.log('tweetText', tweetText);
+      $(".resultListSearch").append("<p>" + tweetText + "</p>");
+    });
   });
 
 
-  // BLAGO
+  //////////////////////// Unimplemented and untested advanced features... client sessions, per-client rendering///////////////////////
   // $("#submit").click(function() {
   //   var data = {};
   //   data['keyword'] = $('#key-word').val();
@@ -38,7 +39,6 @@ if (io !== undefined) {
   //     }
   //   }
   // });
-
 
 
 
