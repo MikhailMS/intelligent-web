@@ -26,12 +26,12 @@ var routes = require('./routes/index');
 // Set up Twitter API ==================
 // =======================
 var twit = new Twitter({
-  consumer_key: config.consumer_key,
-  consumer_secret: config.consumer_secret,
-  access_token_key: config.access_token_key,
-  access_token_secret: config.access_token_secret
-}),
-stream = null;
+    consumer_key: config.consumer_key,
+    consumer_secret: config.consumer_secret,
+    access_token_key: config.access_token_key,
+    access_token_secret: config.access_token_secret
+  }),
+  stream = null;
 
 // =======================
 // Application configuration ===========
@@ -82,41 +82,84 @@ app.use(function(err, req, res, next) { // Production error handler no stacktrac
   });
 });
 
-// =======================
-// Emit twitter data ===================
-// =======================
-io.sockets.on('connection', function (socket) {
-  socket.on("start tweets", function() {
+// // =======================
+// // Emit twitter data ===================
+// // =======================
+// io.sockets.on('connection', function(socket) {
+//   socket.on("start tweets", function() {
+//
+//     if (stream === null) {
+//       // Connect to twitter stream passing in filter for entire world.
+//       twit.stream('statuses/filter', { 'locations': '-180,-90,180,90' }, function(stream) {
+//         stream.on('data', function(data) {
+//
+//           var text = null;
+//
+//           if (data.text) {
+//             text = data.text;
+//           }
+//           // Create JSON object that would be send to client
+//           var tweetData = { "msg": text };
+//
+//           // Send data to client
+//           // socket.broadcast.emit("twitter-stream", tweetData);
+//           socket.emit('twitter-stream', tweetData);
+//
+//           stream.on('limit', function(limitMessage) {
+//             return console.log(limitMessage);
+//           });
+//
+//           stream.on('warning', function(warning) {
+//             return console.log(warning);
+//           });
+//
+//           stream.on('disconnect', function(disconnectMessage) {
+//             return console.log(disconnectMessage);
+//           });
+//         });
+//       });
+//     }
+//   });
+//   // Emits signal to the client telling them that the
+//   // they are connected and can start receiving Tweets
+//   socket.emit("connected");
+// });
 
-    if(stream === null) {
+// handle client query
+io.sockets.on('connection', function(socket) {
+  socket.on('client-query', function(data) {
+    console.log('hi');
+    console.log('data Im getting', data.keyWord.toString());
+    var queryFilter = data.keyWord.toString();
+    if (stream === null) {
       // Connect to twitter stream passing in filter for entire world.
-      twit.stream('statuses/filter', {'locations':'-180,-90,180,90'}, function(stream) {
-          stream.on('data', function(data) {
+      twit.stream('statuses/filter', { track: queryFilter }, function(stream) {
+        stream.on('data', function(streamData) {
 
-              var text = null;
+          var text = null;
+          if (streamData.text) {
+            text = streamData.text;
+            // console.log(text);
+          }
+          // Create JSON object that would be send to client
+          var tweetData = { "msg": text };
 
-              if (data.text) {
-                text = data.text;
-              }
-              // Create JSON object that would be send to client
-              var tweetData = {"msg": text};
+          // Send data to client
+          socket.broadcast.emit("twitter-stream", tweetData);
+          // socket.emit('twitter-stream', tweetData);
 
-              // Send data to client
-              socket.broadcast.emit("twitter-stream", tweetData);
-              socket.emit('twitter-stream', tweetData);
-
-              stream.on('limit', function(limitMessage) {
-                return console.log(limitMessage);
-              });
-
-              stream.on('warning', function(warning) {
-                return console.log(warning);
-              });
-
-              stream.on('disconnect', function(disconnectMessage) {
-                return console.log(disconnectMessage);
-              });
+          stream.on('limit', function(limitMessage) {
+            return console.log(limitMessage);
           });
+
+          stream.on('warning', function(warning) {
+            return console.log(warning);
+          });
+
+          stream.on('disconnect', function(disconnectMessage) {
+            return console.log(disconnectMessage);
+          });
+        });
       });
     }
   });
@@ -125,11 +168,12 @@ io.sockets.on('connection', function (socket) {
   socket.emit("connected");
 });
 
+
 // =======================
 // Start an application ================
 // =======================
-http.listen(port, function(){
- console.log('App listening at http://localhost:'+port);
+http.listen(port, function() {
+  console.log('App listening at http://localhost:' + port);
 });
 
 //module.exports = app;
