@@ -3,22 +3,22 @@ extends layout
 block content
     .container.text-center
         .page-header
-            h1 Twitter Search
+            h1 Twitter - Football Transfers Discussions Search
         p.lead Enter the search query in the form below:
-        p Please only enter queries separated by 'OR' or simply hit SPACEBAR for each input box. E.g. 'Wayne Rooney OR Ibrahimovic'
+        p Please only enter queries separated by 'OR' or simply hit SPACEBAR for each input. E.g. 'Wayne Rooney OR Ibrahimovic' or 'Rooney #waynerooney @waynerooney'
         form(action='', class='form-inline', id='query-form')
             .form-group
                 label#label(for='playerQuery') Look for a...
                     .row.separate
-                        input.form-control#playerQuery(name='userQuery', placeholder='Player query...')
+                        input.form-control#playerQuery(name='userQuery', type="text", placeholder='Player query...')
                     .row.separate
                         input#toggle1(type="checkbox" data-toggle="toggle1" data-on="AND" data-off="OR")
                     .row.separate
-                        input.form-control#teamQuery(name='teamQuery', placeholder='Team query...')
+                        input.form-control#teamQuery(name='teamQuery',type="text", placeholder='Team query...')
                     .row.separate
                         input#toggle2(type="checkbox" data-toggle="toggle2" data-on="AND" data-off="OR")
                     .row.separate
-                        input.form-control#authorQuery(name='authorQuery', placeholder='Author..coming soon')
+                        input.form-control#authorQuery(name='authorQuery', type="text", placeholder='Author..coming soon')
                 button(type='submit', class='btn btn-default', id='submit') Submit
         br
         p.lead Here is your result:
