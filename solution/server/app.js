@@ -32,11 +32,11 @@ var routes = require('./routes/index');
 // Set up Twitter API ==================
 // =======================
 var twit = new Twitter({
-    consumer_key: config.consumer_key,
-    consumer_secret: config.consumer_secret,
-    access_token_key: config.access_token_key,
-    access_token_secret: config.access_token_secret
-  }),
+  consumer_key: config.consumer_key,
+  consumer_secret: config.consumer_secret,
+  access_token_key: config.access_token_key,
+  access_token_secret: config.access_token_secret
+}),
   stream = null;
 
 // =======================
@@ -61,8 +61,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // =======================
 app.use('/', routes);
 
-io.sockets.on('connection', function(socket) {
-  socket.on('client-query', function(payload) {
+io.on('connection', function (socket) {
+  socket.on('client-query', function (payload) {
 
     var _payload = payload,
       playerQuery = _payload.playerQuery,
@@ -81,22 +81,16 @@ io.sockets.on('connection', function(socket) {
     console.log('teamQueryList', teamQueryList);
     console.log('authorQueryList', authorQueryList);
 
-    if (playerQueryList) {
-      var playerFilter = createFilter((playerQueryList));
-    }
-    if (teamQueryList) {
-      var teamFilter = createFilter((teamQueryList));
-    }
-    if (authorQueryList) {
-      var authorFilter = createFilter((authorQueryList));
-    }
+    var playerFilter = runSearchFilter((playerQueryList));
+    var teamFilter = runSearchFilter((teamQueryList));
+    var authorFilter = runSearchFilter((authorQueryList));
 
     console.log('playerFilter', playerFilter);
     console.log('teamFilter', teamFilter);
     console.log('authorFilter', authorFilter);
 
-    genSearch(socket, playerFilter, teamFilter, authorQueryList, toggle1, toggle2);
-    genStream(socket, playerFilter, teamFilter, authorQueryList, toggle1, toggle2);
+    runSearch(socket, playerQuery, playerFilter, teamFilter, authorQueryList, toggle1, toggle2);
+    // runStream(socket, playerFilter, teamFilter, authorQueryList, toggle1, toggle2);
 
     // //////////////// TWITTER SEARCH TEST///////////////////
     // ///////////// Authors of tweets TEST /////////////////
@@ -113,43 +107,61 @@ io.sockets.on('connection', function(socket) {
   socket.emit("connected");
 });
 
-var genSearch = function genUserData(socket, playerFilter, teamFilter, authorQueryList, toggle1, toggle2) {
+/**
+ * Generate and emit a search socket
+ * @param {*} socket 
+ * @param {*} playerFilter 
+ * @param {*} teamFilter 
+ * @param {*} authorQueryList 
+ * @param {*} toggle1 
+ * @param {*} toggle2 
+ */
+function runSearch(socket, playerQuery, playerFilter, teamFilter, authorQueryList, toggle1, toggle2) {
 
-  // gen team / players filter
-  if (toggle1 === 'OR' && playerFilter !== '' && teamFilter !== '') var filter = playerFilter + ',' + teamFilter;
-  else  filter = playerFilter + ' ' + teamFilter;
+  // // gen team / players filter
+  // if (toggle1 === 'OR' && playerFilter !== '' && teamFilter !== '') var filter = playerFilter + ',' + teamFilter;
+  // else filter = playerFilter + ' ' + teamFilter;
 
-  filter = filter.replace(/,/g, ", "); // refactor filter to match twitter get query format - add spaces
-  console.log('generated search Filter', filter);
+  // filter = filter.replace(/,/g, ", "); // refactor filter to match twitter get query format - add spaces
+  // console.log('generated search Filter', filter);
 
-  twit.get('search/tweets', { q: filter }, function(error, tweets, response) {
-    console.log('generatedDataSearch', tweets);
+  twit.get('search/tweets', { q: playerQuery, lang: "en", count: 100 }, function (error, tweets, response) {
+    // console.log('generatedDataSearch', tweets);
     // Send data to client
-    io.sockets.emit("twitterSearch", tweets);
+    socket.emit("twitterSearch", tweets);
   });
 };
 
-var genStream = function genUserData(socket, playerFilter, teamFilter, authorQueryList, toggle1, toggle2) {
+/**
+ * Generate and emit a stream socket
+ * @param {*} socket 
+ * @param {*} playerFilter 
+ * @param {*} teamFilter 
+ * @param {*} authorQueryList 
+ * @param {*} toggle1 
+ * @param {*} toggle2 
+ */
+var runStream = function genUserData(socket, playerFilter, teamFilter, authorQueryList, toggle1, toggle2) {
 
   var playerQueryList = playerFilter.split(' ');
   var teamQueryList = teamFilter.split(' ');
 
-  var playerStreamFilter = createFilter((playerQueryList));
-  var teamStreamFilter = createFilter((teamQueryList));
+  var playerStreamFilter = runSearchFilter((playerQueryList));
+  var teamStreamFilter = runSearchFilter((teamQueryList));
 
   // gen team / players filter
   if (toggle1 === 'OR' && playerStreamFilter !== '' && teamStreamFilter !== '') {
     var filter = playerStreamFilter + ',' + teamStreamFilter;
   }
-  else  filter = playerStreamFilter + ' ' + teamStreamFilter;
+  else filter = playerStreamFilter + ' ' + teamStreamFilter;
 
   console.log('generated stream Filter', filter);
 
   // initiate stream
   if (stream === null) {
     // Connect to twitter stream passing in filter for entire world.
-    twit.stream('statuses/filter', { track: filter }, function(stream) {
-      stream.on('data', function(tweets) {
+    twit.stream('statuses/filter', { track: filter }, function (stream) {
+      stream.on('data', function (tweets) {
         console.log('generatedDataStream', tweets);
         // Send data to client
         io.sockets.emit("twitterStream", tweets);
@@ -158,10 +170,11 @@ var genStream = function genUserData(socket, playerFilter, teamFilter, authorQue
   }
 };
 
-var createFilter = function createFilter(queryList) {
+
+var runSearchFilter = function runSearchFilter(queryList) {
   var numEl = 0;
   var filter = '';
-  queryList.forEach(function(el) {
+  queryList.forEach(function (el) {
     if (queryList.length > 1 && numEl >= 1) filter = filter + ("," + el);
     else filter = el;
     numEl++;
@@ -173,7 +186,7 @@ var createFilter = function createFilter(queryList) {
 // =======================
 // Start an application ================
 // =======================
-http.listen(port, function() {
+http.listen(port, function () {
   console.log('App listening at http://localhost:' + port);
 });
 

@@ -5,7 +5,7 @@ block content
         .page-header
             h1 Twitter - Football Transfers Discussions Search
         p.lead Enter the search query in the form below:
-        p Please only enter queries separated by 'OR' or simply hit SPACEBAR for each input. E.g. 'Wayne Rooney OR Ibrahimovic' or 'Rooney #waynerooney @waynerooney'
+        p Please only enter queries separated by 'OR'  E.g. '@WayneRooney OR #ibracadabra'
         form(action='', class='form-inline', id='query-form')
             .form-group
                 label#label(for='playerQuery') Look for a...
@@ -35,7 +35,7 @@ block content
             .container
                 p.text-muted Maintained by Northern Lights Team. All bugs&nbsp;
                     | to be reported here https://github.com/MikhailMS/intelligent-web
-        // Get tweets from server
+    // Get tweets from server
     script(src='/js/twitterSearch.js')
     script(src='/js/twitterStream.js')
     script(src='/js/clientInput.js')

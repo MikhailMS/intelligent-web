@@ -34,6 +34,7 @@ if (io !== undefined) {
         toggle1: toggle1,
         toggle2: toggle2
       };
+
       console.log('payload', payload);
 
       // emit socket
