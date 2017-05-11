@@ -20,6 +20,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      searchReceived: false,
       streamChecked: false,
       streaming: false,
       twitResults: {},
@@ -39,17 +40,20 @@ class App extends Component {
   * Handles the server Twitter search response. Saves user query to app state.
   */
   handleSearch = (query) => { //eslint-disable-line
-    socket.once('close-stream', '');
+    socket.emit('close-stream', '');
     this.setState({
+      query,
       streamChecked: false,
     });
     socket.emit('search-query', query);
-    socket.on('search-result', (res) => {
-      this.setState({
-        query,
-        twitResults: res.statuses
+    if (!(socket.hasListeners('search-result'))) {
+      socket.on('search-result', (res) => {
+        this.setState({
+          searchReceived: true,
+          twitResults: res.statuses
+        });
       });
-    });
+    }
   };
 
   /**
@@ -65,7 +69,7 @@ class App extends Component {
       socket.emit('stream-query', query);
       this.handleStream();
     } else {
-      socket.once('close-stream', '');
+      socket.emit('close-stream', '');
       this.setState({
         streaming: false
       });
@@ -76,14 +80,18 @@ class App extends Component {
   * Handles the server Twitter search response. Saves user query to app state.
   */
   handleStream = () => {
-    socket.on('stream-result', (res) => {
-      const { twitResults } = this.state;
-      newResults = [res].concat(twitResults);
-      this.setState({
-        streaming: true,
-        twitResults: newResults
-      });
+    this.setState({
+      streaming: true,
     });
+    if (!(socket.hasListeners('stream-result'))) {
+      socket.on('stream-result', (res) => {
+        const { twitResults } = this.state;
+        newResults = [res].concat(twitResults);
+        this.setState({
+          twitResults: newResults
+        });
+      });
+    }
   }
 
   /**
@@ -157,8 +165,8 @@ class App extends Component {
    * Renders the whole Twitter Search and Stream Feed
    */
   renderFeed = () => {
-    const { query, twitResults, streamChecked } = this.state;
-    if (query !== '') {
+    const { twitResults, streamChecked, searchReceived } = this.state;
+    if (searchReceived) {
       const tweetCards = twitResults.map((el, key) => this.renderCard(el, key));
       return (
         <div className="feed">

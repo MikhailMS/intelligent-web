@@ -26,6 +26,7 @@ app.set('view engine', 'pug');
 // app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+let stream;
 
 //set up routes
 app.use('/', routes)
@@ -40,13 +41,16 @@ io.on('connection', function (socket) {
         });
     });
 
+    socket.on('close-stream', (res => {
+        if (stream !== undefined)
+            stream.destroy(); // close stream
+    }));
+
     socket.on('stream-query', function (msg) {
         console.log('stream starting');
-        twitHandler.queryStream(msg, function (res, stream) {
+        twitHandler.queryStream(msg, function (res, currentStream) {
             io.to(socket.id).emit('stream-result', res);
-            socket.on('close-stream', (res => {
-                stream.destroy(); // close stream
-            }));
+            stream = currentStream;
         });
     });
 
