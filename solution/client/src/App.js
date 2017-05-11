@@ -20,6 +20,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      streamChecked: false,
       streaming: false,
       twitResults: {},
       query: ''
@@ -38,9 +39,12 @@ class App extends Component {
   * Handles the server Twitter search response. Saves user query to app state.
   */
   handleSearch = (query) => { //eslint-disable-line
+    socket.once('close-stream', '');
+    this.setState({
+      streamChecked: false,
+    });
     socket.emit('search-query', query);
     socket.on('search-result', (res) => {
-      console.log('search result:', res);
       this.setState({
         query,
         twitResults: res.statuses
@@ -54,10 +58,14 @@ class App extends Component {
   */
   onStreamSwitch = (checked) => {
     const { query } = this.state;
+    this.setState({
+      streamChecked: !this.state.streamChecked
+    });
     if (checked) {
       socket.emit('stream-query', query);
       this.handleStream();
     } else {
+      socket.once('close-stream', '');
       this.setState({
         streaming: false
       });
@@ -70,11 +78,7 @@ class App extends Component {
   handleStream = () => {
     socket.on('stream-result', (res) => {
       const { twitResults } = this.state;
-      console.log('twitResults', twitResults);
-      console.log('res', res);
-      console.log('res array', [res]);
       newResults = [res].concat(twitResults);
-      console.log('newstatuses', newResults);
       this.setState({
         streaming: true,
         twitResults: newResults
@@ -153,13 +157,14 @@ class App extends Component {
    * Renders the whole Twitter Search and Stream Feed
    */
   renderFeed = () => {
-    const { query, twitResults } = this.state;
+    const { query, twitResults, streamChecked } = this.state;
     if (query !== '') {
       const tweetCards = twitResults.map((el, key) => this.renderCard(el, key));
       return (
         <div className="feed">
           <Row>
             <Switch
+              checked={streamChecked}
               className="switch"
               checkedChildren={'Stream'}
               unCheckedChildren={'Stream'}

@@ -22,7 +22,8 @@ queryStream = function (msg, streamBack) {
     var filter = msg.replace(' AND ', ' ').replace(' OR ', ',');
     twit.stream('statuses/filter', { track: filter, language: 'en' }, function (stream) {
         stream.on('data', function (tweets) {
-            streamBack(tweets);
+            const currentStream = stream;
+            streamBack(tweets, currentStream);
         });
     });
 };
