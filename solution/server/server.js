@@ -1,7 +1,6 @@
 //load dependencies
 var express = require('express');
 var app = express();
-var cors = require('cors');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var twitHandler = require('./twit-handler');
@@ -18,12 +17,6 @@ var favicon = require('serve-favicon');
 // var cookieParser = require('cookie-parser');
 // var bodyParser = require('body-parser');
 
-//configure application
-var corsOptions = {
-    origin: 'http://localhost:3000',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-app.use(cors(corsOptions));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 // //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
