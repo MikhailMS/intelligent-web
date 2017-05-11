@@ -12,15 +12,15 @@ var twit = new Twitter({
 });
 var stream = null;
 
-querySearch = function(msg, sendBack) {
-    twit.get('search/tweets', { q: msg, lang: "en", count: 20 }, function (error, tweets, response) {
+querySearch = function (msg, sendBack) {
+    twit.get('search/tweets', { q: msg, lang: "en", count: 50 }, function (error, tweets, response) {
         sendBack(tweets);
     });
 };
 
-queryStream = function(msg, streamBack) {
+queryStream = function (msg, streamBack) {
     var filter = msg.replace(' AND ', ' ').replace(' OR ', ',');
-    twit.stream('statuses/filter', { track: filter }, function (stream) {
+    twit.stream('statuses/filter', { track: filter, language: 'en' }, function (stream) {
         stream.on('data', function (tweets) {
             streamBack(tweets);
         });

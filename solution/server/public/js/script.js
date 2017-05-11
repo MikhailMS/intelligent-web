@@ -3,9 +3,9 @@
  */
 
 //load client-end socket.io
-if(socket === undefined) var socket = io();
+if (socket === undefined) var socket = io();
 
-$(document).ready(function() {
+$(document).ready(function () {
 
     var searchResult = $('#search-result');
     var streamResult = $('#stream-result');
@@ -18,32 +18,31 @@ $(document).ready(function() {
     var searchUpdated = true;
     var streamUpdated = true;
 
-    var submitQuery = function() {
+    var submitQuery = function () {
         query = inputField.val();
         searchUpdated = false;
         streamUpdated = false;
-        if(searchTab.parent().hasClass('active'))
+        if (searchTab.parent().hasClass('active'))
             updateSearch();
-        else if(streamTab.parent().hasClass('active'))
+        else if (streamTab.parent().hasClass('active'))
             updateStream();
     };
 
-    var updateSearch = function() {
+    var updateSearch = function () {
         if (!searchUpdated) {
             searchResult.empty();
-            console.log("dsada");
             socket.emit('search-query', query);
             searchUpdated = true;
         }
-    }
+    };
 
-    var updateStream = function() {
+    var updateStream = function () {
         if (!streamUpdated) {
             streamResult.empty();
             socket.emit('stream-query', query);
             streamUpdated = true;
         }
-    }
+    };
 
     searchButton.click(submitQuery);
     searchTab.click(updateSearch);

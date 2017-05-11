@@ -4,7 +4,9 @@
   "author": "Mikhail Molotkov, Blagoslav Mihaylov, Petar Barzev",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "babel-node server.js",
+    "client": "babel-node start-client.js"
   },
   "dependencies": {
     "body-parser": "~1.15.1",
@@ -18,5 +20,8 @@
     "serve-favicon": "~2.3.0",
     "socket.io": "^1.4.5",
     "twitter": "*"
+  },
+  "devDependencies": {
+    "concurrently": "^3.4.0"
   }
 }

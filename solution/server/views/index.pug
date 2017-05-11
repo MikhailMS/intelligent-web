@@ -3,43 +3,4 @@ extends layout
 block content
     .container.text-center
         .page-header
-            h1 Twitter - Football Transfers Discussions Search
-        p.lead Enter the search query in the form below:
-        input#query-field(type='text')
-        button#search-button Search
-        ///p Please only enter queries separated by 'OR'  E.g. '@WayneRooney OR #ibracadabra'
-        //form(action='', class='form-inline', id='query-form')
-        //    .form-group
-        //        label#label(for='playerQuery') Look for a...
-        //            .row.separate
-        //                input.form-control#playerQuery(name='userQuery', type="text", placeholder='Player query...')
-        //            .row.separate
-        //                input#toggle1(type="checkbox" data-toggle="toggle1" data-on="AND" data-off="OR")
-        //            .row.separate
-        //                input.form-control#teamQuery(name='teamQuery',type="text", placeholder='Team query...')
-        //            .row.separate
-        //                input#toggle2(type="checkbox" data-toggle="toggle2" data-on="AND" data-off="OR")
-        //            .row.separate
-        //                input.form-control#authorQuery(name='authorQuery', type="text", placeholder='Author..coming soon')
-        //        button(type='submit', class='btn btn-default', id='submit') Submit
-        br
-        br
-        p.lead Here is your result:
-        .container
-            ul.nav.nav-tabs
-                li.active
-                    a#search-tab(data-toggle="tab" href="#search-result") Search
-                li
-                    a#stream-tab(data-toggle="tab" href="#stream-result") Stream
-            div.tab-content
-                div#search-result.tab-pane.fade.in.active
-                div#stream-result.tab-pane.fade.in
-        footer.footer
-            .container
-                p.text-muted Maintained by Northern Lights Team. All bugs&nbsp;
-                    | to be reported here https://github.com/MikhailMS/intelligent-web
-    // Get tweets from server
-    script(src='/js/script.js')
-    //script(src='/js/twitterSearch.js')
-    //script(src='/js/twitterStream.js')
-    //script(src='/js/clientInput.js')
+            h1 Node Server - Please use <a href="http://localhost:3000">http://localhost:3000/</a> to access the server
