@@ -1,5 +1,6 @@
 //load dependencies
 var express = require('express');
+var Twitter = require('twitter');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
@@ -41,9 +42,11 @@ io.on('connection', function (socket) {
 
     socket.on('stream-query', function (msg) {
         console.log('stream starting');
-        twitHandler.queryStream(msg, function (res) {
-            console.log('stream Res:', res);
+        twitHandler.queryStream(msg, function (res, stream) {
             io.to(socket.id).emit('stream-result', res);
+            socket.on('close-stream', (res => {
+                stream.destroy(); // close stream
+            }));
         });
     });
 

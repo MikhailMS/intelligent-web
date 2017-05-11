@@ -1,3 +1,4 @@
 .DS_Store
 .idea/
 /solution/server/node_modules/
+/solution/client/node_modules/
