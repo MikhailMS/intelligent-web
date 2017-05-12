@@ -45,7 +45,10 @@ class App extends Component {
       query,
       streamChecked: false,
     });
-    socket.emit('search-query', query);
+    socket.emit('search-query', {
+        query: query,
+        db_only: false
+    });
     if (!(socket.hasListeners('search-result'))) {
       socket.on('search-result', (res) => {
         this.setState({

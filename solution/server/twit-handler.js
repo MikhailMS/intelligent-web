@@ -3,6 +3,10 @@
  */
 var Twitter = require('twitter');
 var config = require('./config');
+var db = require('./dbcontrol');
+
+//creates the tables anew
+//db.initDatabase();
 
 var twit = new Twitter({
     consumer_key: config.consumer_key,
@@ -39,17 +43,25 @@ processTweets = function(rawTweets) {
 };
 
 querySearch = function (msg, sendBack) {
-    twit.get('search/tweets', { q: msg, lang: "en", count: 50 }, function (error, tweets, response) {
-        sendBack(processTweets(tweets));
-    });
+    if(msg.db_only) {
+      db.queryDatabase(msg.query, sendBack);
+    } else {
+        twit.get('search/tweets', { q: msg.query, lang: "en", count: 50 }, function (error, data, response) {
+            var tweets = processTweets(data);
+            db.saveTweets(tweets);
+            sendBack(tweets);
+        });
+    }
 };
 
 queryStream = function (msg, streamBack) {
     var filter = msg.replace(' AND ', ' ').replace(' OR ', ',');
     twit.stream('statuses/filter', { track: filter, language: 'en' }, function (stream) {
-        stream.on('data', function (tweet) {
+        stream.on('data', function (data) {
             const currentStream = stream;
-            streamBack(processTweet(tweet), currentStream);
+            var tweet = processTweet(data);
+            db.saveTweets([tweet]);
+            streamBack(tweet, currentStream);
         });
     });
 };
