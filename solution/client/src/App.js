@@ -50,7 +50,7 @@ class App extends Component {
       socket.on('search-result', (res) => {
         this.setState({
           searchReceived: true,
-          twitResults: res.statuses
+          twitResults: res
         });
       });
     }
@@ -98,44 +98,30 @@ class App extends Component {
    * Renders a tweet card
    */
   renderCard = (tweet, key) => {
-    const tweetText = tweet.text;
-    const authorName = tweet.user.name;
-    const username = tweet.user.screen_name;
-    const tweetId = tweet.id_str;
-    const profilePage = `http://twitter.com/${username}`;
-    const profileImg = tweet.user.profile_image_url;
-    const tweetPage = `http://twitter.com/anyuser/status/${tweetId}`;
-    const timeDateList = tweet.created_at.split(' ');
-    const weekDay = timeDateList[0];
-    const month = timeDateList[1];
-    const date = timeDateList[2];
-    const time = timeDateList[3];
-    const year = timeDateList[5];
-
     // top title part of card
     const cardTitle = (
       <Row>
         <Badge>
-          <a href={profilePage}>
+          <a href={tweet.profile_url}>
             <img
               className="profileImg"
               alt="profile"
-              src={profileImg}
+              src={tweet.avatar_url}
             />
           </a>
         </Badge>
-        <a target="_blank" rel="noopener noreferrer" href={profilePage}>
-          {authorName}
+        <a target="_blank" rel="noopener noreferrer" href={tweet.profile_url}>
+          {tweet.author_name}
         </a>
       </Row>
     );
     const tweetLink = (
-      <a target="_blank" rel="noopener noreferrer" href={tweetPage}>Link</a>
+      <a target="_blank" rel="noopener noreferrer" href={tweet.tweet_url}>Link</a>
     );
 
     // make card
     return (
-      <div key={tweet.id}>
+      <div key={tweet.tweet_id}>
         <Card
           className="card"
           title={cardTitle}
@@ -144,22 +130,22 @@ class App extends Component {
         >
           <Row>
             <Col span={22}>
-              <Linkify properties={linkifyProperties} >{tweetText}</Linkify>
+              <Linkify properties={linkifyProperties} >{tweet.text}</Linkify>
             </Col>
             <Col span={2}>
-              <Row><p>{weekDay}, {date} {month} {year}</p></Row>
+              <Row><p>{tweet.date_time.week_day}, {tweet.date_time.date} {tweet.date_time.month} {tweet.date_time.year}</p></Row>
             </Col>
           </Row>
           <Row>
             <Col span={22} />
             <Col span={2}>
-              <Row><p>{time} GMT</p></Row>
+              <Row><p>{tweet.date_time.time} GMT</p></Row>
             </Col>
           </Row>
         </Card>
       </div>
     );
-  }
+  };
 
   /**
    * Renders the whole Twitter Search and Stream Feed
