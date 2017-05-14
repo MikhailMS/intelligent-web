@@ -20,8 +20,8 @@
     "rx": "^4.1.0",
     "serve-favicon": "~2.3.0",
     "socket.io": "^2.0.1",
-    "twitter": "*",
-    "sqlite3": "*"
+    "sqlite3": "^3.1.8",
+    "twitter": "*"
   },
   "devDependencies": {
     "concurrently": "^3.4.0"
