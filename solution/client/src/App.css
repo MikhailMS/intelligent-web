@@ -41,29 +41,29 @@
 
 /** animate twitter cards **/
 
-.example-enter {
+.tweetAnim-enter {
   opacity: 0.01;
 }
 
-.example-enter.example-enter-active {
+.tweetAnim-enter.tweetAnim-enter-active {
   opacity: 1;
   transition: opacity 500ms ease-in;
 }
 
-.example-leave {
+.tweetAnim-leave {
   opacity: 1;
 }
 
-.example-leave.example-leave-active {
+.tweetAnim-leave.tweetAnim-leave-active {
   opacity: 0.01;
   transition: opacity 300ms ease-in;
 }
 
-.example-appear {
+.tweetAnim-appear {
   opacity: 0.01;
 }
 
-.example-appear.example-appear-active {
+.tweetAnim-appear.tweetAnim-appear-active {
   opacity: 1;
   transition: opacity 500ms ease-in;
 }

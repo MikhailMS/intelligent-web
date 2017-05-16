@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import LazyLoad from 'react-lazy-load';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { Layout, Row, Col, Input, Tag, Tabs, Card, Badge, Switch } from 'antd';
 import io from 'socket.io-client';
@@ -16,10 +17,14 @@ const linkifyProperties = {
 };
 let newResults = [];
 
+/**
+ * Main client App component
+ */
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      tabSelected: '1',
       searchReceived: false,
       streamChecked: false,
       streaming: false,
@@ -28,28 +33,46 @@ class App extends Component {
     };
   }
 
-  /**
-  * Fires on user search. Emits the query to the server.
-  * Handles the Twitter search response by setting internal app state
-  */
-  onSearch = (query) => {
-    this.handleSearch(query);
-  };
+  onTabChange = (key) => {
+    this.setState({
+      tabSelected: key
+    });
+    this.handleSearch();
+  }
 
   /**
-  * Handles the server Twitter search response. Saves user query to app state.
+   * Triggered when the user submits a new query via the search bar.
+   */
+  onSearch = (query) => {
+    this.setState(
+      {
+        query,
+        streamChecked: false,
+      },
+      this.handleSearch); //wait for setState to finish and handle the search
+  }
+
+  /**
+  * Handles a change of search. This includes either Twitter or DB search.
   */
-  handleSearch = (query) => { //eslint-disable-line
+  handleSearch = () => { //eslint-disable-line
+    const { tabSelected, query } = this.state;
+
+    // close stream if one was open
     socket.emit('close-stream', '');
     this.setState({
-      query,
       streamChecked: false,
     });
+
+    // determine if result is to come from db or Twitter search
+    const db_only = (tabSelected === 2); //eslint-disable-line
     socket.emit('search-query', {
-        query: query,
-        db_only: false
+      query,
+      db_only
     });
-    if (!(socket.hasListeners('search-result'))) {
+
+    // declare a socket listener that updates on 'search-result' events
+    if (!(socket.hasListeners('search-result'))) { // check if created so only 1 listener is created
       socket.on('search-result', (res) => {
         this.setState({
           searchReceived: true,
@@ -100,7 +123,7 @@ class App extends Component {
   /**
    * Renders a tweet card
    */
-  renderCard = (tweet, key) => {
+  renderCard = (tweet) => {
     // top title part of card
     const cardTitle = (
       <Row>
@@ -124,28 +147,34 @@ class App extends Component {
 
     // make card
     return (
-      <div key={tweet.tweet_id}>
-        <Card
-          className="card"
-          title={cardTitle}
-          extra={tweetLink}
-          key={key}
-        >
-          <Row>
-            <Col span={22}>
-              <Linkify properties={linkifyProperties} >{tweet.text}</Linkify>
-            </Col>
-            <Col span={2}>
-              <Row><p>{tweet.date_time.week_day}, {tweet.date_time.date} {tweet.date_time.month} {tweet.date_time.year}</p></Row>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={22} />
-            <Col span={2}>
-              <Row><p>{tweet.date_time.time} GMT</p></Row>
-            </Col>
-          </Row>
-        </Card>
+      <div key={tweet.id}>
+        <LazyLoad>
+          <Card
+            className="card"
+            title={cardTitle}
+            extra={tweetLink}
+          >
+            <Row>
+              <Col span={22}>
+                <Linkify properties={linkifyProperties} >{tweet.text}</Linkify>
+              </Col>
+              <Col span={2}>
+                <Row>
+                  <p>
+                    {tweet.date_time.week_day},
+                  {tweet.date_time.date} {tweet.date_time.month} {tweet.date_time.year}
+                  </p>
+                </Row>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={22} />
+              <Col span={2}>
+                <Row><p>{tweet.date_time.time} GMT</p></Row>
+              </Col>
+            </Row>
+          </Card>
+        </LazyLoad>
       </div>
     );
   };
@@ -153,12 +182,16 @@ class App extends Component {
   /**
    * Renders the whole Twitter Search and Stream Feed
    */
-  renderFeed = () => {
-    const { twitResults, streamChecked, searchReceived } = this.state;
-    if (searchReceived) {
-      const tweetCards = twitResults.map((el, key) => this.renderCard(el, key));
-      return (
-        <div className="feed">
+  renderFeed = (key) => {
+    const { twitResults, streamChecked, searchReceived, tabSelected } = this.state;
+
+    if (searchReceived && key === tabSelected) {
+      const tweetCards = twitResults.map((el) => this.renderCard(el));
+
+      // conditional rendering for the 'Stream' toggle
+      let toggle;
+      if (tabSelected === '1') {
+        toggle = (
           <Row>
             <Switch
               checked={streamChecked}
@@ -168,11 +201,16 @@ class App extends Component {
               onChange={(checked) => this.onStreamSwitch(checked)}
             />
           </Row>
+        );
+      } else toggle = null;
+
+      // the JSX to render
+      return (
+        <div className="feed">
+          {toggle}
           <Row>
             <CSSTransitionGroup
-              transitionName="example"
-              transitionAppear={true} //eslint-disable-line
-              transitionAppearTimeout={500}
+              transitionName="tweetAnim"
               transitionEnterTimeout={500}
               transitionLeaveTimeout={300}
             >
@@ -207,10 +245,10 @@ class App extends Component {
               <Col span={18}>
                 <Tabs
                   defaultActiveKey="1"
-                  onChange={() => console.log('tab changed')}
+                  onChange={(key) => this.onTabChange(key)}
                 >
-                  <TabPane tab="Feed" key="1">{this.renderFeed()}</TabPane>
-                  <TabPane tab="Database" key="2">DB twitResults</TabPane>
+                  <TabPane tab="Feed" key="1">{this.renderFeed('1')}</TabPane>
+                  <TabPane tab="Database" key="2">{this.renderFeed('2')}</TabPane>
                   <TabPane tab="Statistics" key="3">Stats</TabPane>
                 </Tabs>
               </Col>
