@@ -15,7 +15,7 @@ var twit = new Twitter({
     access_token_secret: config.access_token_secret
 });
 
-processTweet = function(tweet) {
+processTweet = function (tweet) {
     var timeDateList = tweet.created_at.split(' ');
     return {
         id: tweet.id_str,
@@ -35,16 +35,16 @@ processTweet = function(tweet) {
     };
 };
 
-processTweets = function(rawTweets) {
+processTweets = function (rawTweets) {
     var tweets = [];
-    for(var t in rawTweets.statuses)
+    for (var t in rawTweets.statuses)
         tweets.push(processTweet(rawTweets.statuses[t]));
     return tweets;
 };
 
 querySearch = function (msg, sendBack) {
-    if(msg.db_only) {
-      db.queryDatabase(msg.query, sendBack);
+    if (msg.db_only) {
+        db.queryDatabase(msg.query, sendBack);
     } else {
         twit.get('search/tweets', { q: msg.query, lang: "en", count: 50 }, function (error, data, response) {
             var tweets = processTweets(data);
