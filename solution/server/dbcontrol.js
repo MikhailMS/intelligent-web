@@ -2,7 +2,7 @@ var sqlite3 = require('sqlite3').verbose();
 
 var db = new sqlite3.Database('db.sqlite3');
 
-initDatabase = function() {
+initDatabase = function () {
     db.run("CREATE TABLE `tweets` (" +
         "`id`	INTEGER NOT NULL UNIQUE," +
         "`text`	TEXT," +
@@ -20,23 +20,23 @@ initDatabase = function() {
         ");");
 };
 
-deleteDatabase = function() {
+deleteDatabase = function () {
     db.run("DROP TABLE 'tweets';");
 };
 
-resetDatabase = function() {
+resetDatabase = function () {
     deleteDatabase();
     initDatabase();
 };
 
 
-saveTweets = function(tweets) {
-    db.serialize(function() {
+saveTweets = function (tweets) {
+    db.serialize(function () {
         var insert = db.prepare("INSERT INTO tweets VALUES(?,?,?,?,?,?,?,?,?,?,?,?);")
         var check = db.prepare("SELECT COUNT(1) AS count FROM tweets WHERE id=?;")
-        tweets.forEach(function(t) {
-            check.get(t.id, function(err, res) {
-                if(res.count === 0) {
+        tweets.forEach(function (t) {
+            check.get(t.id, function (err, res) {
+                if (res.count === 0) {
                     var args = [
                         t.id,
                         t.text,
@@ -58,28 +58,29 @@ saveTweets = function(tweets) {
     });
 };
 
-queryDatabase = function(msg, sendBack) {
-    var query = msg.replace(',','').split(' ');
+queryDatabase = function (msg, sendBack) {
+    var query = msg.replace(',', '').split(' ');
     var sql = "SELECT * FROM tweets WHERE ";
     var args = [];
+    var dbOnly = true;
 
-    for(var c = 0; c < query.length; c++) {
+    for (var c = 0; c < query.length; c++) {
         var keyword = query[c];
-        if(keyword !== 'AND' && keyword !== 'OR') {
-            if(c !== 0) {
-                if(query[c-1] === 'OR')
+        if (keyword !== 'AND' && keyword !== 'OR') {
+            if (c !== 0) {
+                if (query[c - 1] === 'OR')
                     sql += ' OR ';
                 else
                     sql += ' AND ';
             }
             sql += "text LIKE ?";
-            args.push("% "+keyword+" %");
+            args.push("% " + keyword + " %");
         }
     }
 
     var results = [];
-    db.each(sql, args, function(err, t) {
-        if(t !== undefined)
+    db.each(sql, args, function (err, t) {
+        if (t !== undefined)
             results.push({
                 id: t.id,
                 text: t.text,
@@ -96,7 +97,7 @@ queryDatabase = function(msg, sendBack) {
                     year: t.year
                 }
             });
-    }, function() {sendBack(results)});
+    }, function () { sendBack(results, dbOnly) });
 };
 
 module.exports = {

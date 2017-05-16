@@ -36,8 +36,9 @@ io.on('connection', function (socket) {
     console.log('Socket opened. ID: ' + socket.id);
     socket.on('search-query', function (msg) {
         console.log('Search Query received:', msg);
-        twitHandler.querySearch(msg, function (res) {
-            io.to(socket.id).emit('search-result', res);
+        twitHandler.querySearch(msg, function (res, dbOnly) {
+            if (dbOnly) io.to(socket.id).emit('db-search-result', res);
+            else io.to(socket.id).emit('feed-search-result', res);
         });
     });
 
@@ -47,7 +48,7 @@ io.on('connection', function (socket) {
     }));
 
     socket.on('stream-query', function (msg) {
-        console.log('stream starting');
+        console.log('Stream Starting');
         twitHandler.queryStream(msg, function (res, currentStream) {
             io.to(socket.id).emit('stream-result', res);
             stream = currentStream;

@@ -46,10 +46,11 @@ querySearch = function (msg, sendBack) {
     if (msg.db_only) {
         db.queryDatabase(msg.query, sendBack);
     } else {
+        var dbOnly = false;
         twit.get('search/tweets', { q: msg.query, lang: "en", count: 50 }, function (error, data, response) {
             var tweets = processTweets(data);
             db.saveTweets(tweets);
-            sendBack(tweets);
+            sendBack(tweets, dbOnly);
         });
     }
 };
