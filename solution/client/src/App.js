@@ -307,6 +307,7 @@ class App extends Component {
               transitionEnterTimeout={500}
               transitionLeaveTimeout={300}
             >
+              {/*Pagination comes here*/}
               {tweetCards}
             </CSSTransitionGroup>
           </Row>
