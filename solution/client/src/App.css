@@ -22,14 +22,26 @@
   height: 50px;
 }
 
+.navWrapper {
+  float: right;
+}
+
 .ant-menu-horizontal > .ant-menu-item:hover, .ant-menu-horizontal > .ant-menu-submenu:hover, .ant-menu-horizontal > .ant-menu-item-active, .ant-menu-horizontal > .ant-menu-submenu-active, .ant-menu-horizontal > .ant-menu-item-open, .ant-menu-horizontal > .ant-menu-submenu-open, .ant-menu-horizontal > .ant-menu-item-selected, .ant-menu-horizontal > .ant-menu-submenu-selected {
-    border-bottom: 2px solid #333;
-    color: #333;
+    border-bottom: 2px solid #fff;
+    color: #fff;
+}
+
+.ant-menu-horizontal > .ant-menu-item > a:hover, .ant-menu-horizontal > .ant-menu-submenu > a:hover {
+  color: #fff;
+}
+
+.ant-menu-horizontal > .ant-menu-item > a, .ant-menu-horizontal > .ant-menu-submenu > a {
+  color: #fff;
 }
 
 li.ant-menu-item-selected.ant-menu-item.navItem {
-    border-bottom: 2px solid #333;
-    color: #333;
+    border-bottom: 2px solid #fff;
+    color: #fff;
 }
 
 .logo {

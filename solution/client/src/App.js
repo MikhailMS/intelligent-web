@@ -193,24 +193,26 @@ class App extends Component {
           <Redirect from="/" to="/feed" /> {/* redirect to Feed as home page */}
           <Layout style={{ minHeight: '100vh' }}>
             <Header className="header">
-              <Row className="row" type="flex" justify="center">
-                <Col span={16} offset={1}>
-                  <div><p>Twitter Football Transfers Rumours Search</p></div>
+              <Row>
+                <Col span={14} >
+                  <div><p>Transfer Rumours Tool</p></div>
                 </Col>
-                <Col span={3} offset={1}>
-                  <Menu
-                    mode="horizontal"
-                    defaultSelectedKeys={['1']}
-                    style={{ lineHeight: '50px', backgroundColor: 'transparent', marginTop: '7px', borderBottomColor: 'transparent' }}
-                  >
-                    <Menu.Item className="navItem" key="1">
-                      <Link to={'/feed'}>Feed</Link>
-                    </Menu.Item>
-                    <Menu.Item className="navItem" key="2">
-                      <Link to={'/db'}>Database</Link>
-                    </Menu.Item>
-                  </Menu>
-                </Col>
+                <div className="navWrapper">
+                  <Col span={10}>
+                    <Menu
+                      mode="horizontal"
+                      defaultSelectedKeys={['1']}
+                      style={{ lineHeight: '50px', minWidth: 150, backgroundColor: 'transparent', marginTop: '7px', borderBottomColor: 'transparent' }}
+                    >
+                      <Menu.Item className="navItem" key="1">
+                        <Link to={'/feed'}>Feed</Link>
+                      </Menu.Item>
+                      <Menu.Item className="navItem" key="2">
+                        <Link to={'/db'}>Database</Link>
+                      </Menu.Item>
+                    </Menu>
+                  </Col>
+                </div>
               </Row>
             </Header>
             <Content className="content" >
