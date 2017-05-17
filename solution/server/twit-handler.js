@@ -6,7 +6,7 @@ var config = require('./config');
 var db = require('./dbcontrol');
 
 //creates the tables anew
-//db.initDatabase();
+//db.resetDatabase();
 
 var twit = new Twitter({
     consumer_key: config.consumer_key,
@@ -42,28 +42,86 @@ processTweets = function (rawTweets) {
     return tweets;
 };
 
+getTweets = function(query, sendBack) {
+    console.log('Retreiving tweets using Twitter REST API.');
+    var q = query.split('BY ').join('from:');
+    twit.get('search/tweets', { q: q, lang: "en", count: 50 }, function (error, data, response) {
+        var tweets = processTweets(data);
+        db.saveTweets(tweets);
+        sendBack(tweets);
+    });
+};
+
 querySearch = function (msg, sendBack) {
-    if (msg.db_only) {
-        db.queryDatabase(msg.query, sendBack);
+
+    var threshold = 5 * 60 * 1000; //5 minutes
+
+    var dbOnly = msg.db_only;
+    var query = msg.query;
+
+    if (dbOnly) {
+        db.queryDatabase(query, sendBack);
     } else {
-        var dbOnly = false;
-        twit.get('search/tweets', { q: msg.query, lang: "en", count: 50 }, function (error, data, response) {
-            var tweets = processTweets(data);
-            db.saveTweets(tweets);
-            sendBack(tweets, dbOnly);
+        db.lastUpdated(query, function(lastUpdated) {
+            var diff = Math.floor(Date.now()) - lastUpdated;
+            console.log('Time since last update: '+Math.round(diff/60000)+' mins.');
+            if(diff > threshold) {
+                db.saveQuery(query);
+                getTweets(query, sendBack);
+            } else {
+                db.queryDatabase(query, sendBack);
+            }
         });
     }
 };
 
-queryStream = function (msg, streamBack) {
-    var filter = msg.replace(' AND ', ' ').replace(' OR ', ',');
-    twit.stream('statuses/filter', { track: filter, language: 'en' }, function (stream) {
+startStream = function(users, filter, streamBack) {
+    if(users === '') users = null;
+    if(filter === '') filter = null;
+    twit.stream('statuses/filter', { follow: users, track: filter, language: 'en' }, function (stream) {
         stream.on('data', function (data) {
             const currentStream = stream;
             var tweet = processTweet(data);
             db.saveTweets([tweet]);
             streamBack(tweet, currentStream);
         });
+    });
+};
+
+processUsers = function(c, userStr, users, carryOn) {
+    if(c < users.length) {
+        twit.get('users/show', {screen_name: users[c].word}, function(err, data) {
+           var user = users[c];
+
+            if(user.pre === 'AND') userStr += ' ';
+            else if(user.pre === 'OR') userStr += ',';
+
+            if(data !== undefined)
+                userStr += data.id_str;
+            processUsers(c+1, userStr, users, carryOn);
+        });
+    } else {
+        carryOn(userStr);
+    }
+};
+
+queryStream = function (msg, streamBack) {
+    var tokens = db.tokenize(msg);
+
+    var users = '';
+    var filter = '';
+
+    for(var i = 0; i < tokens.keywords.length; i++) {
+        var keyword = tokens.keywords[i];
+
+        if(keyword.pre === 'AND') filter += ' ';
+        else if(keyword.pre === 'OR') filter += ',';
+
+        filter += keyword.word;
+    }
+
+    processUsers(0, users, tokens.users, function(userStr) {
+        startStream(userStr, filter, streamBack);
     });
 };
 
