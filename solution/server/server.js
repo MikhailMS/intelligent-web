@@ -44,6 +44,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('close-stream', (res => {
+        console.log('Closing stream.');
         if (stream !== undefined)
             stream.destroy(); // close stream
     }));

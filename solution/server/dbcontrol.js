@@ -62,7 +62,6 @@ queryDatabase = function (msg, sendBack) {
     var query = msg.replace(',', '').split(' ');
     var sql = "SELECT * FROM tweets WHERE ";
     var args = [];
-    var dbOnly = true;
 
     for (var c = 0; c < query.length; c++) {
         var keyword = query[c];
@@ -97,7 +96,7 @@ queryDatabase = function (msg, sendBack) {
                     year: t.year
                 }
             });
-    }, function () { sendBack(results, dbOnly) });
+    }, function () { sendBack(results) });
 };
 
 module.exports = {

@@ -46,7 +46,7 @@ querySearch = function (msg, sendBack) {
     if (msg.db_only) {
         db.queryDatabase(msg.query, sendBack);
     } else {
-        var query = msg.query.replace('BY ', 'from:');
+        var query = msg.query.split('BY ').join('from:');
         twit.get('search/tweets', { q: query, lang: "en", count: 50 }, function (error, data, response) {
             var tweets = processTweets(data);
             db.saveTweets(tweets);
@@ -56,8 +56,35 @@ querySearch = function (msg, sendBack) {
 };
 
 queryStream = function (msg, streamBack) {
+    var query = msg.replace(',', '').split(' ');
+
+    var users = '';
+    var filter = '';
+
+    for (var c = 0; c < query.length; c++) {
+        var keyword = query[c];
+        if (['AND', 'OR', 'BY'].indexOf(keyword) < 0) {
+            if(c === 0) {
+                filter += keyword;
+            } else {
+                if(query[c-1] === 'OR') {
+                    filter += ',' + keyword;
+                } else if(query[c-1] === 'BY') {
+                    if (c > 1 && query[c-2] === 'OR')
+                        users += ',';
+                    users += keyword;
+                } else {
+                    filter += ' ' + keyword;
+                }
+            }
+        }
+    }
+
+    console.log(users);
+    console.log(filter);
+
     var filter = msg.replace(' AND ', ' ').replace(' OR ', ',');
-    twit.stream('statuses/filter', { track: filter, language: 'en' }, function (stream) {
+    twit.stream('statuses/filter', { follow: users, track: filter, language: 'en' }, function (stream) {
         stream.on('data', function (data) {
             const currentStream = stream;
             var tweet = processTweet(data);
