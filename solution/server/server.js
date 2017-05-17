@@ -5,6 +5,14 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var twitHandler = require('./twit-handler');
+var request = require("request");
+
+
+/*request("http://dbpedia.org/data/Wayne_Rooney.json", function(error, response, data) {
+    var res = JSON.parse(data);
+    console.log(res);
+});*/
+
 var port = process.env.PORT || 3333;
 server.listen(port, function () {
     console.log('App listening at http://localhost:' + port)
