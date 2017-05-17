@@ -69,7 +69,7 @@ class Database extends Component {
             // check if searchCards state contains cards to display
             if (dbCards.length > 0) {
                 displayedCards = dbCards;
-            } else displayedCards = twitCards.slice(0, 30); // take 1-30 cards
+            } else displayedCards = twitCards.slice(0, 10); // take first 10 cards
 
             // the JSX to render
             return (
@@ -78,7 +78,7 @@ class Database extends Component {
                         <Pagination
                             onChange={(page, pageSize) =>
                                 this.changeCards(page, pageSize, twitCards)}
-                            current={currentPage} pageSize={20} total={dataSize}
+                            current={currentPage} pageSize={10} total={dataSize}
                         />
                     </Row>
                     <Row>
@@ -95,7 +95,7 @@ class Database extends Component {
                             <Pagination
                                 onChange={(page, pageSize) =>
                                     this.changeCards(page, pageSize, twitCards)}
-                                current={currentPage} pageSize={30} total={dataSize}
+                                current={currentPage} pageSize={10} total={dataSize}
                             />
                         </Row>
                     </Row>
