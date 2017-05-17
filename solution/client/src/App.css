@@ -64,7 +64,7 @@ li.ant-menu-item-selected.ant-menu-item.navItem {
   box-sizing: border-box;
 }
 
-.searchBar {
+input.ant-input.ant-input-search.searchBar {
   height: 50px;
 }
 
