@@ -38,6 +38,8 @@ io.on('connection', function (socket) {
     socket.on('search-query', function (msg) {
         console.log('Search Query received:', msg);
         twitHandler.querySearch(msg, function (res) {
+            res.sort(function(a, b) { return b.id - a.id;});
+            console.log('Sending '+res.length+' tweets to the client.');
             if (msg.db_only) io.to(socket.id).emit('db-search-result', res);
             else io.to(socket.id).emit('feed-search-result', res);
         });

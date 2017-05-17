@@ -18,10 +18,17 @@ initDatabase = function () {
         "`year`	TEXT," +
         "PRIMARY KEY(id)" +
         ");");
+
+    db.run("CREATE TABLE `queries` ("+
+        "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"+
+        "`text`	TEXT NOT NULL UNIQUE,"+
+        "`time`	TIMESTAMP NOT NULL"+
+        ");");
 };
 
 deleteDatabase = function () {
     db.run("DROP TABLE 'tweets';");
+    db.run("DROP TABLE 'queries';");
 };
 
 resetDatabase = function () {
@@ -29,33 +36,37 @@ resetDatabase = function () {
     initDatabase();
 };
 
+saveTweet = function(c, tweets) {
+    if(c < tweets.length) {
+        var t = tweets[c];
+        var insert = db.prepare("INSERT INTO tweets VALUES(?,?,?,?,?,?,?,?,?,?,?,?);");
+        var check = db.prepare("SELECT COUNT(1) AS count FROM tweets WHERE id=?;");
+        check.get(t.id, function (err, res) {
+            if (res.count === 0) {
+                var args = [
+                    t.id,
+                    t.text,
+                    t.author_name,
+                    t.user_name,
+                    t.profile_url,
+                    t.avatar_url,
+                    t.tweet_url,
+                    t.date_time.week_day,
+                    t.date_time.month,
+                    t.date_time.date,
+                    t.date_time.time,
+                    t.date_time.year
+                ];
+                insert.run(args);
+                saveTweet(c+1, tweets);
+            }
+        });
+    }
+};
 
 saveTweets = function (tweets) {
-    db.serialize(function () {
-        var insert = db.prepare("INSERT INTO tweets VALUES(?,?,?,?,?,?,?,?,?,?,?,?);")
-        var check = db.prepare("SELECT COUNT(1) AS count FROM tweets WHERE id=?;")
-        tweets.forEach(function (t) {
-            check.get(t.id, function (err, res) {
-                if (res.count === 0) {
-                    var args = [
-                        t.id,
-                        t.text,
-                        t.author_name,
-                        t.user_name,
-                        t.profile_url,
-                        t.avatar_url,
-                        t.tweet_url,
-                        t.date_time.week_day,
-                        t.date_time.month,
-                        t.date_time.date,
-                        t.date_time.time,
-                        t.date_time.year
-                    ];
-                    insert.run(args);
-                }
-            });
-        });
-    });
+    console.log('Recording '+tweets.length+' tweets in the Database.');
+    saveTweet(0, tweets);
 };
 
 tokenize = function(msg) {
@@ -101,12 +112,14 @@ queryToSQL = function(msg) {
 
     for(var c = 0; c < keywords.length; c++) {
         if(c > 0) sql += ' ' + keywords[c].pre;
-        sql += ' text LIKE ?';
-        args.push('% ' + keywords[c].word + ' %');
+        sql += ' (text LIKE ? OR user_name LIKE ?) ';
+        args.push('%' + keywords[c].word + '%');
+        args.push('%' + keywords[c].word + '%');
     }
 
     if(users.length > 0) {
-        sql += ' AND (';
+        if(keywords.length !== 0) sql += ' AND ';
+        sql += '(';
         for (var c = 0; c < users.length; c++) {
             sql += ' ' + users[c].pre + ' user_name=?';
             args.push(users[c].word);
@@ -118,6 +131,9 @@ queryToSQL = function(msg) {
 };
 
 queryDatabase = function (msg, sendBack) {
+
+    console.log('Retrieving tweets using Database.');
+
     var processedQuery = queryToSQL(msg);
     var sql = processedQuery.sql;
     var args = processedQuery.args;
@@ -144,7 +160,31 @@ queryDatabase = function (msg, sendBack) {
                     year: t.year
                 }
             });
-    }, function () { sendBack(results) });
+    }, function () {
+        sendBack(results);
+    });
+};
+
+lastUpdated = function(query, callback) {
+    var getTime = db.prepare("SELECT time FROM queries WHERE text=?;");
+    getTime.get(query, function(err, res) {
+        var time = res === undefined? 0 : res.time;
+        callback(time);
+    });
+};
+
+saveQuery = function(query) {
+    var timeStamp = Math.floor(Date.now());
+    var check = db.prepare("SELECT COUNT(1) AS count FROM queries WHERE text=?;");
+    var insert = db.prepare("INSERT INTO queries (text, time) VALUES (?, ?);");
+    var update = db.prepare("UPDATE queries SET time=? WHERE text=?;");
+    check.get(query, function(err, res) {
+        if (res.count === 0) {
+            insert.run([query, timeStamp]);
+        } else {
+            update.run([timeStamp, query]);
+        }
+    });
 };
 
 module.exports = {
@@ -153,5 +193,7 @@ module.exports = {
     resetDatabase: resetDatabase,
     saveTweets: saveTweets,
     queryDatabase: queryDatabase,
+    saveQuery: saveQuery,
+    lastUpdated: lastUpdated,
     tokenize: tokenize
 };

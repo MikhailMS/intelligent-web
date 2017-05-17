@@ -6,7 +6,7 @@ var config = require('./config');
 var db = require('./dbcontrol');
 
 //creates the tables anew
-//db.initDatabase();
+//db.resetDatabase();
 
 var twit = new Twitter({
     consumer_key: config.consumer_key,
@@ -42,15 +42,35 @@ processTweets = function (rawTweets) {
     return tweets;
 };
 
+getTweets = function(query, sendBack) {
+    console.log('Retreiving tweets using Twitter REST API.');
+    var q = query.split('BY ').join('from:');
+    twit.get('search/tweets', { q: q, lang: "en", count: 50 }, function (error, data, response) {
+        var tweets = processTweets(data);
+        db.saveTweets(tweets);
+        sendBack(tweets);
+    });
+};
+
 querySearch = function (msg, sendBack) {
-    if (msg.db_only) {
-        db.queryDatabase(msg.query, sendBack);
+
+    var threshold = 5 * 60 * 1000; //5 minutes
+
+    var dbOnly = msg.db_only;
+    var query = msg.query;
+
+    if (dbOnly) {
+        db.queryDatabase(query, sendBack);
     } else {
-        var query = msg.query.split('BY ').join('from:');
-        twit.get('search/tweets', { q: query, lang: "en", count: 50 }, function (error, data, response) {
-            var tweets = processTweets(data);
-            db.saveTweets(tweets);
-            sendBack(tweets);
+        db.lastUpdated(query, function(lastUpdated) {
+            var diff = Math.floor(Date.now()) - lastUpdated;
+            console.log('Time since last update: '+Math.round(diff/60000)+' mins.');
+            if(diff > threshold) {
+                db.saveQuery(query);
+                getTweets(query, sendBack);
+            } else {
+                db.queryDatabase(query, sendBack);
+            }
         });
     }
 };
