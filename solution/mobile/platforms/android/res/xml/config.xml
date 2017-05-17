@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="io.cordova.hellocordova" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="io.northernlights.twitter" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <feature name="Whitelist">
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
@@ -7,12 +7,12 @@
     <feature name="SQLitePlugin">
         <param name="android-package" value="io.sqlc.SQLitePlugin" />
     </feature>
-    <name>HelloCordova</name>
+    <name>Transfer Rumours Tool</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+      Application searches for tweets about football players and teams
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="mmolotkov1@sheffield.ac.uk" href="https://github.com/MikhailMS/intelligent-web">
+        Northern Lights Team
     </author>
     <content src="index.html" />
     <access origin="*" />

@@ -2,7 +2,7 @@
   updated on 17/05/2017
 */
 var dbHolder;
-var host = 'http://9de2d10b.ngrok.io';
+var host = '';
 var app = {
     // Initialise application
     initialize: function() {
@@ -43,7 +43,7 @@ var app = {
           socket.emit('search-query', query);
 
           // Once results are prepared by server, process them on client
-          socket.on('search-result', function (data) {
+          socket.on('feed-search-result', function (data) {
             if (data!=null) {
               console.log(`Data received - ${data.statuses.length}`);
               console.log('Start displaying tweets');
@@ -124,7 +124,6 @@ var app = {
           var socket = io.connect(host);
 
           socket.emit('close-stream', ''); // Close previous stream, if the one exists
-
           socket.emit('stream-query', query); // Emit search query to Stream API
 
           // This listens on the "stream-result" channel and data is received everytime a new tweet is receieved.

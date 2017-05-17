@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="io.northernlights.twitter" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Football Tweets</name>
+    <name>Transfer Rumours Tool</name>
     <description>
       Application searches for tweets about football players and teams
     </description>
-    <author email="mmolotkov1@sheffield.ac.uk" href="http://cordova.io">
-        Northernlights Team
+    <author email="mmolotkov1@sheffield.ac.uk" href="https://github.com/MikhailMS/intelligent-web">
+        Northern Lights Team
     </author>
     <content src="index.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />

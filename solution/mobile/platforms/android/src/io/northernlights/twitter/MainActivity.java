@@ -17,7 +17,7 @@
        under the License.
  */
 
-package io.cordova.hellocordova;
+package io.northernlights.twitter;
 
 import android.os.Bundle;
 import org.apache.cordova.*;
