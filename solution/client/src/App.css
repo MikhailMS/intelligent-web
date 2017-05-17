@@ -50,6 +50,11 @@ li.ant-menu-item-selected.ant-menu-item.navItem {
   height: 60px;
 }
 
+.mainTitle a, .mainTitle a:hover {
+  color: #fff;
+  border-color: transparent;
+  text-decoration: none;
+}
 
 .profileImg {
   height: 75%;

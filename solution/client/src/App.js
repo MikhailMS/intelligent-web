@@ -26,7 +26,10 @@ class App extends Component {
             <Header className="header">
               <Row>
                 <Col span={14} >
-                  <div><p>Transfer Rumours Tool</p></div>
+                  <div className="mainTitle"><p>
+                    <a href="/">Transfer Rumours Tool</a>
+                  </p>
+                  </div>
                 </Col>
                 <div className="navWrapper">
                   <Col span={10}>
