@@ -21,7 +21,8 @@
     "serve-favicon": "~2.3.0",
     "socket.io": "^2.0.1",
     "sqlite3": "^3.1.8",
-    "twitter": "*"
+    "twitter": "*",
+    "request": "*"
   },
   "devDependencies": {
     "concurrently": "^3.4.0"
