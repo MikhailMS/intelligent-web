@@ -58,24 +58,72 @@ saveTweets = function (tweets) {
     });
 };
 
-queryDatabase = function (msg, sendBack) {
-    var query = msg.replace(',', '').split(' ');
+tokenize = function(msg) {
+    var query = msg.split(',').join('').split(' ');
+    var keywords = [];
+    var users = [];
+
+    for(var c = 0; c < query.length; c++) {
+        var token = query[c];
+        if (['AND', 'OR', 'BY'].indexOf(token) < 0) {
+            if(c === 0) {
+                keywords.push({pre: '', word: token});
+            } else {
+                if(query[c-1] === 'OR') {
+                    keywords.push({pre: 'OR', word: token});
+                } else if(query[c-1] === 'BY') {
+                    if(users.length === 0) {
+                        users.push({pre: '', word: token});
+                    } else {
+                        if (c > 1 && query[c - 2] === 'OR')
+                            users.push({pre: 'OR', word: token});
+                        else
+                            users.push({pre: 'AND', word: token});
+                    }
+                } else {
+                    keywords.push({pre: 'AND', word: token});
+                }
+            }
+        }
+    }
+
+    return {keywords: keywords, users: users};
+};
+
+queryToSQL = function(msg) {
     var sql = "SELECT * FROM tweets WHERE ";
     var args = [];
 
-    for (var c = 0; c < query.length; c++) {
-        var keyword = query[c];
-        if (keyword !== 'AND' && keyword !== 'OR') {
-            if (c !== 0) {
-                if (query[c - 1] === 'OR')
-                    sql += ' OR ';
-                else
-                    sql += ' AND ';
-            }
-            sql += "text LIKE ?";
-            args.push("% " + keyword + " %");
-        }
+    var tokens = tokenize(msg);
+
+    var keywords = tokens.keywords;
+    var users = tokens.users;
+
+    for(var c = 0; c < keywords.length; c++) {
+        if(c > 0) sql += ' ' + keywords[c].pre;
+        sql += ' text LIKE ?';
+        args.push('% ' + keywords[c].word + ' %');
     }
+
+    if(users.length > 0) {
+        sql += ' AND (';
+        for (var c = 0; c < users.length; c++) {
+            sql += ' ' + users[c].pre + ' user_name=?';
+            args.push(users[c].word);
+        }
+        sql += ')';
+    }
+
+    return { sql: sql, args: args };
+};
+
+queryDatabase = function (msg, sendBack) {
+    var processedQuery = queryToSQL(msg);
+    var sql = processedQuery.sql;
+    var args = processedQuery.args;
+
+    //console.log(sql);
+    //console.log(args);
 
     var results = [];
     db.each(sql, args, function (err, t) {
@@ -104,5 +152,6 @@ module.exports = {
     deleteDatabase: deleteDatabase,
     resetDatabase: resetDatabase,
     saveTweets: saveTweets,
-    queryDatabase: queryDatabase
+    queryDatabase: queryDatabase,
+    tokenize: tokenize
 };

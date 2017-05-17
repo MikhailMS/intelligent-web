@@ -55,35 +55,9 @@ querySearch = function (msg, sendBack) {
     }
 };
 
-queryStream = function (msg, streamBack) {
-    var query = msg.replace(',', '').split(' ');
-
-    var users = '';
-    var filter = '';
-
-    for (var c = 0; c < query.length; c++) {
-        var keyword = query[c];
-        if (['AND', 'OR', 'BY'].indexOf(keyword) < 0) {
-            if(c === 0) {
-                filter += keyword;
-            } else {
-                if(query[c-1] === 'OR') {
-                    filter += ',' + keyword;
-                } else if(query[c-1] === 'BY') {
-                    if (c > 1 && query[c-2] === 'OR')
-                        users += ',';
-                    users += keyword;
-                } else {
-                    filter += ' ' + keyword;
-                }
-            }
-        }
-    }
-
-    console.log(users);
-    console.log(filter);
-
-    var filter = msg.replace(' AND ', ' ').replace(' OR ', ',');
+startStream = function(users, filter, streamBack) {
+    if(users === '') users = null;
+    if(filter === '') filter = null;
     twit.stream('statuses/filter', { follow: users, track: filter, language: 'en' }, function (stream) {
         stream.on('data', function (data) {
             const currentStream = stream;
@@ -91,6 +65,43 @@ queryStream = function (msg, streamBack) {
             db.saveTweets([tweet]);
             streamBack(tweet, currentStream);
         });
+    });
+};
+
+processUsers = function(c, userStr, users, carryOn) {
+    if(c < users.length) {
+        twit.get('users/show', {screen_name: users[c].word}, function(err, data) {
+           var user = users[c];
+
+            if(user.pre === 'AND') userStr += ' ';
+            else if(user.pre === 'OR') userStr += ',';
+
+            if(data !== undefined)
+                userStr += data.id_str;
+            processUsers(c+1, userStr, users, carryOn);
+        });
+    } else {
+        carryOn(userStr);
+    }
+};
+
+queryStream = function (msg, streamBack) {
+    var tokens = db.tokenize(msg);
+
+    var users = '';
+    var filter = '';
+
+    for(var i = 0; i < tokens.keywords.length; i++) {
+        var keyword = tokens.keywords[i];
+
+        if(keyword.pre === 'AND') filter += ' ';
+        else if(keyword.pre === 'OR') filter += ',';
+
+        filter += keyword.word;
+    }
+
+    processUsers(0, users, tokens.users, function(userStr) {
+        startStream(userStr, filter, streamBack);
     });
 };
 
