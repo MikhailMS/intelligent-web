@@ -90,7 +90,12 @@ var app = {
                 var profileImg = data.statuses[i].user.profile_image_url;
                 var timeDateList = data.statuses[i].created_at;
                 // Save tweet to DB
-                app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, timeDateList);
+                if (app.preventDuplicatesDB(dbHolder, query,text, authorName, userName)===0) {
+                  app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, timeDateList);
+                } else {
+                  console.log('Duplicate has been detected');
+                }
+
               }
             }
           });
@@ -279,6 +284,17 @@ var app = {
         console.log('Transaction ERROR: ' + error.message);
       }, function() {
         console.log('Populated database OK');
+      });
+    },
+
+    preventDuplicatesDB: function(holder, query, text, authorName, userName) {
+      holder.transaction(function(tx) {
+        tx.executeSql('SELECT * FROM search_query where query=? AND text=? AND authorName=? AND userName=?', [query, text, authorName, userName]);
+      }, function(error) {
+        console.log('Transaction ERROR: ' + error.message);
+      }, function(tx, results) {
+        console.log(`Collisions found - ${results.rows.length}`);
+        return results.rows.length
       });
     },
 
