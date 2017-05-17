@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { Row, Col, Input, Pagination } from 'antd';
 import io from 'socket.io-client';
-// import { socket } from './Socket';
 import TwitterCard from './TwitterCard';
 import './App.css';
 
@@ -27,8 +26,6 @@ class Database extends Component {
     componentWillUnmount() {
         socket.close();
     }
-
-
 
     /**
     * Triggered when the user submits a new DB query via the search bar.
