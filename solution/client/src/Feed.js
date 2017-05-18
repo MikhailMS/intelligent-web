@@ -18,6 +18,7 @@ class Feed extends Component {
             streamChecked: false,
             searchResults: {},
             streamResults: [],
+            frequency: {},
             searchCards: [],
             currentPage: 1,
             selectedTab: '1'
@@ -56,11 +57,17 @@ class Feed extends Component {
         // emit a feed search query
         socket.emit('search-query', { query: feedQuery, db_only: false });
 
+        this.setState({feedReceived: false, searchResults: []});
+
         // declare a socket listener that updates on feed events
         // check if created so only 1 listener is created
         if (!(socket.hasListeners('feed-search-result'))) {
             socket.on('feed-search-result', (res) => {
-                this.setState({ feedReceived: true, searchResults: res });
+                this.setState({
+                    feedReceived: true,
+                    searchResults: res.tweets,
+                    frequency: res.frequency
+                });
             });
         }
     };

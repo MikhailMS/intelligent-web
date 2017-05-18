@@ -1,18 +1,13 @@
 const Twitter = require('twitter'),
     config = require('./config'),
-    DATABASE = require('./dbcontrol');
+    DB = require('./dbcontrol');
 
-const TWITTER = new Twitter({
+const TWIT = new Twitter({
     consumer_key: config.consumer_key,
     consumer_secret: config.consumer_secret,
     access_token_key: config.access_token_key,
     access_token_secret: config.access_token_secret,
 });
-
-const APP_STATE = {
-    tweets: [],
-    lowestId: null,
-};
 
 function processTweet(tweet) {
     const timeDateList = tweet.created_at.split(' ');
@@ -34,51 +29,33 @@ function processTweet(tweet) {
     };
 }
 
-function processTweets(rawTweets) {
-    let lowestId = APP_STATE.lowestId;
-    console.log('lowestId', lowestId);
-    const tweets = rawTweets.statuses.map(status => {
-        let { id } = status;
-        id = parseInt(id, 10);
-        console.log('tweetId', id);
-        console.log('typeofid after parse', typeof id);
-        const processedTweet = processTweet(status);
-        if (id < lowestId || lowestId === null) lowestId = id;
-        return processedTweet;
-    });
-    return { tweets, lowestId };
+function lowestID(arr, c, min) {
+    if(arr.length === 0) return Infinity;
+    if(c === undefined) return lowestID(arr, arr.length-1, Infinity);
+    let newMin = Math.min(arr[c].id, min);
+    return c === 0? newMin : lowestID(arr, c-1, newMin);
 }
 
-function searchTwitter(query) {
-    return new Promise((resolve, reject) => {
-        const searchParams = APP_STATE.lowestId
-            ? { q: query, lang: 'en', count: 100, max_id: APP_STATE.lowestId }
-            : { q: query, lang: 'en', count: 100 };
-        TWITTER.get('search/tweets', searchParams, (err, data, response) => {
-            if (err) reject(err);
-            try {
-                const { tweets: resTweets, lowestId: lowestIdNew } = processTweets(data);
-                DATABASE.saveTweets(resTweets);
-                APP_STATE.tweets = APP_STATE.tweets.concat(resTweets);
-                APP_STATE.lowestId = lowestIdNew;
-                resolve();
-            } catch (e) {
-                reject(e);
-            }
-        });
+function getTweetBatch(c, procQuery, tweets, sendBack) {
+    let lowestId = lowestID(tweets);
+    console.log(lowestId);
+    const params = {q: procQuery, lang: 'en', count: 100, max_id: lowestId};
+    TWIT.get('search/tweets', params, (err, data) => {
+        var newTweets = data.statuses.map((el) => processTweet(el));
+        tweets = tweets.concat(newTweets);
+        if(c === 1 || newTweets.length < 100) sendBack(tweets);
+        else getTweetBatch(c-1, procQuery, tweets, sendBack);
     });
 }
 
 function getTweets(query, sendBack) {
     const procQuery = query.split('BY ').join('from:');
-    const TIMES = 6, // generate 600 tweets - 6 x 100 (max)
-        promises = [];
+    const TIMES = 6;
 
-    for (let i = 0; i < TIMES; i++) { promises.push(searchTwitter(procQuery)); }
-    return Promise
-        .all(promises)
-        .then(() => sendBack(APP_STATE.tweets))
-        .catch(err => console.error(err));
+    getTweetBatch(TIMES, procQuery, [], function(tweets) {
+        sendBack(tweets);
+        DB.saveTweets(tweets);
+    });
 }
 
 querySearch = function (msg, sendBack) {
@@ -88,16 +65,16 @@ querySearch = function (msg, sendBack) {
     var query = msg.query;
 
     if (dbOnly) {
-        DATABASE.queryDatabase(query, sendBack);
+        DB.queryDatabase(query, sendBack);
     } else {
-        DATABASE.lastUpdated(query, function (lastUpdated) {
+        DB.lastUpdated(query, function (lastUpdated) {
             var diff = Math.floor(Date.now()) - lastUpdated;
             console.log('Time since last update: ' + Math.round(diff / 60000) + ' mins.');
             if (diff > threshold) {
-                DATABASE.saveQuery(query);
                 getTweets(query, sendBack);
+                DB.saveQuery(query);
             } else {
-                DATABASE.queryDatabase(query, sendBack);
+                DB.queryDatabase(query, sendBack);
             }
         });
     }
@@ -106,11 +83,11 @@ querySearch = function (msg, sendBack) {
 startStream = function (users, filter, streamBack) {
     if (users === '') users = null;
     if (filter === '') filter = null;
-    twit.stream('statuses/filter', { follow: users, track: filter, language: 'en' }, function (stream) {
+    TWIT.stream('statuses/filter', { follow: users, track: filter, language: 'en' }, function (stream) {
         stream.on('data', function (data) {
             const currentStream = stream;
             var tweet = processTweet(data);
-            DATABASE.saveTweets([tweet]);
+            DB.saveTweets([tweet]);
             streamBack(tweet, currentStream);
         });
     });
@@ -118,7 +95,7 @@ startStream = function (users, filter, streamBack) {
 
 processUsers = function (c, userStr, users, carryOn) {
     if (c < users.length) {
-        twit.get('users/show', { screen_name: users[c].word }, function (err, data) {
+        TWIT.get('users/show', { screen_name: users[c].word }, function (err, data) {
             var user = users[c];
 
             if (user.pre === 'AND') userStr += ' ';
@@ -134,7 +111,7 @@ processUsers = function (c, userStr, users, carryOn) {
 };
 
 queryStream = function (msg, streamBack) {
-    var tokens = DATABASE.tokenize(msg);
+    var tokens = DB.tokenize(msg);
 
     var users = '';
     var filter = '';
@@ -153,4 +130,20 @@ queryStream = function (msg, streamBack) {
     });
 };
 
-module.exports = { querySearch, queryStream };
+getFreqMap = function(tweets) {
+    var freq = {};
+    for(let i in tweets) {
+        let t = tweets[i];
+        let y = t.date_time.year;
+        let m = t.date_time.month;
+        let d = t.date_time.date;
+
+        let key = d + '/' + m + '/' + y;
+        if(freq[key] === undefined) freq[key] = 0;
+        freq[key] ++;
+    }
+
+    return freq;
+};
+
+module.exports = { querySearch, queryStream, getFreqMap };
