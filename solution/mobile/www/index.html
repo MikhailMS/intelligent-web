@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <meta http-equiv="Content-Security-Policy" content="default-src *; img-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval' data: gap: https://ssl.gstatic.com data: content:;" />
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <!-- Load CSS -->
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+        <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+        <title>Hello World</title>
+    </head>
+    <body>
+        <div id="container">
+            <div id="tab-content">
+              <div id="search-tweet-wrapper" style='display:block'>
+                  <div id="search">
+                      <div class="input-group">
+                          <input id="search-query" type="textbox" placeholder="Search query..." class="form-control">
+                          <span class="input-group-btn">
+                              <button class="btn btn-default" id="btn-search-query">Search</button>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              <div id="search-stream-wrapper" style='display:none'>
+                  <div id="search">
+                      <div class="input-group">
+                          <input id="stream-query" type="textbox" placeholder="Stream query..." class="form-control">
+                          <span class="input-group-btn">
+                              <button class="btn btn-default" id="btn-stream-query">Search</button>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              <div id="search-db-wrapper" style='display:none'>
+                  <div id="search">
+                      <div class="input-group">
+                          <input id="db-query" type="textbox" placeholder="Search DB query..." class="form-control">
+                          <span class="input-group-btn">
+                              <button class="btn btn-default" id="btn-search-db-query">Search</button>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+            </div>
+        </div>
+        <footer>
+            <ul id="menu">
+                <li id="search-tweets-tab-button" class="tab-button active" data-tab="#search-tweets-tab">Search Tweets</li>
+                <li id="search-realtime-tab-button" class="tab-button" data-tab="#search-realtime-tab">Realtime Tweets</li>
+                <li id="search-db-tab-button" class="tab-button" data-tab="#search-db-tab">Search Database</li>
+            </ul>
+        </footer>
+        <div class="loader"></div>
+        <div id="dev-null" style="display: none"></div>
+        <!-- Cordova js file -->
+        <script type="text/javascript" src="cordova.js"></script>
+        <!-- Main js file with application logic -->
+        <script type="text/javascript" src="js/index.js"></script>
+        <!-- Socket dependencies -->
+        <script src=" http://3d4b1559.ngrok.io/js/socket.io.js"></script>
+        <script type="text/javascript" src="js/socket.io.js"></script>
+        <!-- JQuery dependencies -->
+        <script src="js/lib/jquery-3.1.1.min.js"></script>
+    </body>
+</html>

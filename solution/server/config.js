@@ -15,6 +15,13 @@ var blagoConfig = {
   access_token_secret: 'zpEL5cZNICQGk6GXtpIiS06F5M5t2XNrkXS3ls5l8H8LM'
 };
 
-config = petarConfig;
+var mishaConfig = {
+  consumer_key: 'wegc9xwmIfn2qqDVk58w2pDMm',
+  consumer_secret: 'OI8gFWyqhRVbBF2OtfzAudPZLQiMC3QMxEgSzAFUh7jCV02cYX',
+  access_token_key: '3028224928-VdNq5TJMTk8v7UHQnNZOwQduGYyWJg09w7ObWUF',
+  access_token_secret: 'NLFJJirTW2TvhA6s0afzLY64TBJY1jMm3TXjzME1NJ0gc'
+};
+
+config = mishaConfig;
 
 module.exports = config;
