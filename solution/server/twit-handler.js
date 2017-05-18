@@ -1,6 +1,6 @@
 const Twitter = require('twitter'),
     config = require('./config'),
-    DATABASE = require('./dbcontrol')
+    DATABASE = require('./dbcontrol');
 
 const TWITTER = new Twitter({
     consumer_key: config.consumer_key,
@@ -35,27 +35,32 @@ function processTweet(tweet) {
 }
 
 function processTweets(rawTweets) {
-    let lowestId = null, tweets = rawTweets.statuses.map(status => {
-        const { id } = status;
-        const processedTweet = processedTweet(status);
+    let lowestId = APP_STATE.lowestId;
+    console.log('lowestId', lowestId);
+    const tweets = rawTweets.statuses.map(status => {
+        let { id } = status;
+        id = parseInt(id, 10);
+        console.log('tweetId', id);
+        console.log('typeofid after parse', typeof id);
+        const processedTweet = processTweet(status);
         if (id < lowestId || lowestId === null) lowestId = id;
         return processedTweet;
     });
-    return [tweets, lowestId];
+    return { tweets, lowestId };
 }
 
 function searchTwitter(query) {
     return new Promise((resolve, reject) => {
         const searchParams = APP_STATE.lowestId
-            ? { query, lang: 'en', count: 100, max_id: APP_STATE.lowestId }
-            : { query, lang: 'en', count: 100 };
+            ? { q: query, lang: 'en', count: 100, max_id: APP_STATE.lowestId }
+            : { q: query, lang: 'en', count: 100 };
         TWITTER.get('search/tweets', searchParams, (err, data, response) => {
             if (err) reject(err);
             try {
-                const result = processTweets(data);
-                DATABASE.saveTweets(result[0]);
-                APP_STATE.tweets.concat(result[0]);
-                APP_STATE.lowestId = result[1];
+                const { tweets: resTweets, lowestId: lowestIdNew } = processTweets(data);
+                DATABASE.saveTweets(resTweets);
+                APP_STATE.tweets = APP_STATE.tweets.concat(resTweets);
+                APP_STATE.lowestId = lowestIdNew;
                 resolve();
             } catch (e) {
                 reject(e);
@@ -65,10 +70,11 @@ function searchTwitter(query) {
 }
 
 function getTweets(query, sendBack) {
-    query = query.split('BY ').join('from:');
-    const TIMES = 6,
+    const procQuery = query.split('BY ').join('from:');
+    const TIMES = 6, // generate 600 tweets - 6 x 100 (max)
         promises = [];
-    for (let i = 0; i < TIMES; i++) { promises.push(searchTwitter(query)); }
+
+    for (let i = 0; i < TIMES; i++) { promises.push(searchTwitter(procQuery)); }
     return Promise
         .all(promises)
         .then(() => sendBack(APP_STATE.tweets))
