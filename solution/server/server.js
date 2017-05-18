@@ -5,13 +5,7 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var twitHandler = require('./twit-handler');
-var request = require("request");
-
-
-/*request("http://dbpedia.org/data/Wayne_Rooney.json", function(error, response, data) {
-    var res = JSON.parse(data);
-    console.log(res);
-});*/
+var dbp = require('./dbpedia-retriever');
 
 var port = process.env.PORT || 3333;
 server.listen(port, function () {
@@ -45,6 +39,11 @@ io.on('connection', function (socket) {
     console.log('Socket opened. ID: ' + socket.id);
     socket.on('search-query', function (msg) {
         console.log('Search Query received:', msg);
+
+        dbp.getPlayerData('Anthony Martial', function(player) {
+            io.to(socket.id).emit('player-card-result', player);
+        });
+
         twitHandler.querySearch(msg, function (res) {
             res.sort(function(a, b) { return b.id - a.id;});
             console.log('Sending '+res.length+' tweets to the client.');
