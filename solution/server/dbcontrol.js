@@ -24,11 +24,18 @@ initDatabase = function () {
         "`text`	TEXT NOT NULL UNIQUE,"+
         "`time`	TIMESTAMP NOT NULL"+
         ");");
+
+    db.run("CREATE TABLE `dbpedia_names` ("+
+        "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"+
+        "`key`	TEXT NOT NULL UNIQUE,"+
+        "`name`	TEXT NOT NULL"+
+    ");");
 };
 
 deleteDatabase = function () {
     db.run("DROP TABLE 'tweets';");
     db.run("DROP TABLE 'queries';");
+    db.run("DROP TABLE 'dbpedia_names';");
 };
 
 resetDatabase = function () {
@@ -187,6 +194,26 @@ saveQuery = function(query) {
     });
 };
 
+getPlayerName = function(query, callback) {
+    let sql = "SELECT name FROM 'dbpedia_names' WHERE ";
+    let queryArr = query.split(" ");
+    let args = [];
+
+    for(var i = 0; i < queryArr.length; i++) {
+        if(['AND', 'OR', 'BY'].indexOf(queryArr[i] < 0)) {
+            if(i > 0) sql += " OR ";
+            sql += "key LIKE ?";
+            let word = queryArr[i].split('#').join('').split('@').join('');
+            args.push('%'+word+'%');
+        }
+    }
+    sql += " LIMIT 1;";
+
+    db.prepare(sql).get(args, (err, res) => {
+        callback(res.name);
+    });
+};
+
 module.exports = {
     initDatabase: initDatabase,
     deleteDatabase: deleteDatabase,
@@ -195,5 +222,6 @@ module.exports = {
     queryDatabase: queryDatabase,
     saveQuery: saveQuery,
     lastUpdated: lastUpdated,
-    tokenize: tokenize
+    tokenize: tokenize,
+    getPlayerName: getPlayerName
 };

@@ -40,8 +40,11 @@ io.on('connection', function (socket) {
     socket.on('search-query', function (msg) {
         console.log('Search Query received:', msg);
 
-        dbp.getPlayerData('Anthony Martial', function(player) {
-            io.to(socket.id).emit('player-card-result', player);
+        twitHandler.getPlayerName(msg.query, (playerName) => {
+            dbp.getPlayerData(playerName, (player) => {
+                console.log(player);
+                io.to(socket.id).emit('player-card-result', player);
+            });
         });
 
         twitHandler.querySearch(msg, (res) => {

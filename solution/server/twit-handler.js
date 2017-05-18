@@ -146,4 +146,5 @@ getFreqMap = function(tweets) {
     return freq;
 };
 
-module.exports = { querySearch, queryStream, getFreqMap };
+
+module.exports = { querySearch, queryStream, getFreqMap, getPlayerName: DB.getPlayerName };
