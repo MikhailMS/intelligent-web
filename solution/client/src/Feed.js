@@ -46,7 +46,7 @@ class Feed extends Component {
         let loading;
         if (isStreaming) {
             loading = false;
-        }
+        } else loading = true;
         this.setState({
             feedQuery,
             allSearchCards: [],
