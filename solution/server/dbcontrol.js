@@ -210,7 +210,12 @@ getPlayerName = function(query, callback) {
     sql += " LIMIT 1;";
 
     db.prepare(sql).get(args, (err, res) => {
-        callback(res.name);
+        if(res !== undefined) {
+            console.log('Found '+res.name+' in database.');
+            callback(res.name);
+        } else {
+            console.log('No footballer found in database.');
+        }
     });
 };
 

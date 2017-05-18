@@ -40,20 +40,25 @@ getQuery = function(name) {
 
 getPlayerData = function(name, callback) {
     var client = new sparql.Client('http://dbpedia.org/sparql');
+    console.log('Querying DBPedia for '+name+'.');
     client.query(getQuery(name), function(err, res) {
-       var p = res.results.bindings[0];
-       var player = {
-           fullname: p.fullname.value,
-           abstract: p.abstract.value,
-           height: p.height.value,
-           birthplace: p.place_name.value,
-           current_club: p.club_name.value,
-           thumbnail_url: p.thumbnail.value,
-           depiction_url: p.depiction.value,
-           birth_date: p.birthDate.value,
-           position: p.pos_label.value
-       };
-       callback(player);
+       if(res === undefined) {
+           console.log('Error retrieving data from DBPedia.');
+       } else {
+           var p = res.results.bindings[0];
+           var player = {
+               fullname: p.fullname.value,
+               abstract: p.abstract.value,
+               height: p.height.value,
+               birthplace: p.place_name.value,
+               current_club: p.club_name.value,
+               thumbnail_url: p.thumbnail.value,
+               depiction_url: p.depiction.value,
+               birth_date: p.birthDate.value,
+               position: p.pos_label.value
+           };
+           callback(player);
+       }
     });
 };
 
