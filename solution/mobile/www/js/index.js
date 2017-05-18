@@ -2,7 +2,7 @@
   updated on 17/05/2017
 */
 var dbHolder;
-var host = '';
+var host = 'http://3d4b1559.ngrok.io';
 var app = {
     // Initialise application
     initialize: function() {
@@ -40,39 +40,40 @@ var app = {
           var socket = io.connect(host);
 
           // Emit search query to Search API
-          socket.emit('search-query', query);
+          socket.emit('search-query', { query: query, db_only: false });
 
           // Once results are prepared by server, process them on client
           socket.on('feed-search-result', function (data) {
             if (data!=null) {
-              console.log(`Data received - ${data.statuses.length}`);
+              console.log(`Data received `);
+              console.log(data)
               console.log('Start displaying tweets');
-              for (var i = 0, len = data.statuses.length; i < len; i++) {
+              for (var i = 0, len = data.length; i < len; i++) {
                 // Hide loading animation
                 $("body").removeClass("loading");
                 // Extract tweet data
-                var tweetText = data.statuses[i].text
-                var tweetId = data.statuses[i].id_str;
-                var authorName = data.statuses[i].user.name
-                var userName = data.statuses[i].user.screen_name
-                var profilePage = `http://twitter.com/${userName}`;
-                var link = `http://twitter.com/anyuser/status/${tweetId}`;
-                var profileImg = data.statuses[i].user.profile_image_url;
-                var timeDateList = data.statuses[i].created_at;
+                var tweetText = data[i].text
+                var tweetId = data[i].id;
+                var authorName = data[i].author_name
+                var userName = data[i].user_name
+                var profilePage = data[i].profile_url;
+                var link = data[i].tweet_url;
+                var profileImg = data[i].avatar_url;
+                var timeDateList = data[i].date_time;
                 // Split received date for custom design
-                timeDateList = timeDateList.split(' ');
-                var weekDay = timeDateList[0];
-                var month = timeDateList[1];
-                var date = timeDateList[2];
-                var time = timeDateList[3];
-                var year = timeDateList[5];
+                var weekDay = timeDateList.week_day;
+                var month = timeDateList.month;
+                var date = timeDateList.date;
+                var time = timeDateList.time;
+                var year = timeDateList.year;
                 // Create div element that holds tweet data
                 $tab.append(`<div id='id_${i}_search' class='search-tweet'><div><a class='search-tweet-author-page' href='${profilePage}'> <img class='search-tweet-author-img' alt='profile' src='${profileImg}' /> </a><a class='search-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'> <span class='search-tweet-author'></span></a></div><div><span class='search-tweet-text'></span></div><div><span class='search-tweet-time'></span></div><div><span class='search-tweet-link'></span></div></div>`);
                 var $div = $(`#id_${i}_search`);
                 // Add tweet data to placeholders
                 $div.find('.search-tweet-text').text(tweetText);
                 $div.find('.search-tweet-author').text(authorName);
-                $div.find('.search-tweet-time').text(`${weekDay}, ${date}.${month}.${year} ${time} GMT`);
+                var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
+                $div.find('.search-tweet-time').text(date_time);
                 $div.find('.search-tweet-link').text(link);
                 // Append 'tweet div' to 'parent div' element
                 $tab.append($div).toggle().toggle();
@@ -81,25 +82,90 @@ var app = {
               if (dbHolder == null) {
                 dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
               }
-              for (var i = 0, len = data.statuses.length; i < len; i++) {
+              for (var i = 0, len = data.length; i < len; i++) {
                 // Extract tweet data
-                var tweetText = data.statuses[i].text
-                var tweetId = data.statuses[i].id_str;
-                var authorName = data.statuses[i].user.name
-                var userName = data.statuses[i].user.screen_name
-                var profileImg = data.statuses[i].user.profile_image_url;
-                var timeDateList = data.statuses[i].created_at;
+                var tweetText = data[i].text
+                var tweetId = data[i].id;
+                var authorName = data[i].author_name
+                var userName = data[i].user_name
+                var profilePage = data[i].profile_url;
+                var link = data[i].tweet_url;
+                var profileImg = data[i].avatar_url;
+                var timeDateList = data[i].date_time;
+                // Split received date for custom design
+                var weekDay = timeDateList.week_day;
+                var month = timeDateList.month;
+                var date = timeDateList.date;
+                var time = timeDateList.time;
+                var year = timeDateList.year;
+                var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
                 // Save tweet to DB
-                if (app.preventDuplicatesDB(dbHolder, query,text, authorName, userName)===0) {
-                  app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, timeDateList);
-                } else {
-                  console.log('Duplicate has been detected');
-                }
-
+                app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, date_time);
               }
             }
           });
-
+          // If results are stored at the server DB, receive and process them on client
+          socket.on('db-search-result', function (data) {
+            if (data!=null) {
+              console.log(`Data received from server DB `);
+              console.log(data)
+              console.log('Start displaying tweets');
+              for (var i = 0, len = data.length; i < len; i++) {
+                // Hide loading animation
+                $("body").removeClass("loading");
+                // Extract tweet data
+                var tweetText = data[i].text
+                var tweetId = data[i].id;
+                var authorName = data[i].author_name
+                var userName = data[i].user_name
+                var profilePage = data[i].profile_url;
+                var link = data[i].tweet_url;
+                var profileImg = data[i].avatar_url;
+                var timeDateList = data[i].date_time;
+                // Split received date for custom design
+                var weekDay = timeDateList.week_day;
+                var month = timeDateList.month;
+                var date = timeDateList.date;
+                var time = timeDateList.time;
+                var year = timeDateList.year;
+                // Create div element that holds tweet data
+                $tab.append(`<div id='id_${i}_search' class='search-tweet'><div><a class='search-tweet-author-page' href='${profilePage}'> <img class='search-tweet-author-img' alt='profile' src='${profileImg}' /> </a><a class='search-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'> <span class='search-tweet-author'></span></a></div><div><span class='search-tweet-text'></span></div><div><span class='search-tweet-time'></span></div><div><span class='search-tweet-link'></span></div></div>`);
+                var $div = $(`#id_${i}_search`);
+                // Add tweet data to placeholders
+                $div.find('.search-tweet-text').text(tweetText);
+                $div.find('.search-tweet-author').text(authorName);
+                var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
+                $div.find('.search-tweet-time').text(date_time);
+                $div.find('.search-tweet-link').text(link);
+                // Append 'tweet div' to 'parent div' element
+                $tab.append($div).toggle().toggle();
+              }
+              console.log('All tweets has been displayed. Saving to DB...')
+              if (dbHolder == null) {
+                dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
+              }
+              for (var i = 0, len = data.length; i < len; i++) {
+                // Extract tweet data
+                var tweetText = data[i].text
+                var tweetId = data[i].id;
+                var authorName = data[i].author_name
+                var userName = data[i].user_name
+                var profilePage = data[i].profile_url;
+                var link = data[i].tweet_url;
+                var profileImg = data[i].avatar_url;
+                var timeDateList = data[i].date_time;
+                // Split received date for custom design
+                var weekDay = timeDateList.week_day;
+                var month = timeDateList.month;
+                var date = timeDateList.date;
+                var time = timeDateList.time;
+                var year = timeDateList.year;
+                var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
+                // Save tweet to DB
+                app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, date_time);
+              }
+            }
+          });
           // Listens for a success response from the server to
           // say the connection was successful.
           socket.on("connected", function(r) {
@@ -139,26 +205,28 @@ var app = {
               // Hide loading animation
               $("body").removeClass("loading");
               // Extract tweet data
-              var tweetText = data.statuses[i].text
-              var tweetId = data.statuses[i].id_str;
-              var authorName = data.statuses[i].user.name
-              var userName = data.statuses[i].user.screen_name
-              var profilePage = `http://twitter.com/${userName}`;
-              var link = `http://twitter.com/anyuser/status/${tweetId}`;
-              var profileImg = data.statuses[i].user.profile_image_url;
-              var timeDateList = data.statuses[i].created_at.split(' ');
-              var weekDay = timeDateList[0];
-              var month = timeDateList[1];
-              var date = timeDateList[2];
-              var time = timeDateList[3];
-              var year = timeDateList[5];
+              var tweetText = data[i].text
+              var tweetId = data[i].id;
+              var authorName = data[i].author_name
+              var userName = data[i].user_name
+              var profilePage = data[i].profile_url;
+              var link = data[i].tweet_url;
+              var profileImg = data[i].avatar_url;
+              var timeDateList = data[i].date_time;
+              // Split received date for custom design
+              var weekDay = timeDateList.week_day;
+              var month = timeDateList.month;
+              var date = timeDateList.date;
+              var time = timeDateList.time;
+              var year = timeDateList.year;
               // Create div element that holds tweet data
               $tab.append(`<div id='id_${counter}_stream' class='stream-tweet'><div><a class='stream-tweet-author-page' href='${profilePage}'> <img class='stream-tweet-author-img' alt='profile' src='${profileImg}' /> </a><a class='stream-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'> <span class='stream-tweet-author'></span></a></div><div><span class='stream-tweet-text'></span></div><div><span class='stream-tweet-time'></span></div><div><span class='stream-tweet-link'></span></div></div>`);
               var $div = $(`#id_${counter}_stream`);
               // Add tweet data to placeholders
               $div.find('.stream-tweet-text').text(tweetText);
               $div.find('.stream-tweet-author').text(authorName);
-              $div.find('.stream-tweet-time').text(`${weekDay}, ${date}.${month}.${year} ${time} GMT`);
+              var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
+              $div.find('.stream-tweet-time').text(date_time);
               $div.find('.stream-tweet-link').text(link);
               // Append 'tweet div' to 'parent div' element
               $tab.append($div).toggle().toggle();
@@ -190,7 +258,7 @@ var app = {
       } else {
         $("body").addClass("loading");
         dbHolder.transaction(function (transaction) {
-            transaction.executeSql('SELECT * FROM search_query WHERE query=?', [query],
+            transaction.executeSql('SELECT * FROM search_query WHERE query=? ORDER BY id_str DESC', [query],
               function (tx, results) {
                 // access with results.rows.item(i).<field>
                 console.log(`Data retrieved from DB - ${results.rows.length}`);
@@ -210,19 +278,14 @@ var app = {
                     var profilePage = `http://twitter.com/${userName}`;
                     var link = `http://twitter.com/anyuser/status/${tweetId}`;
                     var profileImg = results.rows.item(i).profileImg;
-                    var timeDateList = results.rows.item(i).created_at.split(' ');
-                    var weekDay = timeDateList[0];
-                    var month = timeDateList[1];
-                    var date = timeDateList[2];
-                    var time = timeDateList[3];
-                    var year = timeDateList[5];
+                    var timeDate = results.rows.item(i).created_at;
                     // Create div element that holds tweet data
                     $tab.append(`<div id='id_${i}_db' class='db-tweet'><div><a class='db-tweet-author-page' href='${profilePage}'> <img class='db-tweet-author-img' alt='profile' src='${profileImg}' /> </a><a class='db-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'> <span class='db-tweet-author'></span></a></div><div><span class='db-tweet-text'></span></div><div><span class='db-tweet-time'></span></div><div><span class='db-tweet-link'></span></div></div>`);
                     var $div = $(`#id_${i}_db`);
                     // Add tweet data to placeholders
                     $div.find('.db-tweet-text').text(tweetText);
                     $div.find('.db-tweet-author').text(authorName);
-                    $div.find('.db-tweet-time').text(`${weekDay}, ${date}.${month}.${year} ${time} GMT`);
+                    $div.find('.db-tweet-time').text(timeDate);
                     $div.find('.db-tweet-link').text(link);
                     // Append 'tweet div' to 'parent div' element
                     $tab.append($div).toggle().toggle();
@@ -267,7 +330,7 @@ var app = {
     initializeDB: function() {
       dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
       dbHolder.transaction(function (transaction) {
-          transaction.executeSql('CREATE TABLE IF NOT EXISTS search_query (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, query TEXT, text TEXT, id_str TEXT, authorName TEXT, userName TEXT, profileImg TEXT, created_at TEXT)', [],
+          transaction.executeSql('CREATE TABLE IF NOT EXISTS search_query (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, query TEXT, text TEXT, id_str TEXT, authorName TEXT, userName TEXT, profileImg TEXT, created_at TEXT, UNIQUE (query, text, authorName, userName))', [],
               function (tx, result) {
                   console.log("Table created successfully");
               },
@@ -283,22 +346,8 @@ var app = {
       }, function(error) {
         console.log('Transaction ERROR: ' + error.message);
       }, function() {
-        console.log('Populated database OK');
+        console.log(`Populated database OK ${id_str}`);
       });
-    },
-
-    preventDuplicatesDB: function(holder, query, text, authorName, userName) {
-      holder.transaction(function(tx) {
-        tx.executeSql('SELECT * FROM search_query where query=? AND text=? AND authorName=? AND userName=?', [query, text, authorName, userName]);
-      }, function(error) {
-        console.log('Transaction ERROR: ' + error.message);
-      }, function(tx, results) {
-        console.log(`Collisions found - ${results.rows.length}`);
-        return results.rows.length
-      });
-    },
-
-    deleteDataFromDB: function() {
     },
 
     // Stop tweets stream function
