@@ -30,21 +30,21 @@ function processTweet(tweet) {
 }
 
 function lowestID(arr, c, min) {
-    if(arr.length === 0) return Infinity;
-    if(c === undefined) return lowestID(arr, arr.length-1, Infinity);
-    let newMin = Math.min(arr[c].id, min);
-    return c === 0? newMin : lowestID(arr, c-1, newMin);
+    if (arr.length === 0) return Infinity;
+    if (c === undefined) return lowestID(arr, arr.length - 1, Infinity);
+    const newMin = Math.min(arr[c].id, min);
+    return c === 0 ? newMin : lowestID(arr, c - 1, newMin);
 }
 
 function getTweetBatch(c, procQuery, tweets, sendBack) {
-    let lowestId = lowestID(tweets);
+    const lowestId = lowestID(tweets);
     console.log(lowestId);
-    const params = {q: procQuery, lang: 'en', count: 100, max_id: lowestId};
+    const params = { q: procQuery, lang: 'en', count: 100, max_id: lowestId };
     TWIT.get('search/tweets', params, (err, data) => {
-        var newTweets = data.statuses.map((el) => processTweet(el));
+        const newTweets = data.statuses.map((el) => processTweet(el));
         tweets = tweets.concat(newTweets);
-        if(c === 1 || newTweets.length < 100) sendBack(tweets);
-        else getTweetBatch(c-1, procQuery, tweets, sendBack);
+        if (c === 1 || newTweets.length < 100) sendBack(tweets);
+        else getTweetBatch(c - 1, procQuery, tweets, sendBack);
     });
 }
 
@@ -52,7 +52,7 @@ function getTweets(query, sendBack) {
     const procQuery = query.split('BY ').join('from:');
     const TIMES = 6;
 
-    getTweetBatch(TIMES, procQuery, [], function(tweets) {
+    getTweetBatch(TIMES, procQuery, [], function (tweets) {
         sendBack(tweets);
         DB.saveTweets(tweets);
     });
@@ -130,17 +130,17 @@ queryStream = function (msg, streamBack) {
     });
 };
 
-getFreqMap = function(tweets) {
+getFreqMap = function (tweets) {
     var freq = {};
-    for(let i in tweets) {
+    for (let i in tweets) {
         let t = tweets[i];
         let y = t.date_time.year;
         let m = t.date_time.month;
         let d = t.date_time.date;
 
         let key = d + '/' + m + '/' + y;
-        if(freq[key] === undefined) freq[key] = 0;
-        freq[key] ++;
+        if (freq[key] === undefined) freq[key] = 0;
+        freq[key]++;
     }
 
     return freq;
