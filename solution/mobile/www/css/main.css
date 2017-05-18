@@ -58,53 +58,62 @@ footer {
 	position: fixed;
 	bottom:0;
 	width:100%;
-
+	height: 6%;
 }
 /* Display tweets style */
-.search-tweet {
-	margin-bottom:40px;
+.search-tweet, .stream-tweet, .db-tweet {
+	margin-bottom: 35px;
 	padding: 10px;
-	background:#fff;
-	font-family:"Open Sans", Helvetica, Arial;
+	background: #fff;
+	font-family: "Open Sans", Helvetica, Arial;
+}
+.search-tweet-link, .stream-tweet-link, .db-tweet-link {
+	margin-left: 10px;
+	padding-left: 10px;
+	font-size: 1em;
+	text-align: left;
+	text-decoration: none;
+}
+.search-tweet-author-link, .stream-tweet-author-link, .db-tweet-author-link {
+	margin-left: 15px;
+	font-size: 1em;
+	text-decoration: none;
 }
 .search-tweet span.search-tweet-text {
 	font-size: 1.2em;
-	font-weight:bold;
-	padding-bottom:10px;
-	margin-bottom:10px;
+	font-weight: bold;
+	padding-top: 5px;
+	margin-top: 5px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-top: 1px solid #ddd;
 	border-bottom: 1px solid #ddd;
-	width:100%;
-	display:block;
-}
-.stream-tweet {
-	margin-bottom:40px;
-	padding: 10px;
-	background:#fff;
-	font-family:"Open Sans", Helvetica, Arial;
+	width: 100%;
+	display: block;
 }
 .stream-tweet span.stream-tweet-text {
 	font-size: 1.2em;
-	font-weight:bold;
-	padding-bottom:10px;
-	margin-bottom:10px;
+	font-weight: bold;
+	padding-top: 5px;
+	margin-top: 5px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-top: 1px solid #ddd;
 	border-bottom: 1px solid #ddd;
-	width:100%;
-	display:block;
-}
-.db-tweet {
-	margin-bottom:40px;
-	padding: 10px;
-	background:#fff;
-	font-family:"Open Sans", Helvetica, Arial;
+	width: 100%;
+	display: block;
 }
 .db-tweet span.db-tweet-text {
 	font-size: 1.2em;
-	font-weight:bold;
-	padding-bottom:10px;
-	margin-bottom:10px;
+	font-weight: bold;
+	padding-top: 5px;
+	margin-top: 5px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-top: 1px solid #ddd;
 	border-bottom: 1px solid #ddd;
-	width:100%;
-	display:block;
+	width: 100%;
+	display: block;
 }
 
 /* Loading animation */
@@ -130,48 +139,48 @@ body.loading .loader {
 
 /* Cool stuff */
 .ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
-background-color: #F0F3F3;
-border-color: #bbb;
-color: #333;
-text-shadow: 0 1px 0 #f3f3f3;
+	background-color: #F0F3F3;
+	border-color: #bbb;
+	color: #333;
+	text-shadow: 0 1px 0 #f3f3f3;
 }
 
 .form-control {
-border: 2px solid #e8ebed;
-border-radius: 2px;
-box-shadow: none;
-padding: 18px 12px;
+	border: 2px solid #e8ebed;
+	border-radius: 2px;
+	box-shadow: none;
+	padding: 18px 12px;
 }
 .form-control:focus {
-background: #fff;
-border-color: #556b8d;
-box-shadow: none;
+	background: #fff;
+	border-color: #556b8d;
+	box-shadow: none;
 }
 .btn {
-border: none;
-font-size: 15px;
-font-weight: normal;
--webkit-border-radius: 3px;
--moz-border-radius: 3px;
--ms-border-radius: 3px;
--o-border-radius: 3px;
-border-radius: 3px;
-padding: 8px 14px;
-margin-bottom: 5px;
--webkit-font-smoothing: subpixel-antialiased;
--webkit-transition: border 0.25s linear, color 0.25s linear, background-color 0.25s linear;
-transition: border 0.25s linear, color 0.25s linear, background-color 0.25s linear;
+	border: none;
+	font-size: 15px;
+	font-weight: normal;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-ms-border-radius: 3px;
+	-o-border-radius: 3px;
+	border-radius: 3px;
+	padding: 8px 14px;
+	margin-bottom: 5px;
+	-webkit-font-smoothing: subpixel-antialiased;
+	-webkit-transition: border 0.25s linear, color 0.25s linear, background-color 0.25s linear;
+	transition: border 0.25s linear, color 0.25s linear, background-color 0.25s linear;
 }
 .btn-default, a.btn-default:link, a.btn-default:visited {
-color: #fff;
-background-color: #556b8d;
+	color: #fff;
+	background-color: #556b8d;
 }
 .btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
-color: #ffffff;
-background-color: #5f779d;
-border-color: #5f779d;
+	color: #ffffff;
+	background-color: #5f779d;
+	border-color: #5f779d;
 
 }
 .btn:hover, .btn:focus {
-outline: none;
+	outline: none;
 }
