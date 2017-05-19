@@ -3,7 +3,7 @@
 */
 var dbHolder;
 var socket;
-var host = '';
+var host = 'http://4e10894e.ngrok.io';
 var app = {
     // Initialise application
     initialize: function() {
