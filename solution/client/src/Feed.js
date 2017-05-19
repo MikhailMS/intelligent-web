@@ -5,6 +5,7 @@ import RC2 from 'react-chartjs2';
 import Spinner from 'react-spinkit';
 import io from 'socket.io-client';
 import TwitterCard from './TwitterCard';
+import PlayerCard from './PlayerCard';
 import './App.css';
 
 // setup config variables
@@ -26,6 +27,8 @@ class Feed extends Component {
             selectedTab: '1',
             cardsReady: false,
             dataSize: null,
+            playerData: {},
+            playerReceived: false,
             loading: false,
         };
     }
@@ -54,6 +57,7 @@ class Feed extends Component {
             searchCards: [],
             cardsReady: false,
             loading,
+            playerReceived: false,
         }, () => {
             if (selectedTab === '2') this.onStreamSwitch(true);
             else this.handleFeedQuery(); // wait for setState to finish and execute
@@ -130,6 +134,15 @@ class Feed extends Component {
         // emit a feed search query
         socket.emit('search-query', { query: feedQuery, db_only: false });
 
+        if (!(socket.hasListeners('player-card-result'))) {
+            socket.on('player-card-result', (playerData) => {
+                this.setState({
+                    playerData,
+                    playerReceived: true
+                });
+            });
+        }
+
         // declare a socket listener that updates on feed events
         // check if created so only 1 listener is created
         if (!(socket.hasListeners('feed-search-result'))) {
@@ -153,20 +166,22 @@ class Feed extends Component {
         }
     }
 
-
-
     /**
     * Generates the Twitter feed 
     */
     renderSearch = () => {
         const { cardsReady, searchCards, dataSize,
-            allSearchCards, currentPage, loading } = this.state;
+            allSearchCards, playerReceived, playerData, currentPage, loading } = this.state;
 
-        // render spinner if data is being prepared
-        if (loading) return this.createSpinner();
-        else if (cardsReady) {
-            // the JSX to render
-            return (
+        let playerCard;
+        let twitterCards;
+
+        if (playerReceived) {
+            playerCard = <PlayerCard playerData={playerData} />;
+        } else playerCard = null;
+
+        if (cardsReady) {
+            twitterCards = (
                 <div className="feed">
                     <Row className="row" type="flex" justify="center">
                         <Pagination
@@ -195,8 +210,18 @@ class Feed extends Component {
                     </Row>
                 </div>
             );
-        }
-        return null;  // nothing to render
+        } else twitterCards = null;
+
+        // render spinner if data is being prepared
+        if (loading) return this.createSpinner();
+
+        // render scene if data is loaded
+        return (
+            <div>
+                {playerCard}
+                {twitterCards}
+            </div>
+        );
     }
 
     renderStream = () => {
@@ -309,19 +334,13 @@ class Feed extends Component {
                             defaultActiveKey="1"
                             onChange={(tab) => this.setState({ selectedTab: tab })}
                         >
-                            <TabPane
-                                tab="Search"
-                                key="1"
-                                className="tabPane"
-                            >
-                                {this.renderSearch()}
-                            </TabPane>
+                            <TabPane tab="Search" key="1" className="tabPane">{this.renderSearch()}</TabPane>
                             <TabPane tab="Stream" key="2">{this.renderStream()}</TabPane>
-                            <TabPane tab="Statistics" key="3">{this.renderStats()}</TabPane>
+                            <TabPane tab="Statistics" className="tabPane" key="3">{this.renderStats()}</TabPane>
                         </Tabs>
                     </Col>
                 </Row>
-            </div>
+            </div >
         );
     }
 }
