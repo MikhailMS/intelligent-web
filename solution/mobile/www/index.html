@@ -22,6 +22,13 @@
     </head>
     <body>
         <div id="container">
+            <div class ='tabs'>
+                <ul id="menu">
+                    <li id="search-tweets-tab-button" class="tab-button active" data-tab="#search-tweets-tab">Search Tweets</li>
+                    <li id="search-realtime-tab-button" class="tab-button" data-tab="#search-realtime-tab">Realtime Tweets</li>
+                    <li id="search-db-tab-button" class="tab-button" data-tab="#search-db-tab">Search Database</li>
+                </ul>
+            </div>
             <div id="tab-content">
               <div id="search-tweet-wrapper" style='display:block'>
                   <div id="search">
@@ -55,21 +62,14 @@
               </div>
             </div>
         </div>
-        <footer>
-            <ul id="menu">
-                <li id="search-tweets-tab-button" class="tab-button active" data-tab="#search-tweets-tab">Search Tweets</li>
-                <li id="search-realtime-tab-button" class="tab-button" data-tab="#search-realtime-tab">Realtime Tweets</li>
-                <li id="search-db-tab-button" class="tab-button" data-tab="#search-db-tab">Search Database</li>
-            </ul>
-        </footer>
-        <div class="loader"></div>
         <div id="dev-null" style="display: none"></div>
+        <div class="loader"></div>
         <!-- Cordova js file -->
         <script type="text/javascript" src="cordova.js"></script>
         <!-- Main js file with application logic -->
         <script type="text/javascript" src="js/index.js"></script>
         <!-- Socket dependencies -->
-        <script src="http://1979666e.ngrok.io/js/socket.io.js"></script>
+        <script src="host_name/js/socket.io.js"></script>
         <script type="text/javascript" src="js/socket.io.js"></script>
         <!-- JQuery dependencies -->
         <script src="js/lib/jquery-3.1.1.min.js"></script>

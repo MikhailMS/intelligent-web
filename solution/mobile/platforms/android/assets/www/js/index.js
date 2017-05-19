@@ -1,9 +1,9 @@
 /*created by Mikhail Molotkov
-  updated on 17/05/2017
+  updated on 19/05/2017
 */
 var dbHolder;
-var host = 'http://1979666e.ngrok.io';
 var socket;
+var host = '';
 var app = {
     // Initialise application
     initialize: function() {
@@ -25,7 +25,6 @@ var app = {
         socket = io.connect(host);
       }
     },
-
     // Functions to process user clicks
     onSearchButtonClick: function(e) {
       e.preventDefault();
@@ -45,12 +44,10 @@ var app = {
         if (!(socket.hasListeners('feed-search-result'))) {
           socket.on('feed-search-result', function (data) {
             if (data!=null) {
-              console.log(`Data received `);
-              console.log(data)
-              console.log('Start displaying tweets');
+              console.log('Data received from Twitter Search');
               for (var i = 0, len = data.length; i < len; i++) {
-                // Hide loading animation
-                $("body").removeClass("loading");
+                // Close loading animation
+                app.closeLoadingAnimation();
                 // Extract tweet data
                 var tweetText = data[i].text
                 var tweetId = data[i].id;
@@ -77,7 +74,7 @@ var app = {
                 // Append 'tweet div' to 'parent div' element
                 $tab.append($div).toggle().toggle();
               }
-              console.log('All tweets has been displayed. Saving to DB...')
+              console.log('Saving to DB...')
               if (dbHolder == null) {
                 dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
               }
@@ -97,9 +94,12 @@ var app = {
                 var date = timeDateList.date;
                 var time = timeDateList.time;
                 var year = timeDateList.year;
+                // Get timestamp
+                var timestamp = Date.parse(`${year}-${month}-${date} ${time}+0000`)/1000
+                console.log(timestamp);
                 var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
                 // Save tweet to DB
-                app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, date_time);
+                app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, date_time, timestamp);
               }
             }
           });
@@ -134,9 +134,9 @@ var app = {
         // This listens on the "stream-result" channel and data is received everytime a new tweet is receieved.
         socket.on('stream-result', function (data) {
           if (data!=null) {
-            console.log('Data received');
-            // Hide loading animation
-            $("body").removeClass("loading");
+            console.log('Data received from Twitter Stream');
+            // Close loading animation
+            app.closeLoadingAnimation();
             // Extract tweet data
             var tweetText = data.text
             var tweetId = data.id;
@@ -163,7 +163,6 @@ var app = {
             // Append 'tweet div' to 'parent div' element
             $tab.append($div).toggle().toggle();
             //$($div).insertBefore('.stream-tweet').toggle().toggle(); // Append on top of previous tweet [Redundant?]
-
             counter++;
           }
         });
@@ -191,12 +190,12 @@ var app = {
       } else {
         $("body").addClass("loading");
         dbHolder.transaction(function (transaction) {
-            transaction.executeSql('SELECT * FROM search_query WHERE query=? ORDER BY id_str DESC', [query],
+            transaction.executeSql('SELECT * FROM search_query WHERE query=? ORDER BY timestamp DESC', [query],
               function (tx, results) {
                 // access with results.rows.item(i).<field>
                 console.log(`Data retrieved from DB - ${results.rows.length}`);
-                // Hide loading animation
-                $("body").removeClass("loading");
+                // Close loading animation
+                app.closeLoadingAnimation();
                 if (results.rows.length===0) {
                   console.log('No results found');
                   alert('No results found');
@@ -262,7 +261,7 @@ var app = {
     initializeDB: function() {
       dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
       dbHolder.transaction(function (transaction) {
-          transaction.executeSql('CREATE TABLE IF NOT EXISTS search_query (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, query TEXT, text TEXT, id_str TEXT, authorName TEXT, userName TEXT, profileImg TEXT, created_at TEXT, UNIQUE (query, text, authorName, userName))', [],
+          transaction.executeSql('CREATE TABLE IF NOT EXISTS search_query (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, query TEXT, text TEXT, id_str TEXT, authorName TEXT, userName TEXT, profileImg TEXT, created_at TEXT, timestamp TEXT, UNIQUE (query, text, authorName, userName))', [],
               function (tx, result) {
                   console.log("Table created successfully");
               },
@@ -272,9 +271,9 @@ var app = {
       });
     },
 
-    insertDataToDB: function(holder, query, text, id_str, authorName, userName, profileImg, created_at) {
+    insertDataToDB: function(holder, query, text, id_str, authorName, userName, profileImg, created_at, timestamp) {
       holder.transaction(function(tx) {
-        tx.executeSql('INSERT INTO search_query (query, text, id_str, authorName, userName, profileImg, created_at) VALUES (?,?,?,?,?,?,?)', [query, text, id_str, authorName, userName, profileImg, created_at]);
+        tx.executeSql('INSERT INTO search_query (query, text, id_str, authorName, userName, profileImg, created_at, timestamp) VALUES (?,?,?,?,?,?,?,?)', [query, text, id_str, authorName, userName, profileImg, created_at, timestamp]);
       }, function(error) {
         console.log('Transaction ERROR: ' + error.message);
       }, function() {

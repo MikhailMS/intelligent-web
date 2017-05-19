@@ -1,23 +1,33 @@
+
+/* Get fonts */
 @import url(http://fonts.googleapis.com/css?family=Montserrat:400,700);
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600);
-.ui-page {
-	background-color: white;
-}
 
+/* Body and container */
 #container {
 	width: 100%;
 	margin: auto;
 }
-/* Footer tabs design */
-footer ul#menu {
+body {
+	font-family: 'Montserrat', sans-serif;
+	background-color: #fff;
+}
+
+/* Tabs design */
+.tabs {
+	position: absolute;
+	top: 1px;
+	width:100%;
+	height: 5%;
+}
+.tabs ul#menu {
 	list-style: none;
 	width: 100%;
 	overflow: auto;
 	padding: 0;
 	margin:0;
-
 }
-footer ul#menu > li.tab-button {
+.tabs ul#menu > li.tab-button {
 	display: block;
 	width: 33.3%;
 	padding: 10px 0;
@@ -28,43 +38,33 @@ footer ul#menu > li.tab-button {
 	border-top: 2px solid #ccc;
 	background:#fff;
 }
-footer ul#menu > li.tab-button.active {
+.tabs ul#menu > li.tab-button.active {
 	cursor: default;
 	border-top: 2px solid rgb(42, 42, 131);
 }
 
-
+/* Main content */
 #tab-content {
 	width: 98%;
+	padding-top: 52px;
 	margin: auto;
 }
-
 #search {
 	margin-bottom: 10px;
 }
 #search input,
 #search button {
-		border-radius: 0;
-	}
+	border-radius: 0;
+}
+#search button {
+	height: 39px;
+}
 
-body {
-	font-family: 'Montserrat', sans-serif;
-}
-body .ui-page {
-	padding-top:10px;
-	padding-bottom:35px;
-}
-footer {
-	position: fixed;
-	bottom:0;
-	width:100%;
-	height: 6%;
-}
 /* Display tweets style */
 .search-tweet, .stream-tweet, .db-tweet {
-	margin-bottom: 35px;
+	margin-bottom: 15px;
 	padding: 10px;
-	background: #fff;
+	background: #F3FCFD;
 	font-family: "Open Sans", Helvetica, Arial;
 }
 .search-tweet-link, .stream-tweet-link, .db-tweet-link {
@@ -79,30 +79,8 @@ footer {
 	font-size: 1em;
 	text-decoration: none;
 }
-.search-tweet span.search-tweet-text {
-	font-size: 1.2em;
-	font-weight: bold;
-	padding-top: 5px;
-	margin-top: 5px;
-	padding-bottom: 10px;
-	margin-bottom: 10px;
-	border-top: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;
-	width: 100%;
-	display: block;
-}
-.stream-tweet span.stream-tweet-text {
-	font-size: 1.2em;
-	font-weight: bold;
-	padding-top: 5px;
-	margin-top: 5px;
-	padding-bottom: 10px;
-	margin-bottom: 10px;
-	border-top: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;
-	width: 100%;
-	display: block;
-}
+.search-tweet span.search-tweet-text,
+.stream-tweet span.stream-tweet-text,
 .db-tweet span.db-tweet-text {
 	font-size: 1.2em;
 	font-weight: bold;
@@ -132,19 +110,13 @@ footer {
 }
 body.loading {
     overflow: hidden;
+
 }
 body.loading .loader {
     display: block;
 }
 
-/* Cool stuff */
-.ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
-	background-color: #F0F3F3;
-	border-color: #bbb;
-	color: #333;
-	text-shadow: 0 1px 0 #f3f3f3;
-}
-
+/* Form and buttons */
 .form-control {
 	border: 2px solid #e8ebed;
 	border-radius: 2px;
@@ -171,16 +143,12 @@ body.loading .loader {
 	-webkit-transition: border 0.25s linear, color 0.25s linear, background-color 0.25s linear;
 	transition: border 0.25s linear, color 0.25s linear, background-color 0.25s linear;
 }
-.btn-default, a.btn-default:link, a.btn-default:visited {
+.btn-default {
 	color: #fff;
 	background-color: #556b8d;
 }
-.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
-	color: #ffffff;
+.btn-default:hover {
+	color: #fff;
 	background-color: #5f779d;
 	border-color: #5f779d;
-
-}
-.btn:hover, .btn:focus {
-	outline: none;
 }
