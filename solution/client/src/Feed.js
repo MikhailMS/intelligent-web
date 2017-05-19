@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { Row, Col, Input, Tabs, Switch, Pagination } from 'antd';
+import RC2 from 'react-chartjs2';
 import Spinner from 'react-spinkit';
 import io from 'socket.io-client';
 import TwitterCard from './TwitterCard';
@@ -19,7 +20,7 @@ class Feed extends Component {
             streamChecked: false,
             allSearchCards: [],
             streamResults: [],
-            frequency: {},
+            frequency: null,
             searchCards: [],
             currentPage: 1,
             selectedTab: '1',
@@ -53,11 +54,10 @@ class Feed extends Component {
             searchCards: [],
             cardsReady: false,
             loading,
-        },
-            () => {
-                if (selectedTab === '2') this.onStreamSwitch(true);
-                else this.handleFeedQuery(); // wait for setState to finish and execute
-            });
+        }, () => {
+            if (selectedTab === '2') this.onStreamSwitch(true);
+            else this.handleFeedQuery(); // wait for setState to finish and execute
+        });
     }
 
 
@@ -126,12 +126,13 @@ class Feed extends Component {
         // check if created so only 1 listener is created
         if (!(socket.hasListeners('feed-search-result'))) {
             socket.on('feed-search-result', (res) => {
+                console.log('frequency', res.frequency);
                 const searchResults = res.tweets;
                 const twitCards = searchResults.map(
                     el => <TwitterCard key={el.id} tweet={el} />);
                 const newSearchCards = twitCards.slice(0, 10); // take first 10 cards
                 this.setState({
-                    frequency: res.frequency, // ADD STUFF FFFFF HERE
+                    frequency: res.frequency,
                     allSearchCards: twitCards,
                     currentPage: 1,
                     twitCards,
@@ -240,6 +241,50 @@ class Feed extends Component {
         );
     }
 
+    renderStats = () => {
+        const { frequency } = this.state;
+
+        if (frequency) {
+            // prepare chart data
+            // reverse arrays so earlier days and data come first
+            const labels = Object.keys(frequency).map(key => key).reverse();
+            const data = Object.keys(frequency).map(key => frequency[key]).reverse();
+            console.log(frequency);
+            console.log(labels);
+            console.log(data);
+            const chartData = {
+                labels,
+                datasets: [
+                    {
+                        label: 'Tweet frequency',
+                        fill: false,
+                        lineTension: 0.1,
+                        backgroundColor: 'rgba(75,192,192,0.4)',
+                        borderColor: 'rgba(75,192,192,1)',
+                        borderCapStyle: 'butt',
+                        borderDash: [],
+                        borderDashOffset: 0.0,
+                        borderJoinStyle: 'miter',
+                        pointBorderColor: 'rgba(75,192,192,1)',
+                        pointBackgroundColor: '#fff',
+                        pointBorderWidth: 1,
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+                        pointHoverBorderColor: 'rgba(220,220,220,1)',
+                        pointHoverBorderWidth: 2,
+                        pointRadius: 1,
+                        pointHitRadius: 10,
+                        data,
+                        spanGaps: false,
+                    }
+                ]
+            };
+            return (
+                <RC2 data={chartData} type='line' />
+            );
+        } return null;
+    }
+
     render() {
         return (
             <div>
@@ -266,7 +311,7 @@ class Feed extends Component {
                                 {this.renderSearch()}
                             </TabPane>
                             <TabPane tab="Stream" key="2">{this.renderStream()}</TabPane>
-                            <TabPane tab="Statistics" key="3">Statistics</TabPane>
+                            <TabPane tab="Statistics" key="3">{this.renderStats()}</TabPane>
                         </Tabs>
                     </Col>
                 </Row>

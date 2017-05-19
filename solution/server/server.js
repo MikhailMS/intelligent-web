@@ -49,7 +49,7 @@ io.on('connection', function (socket) {
 
         twitHandler.querySearch(msg, (res) => {
             res.sort((a, b) => b.id - a.id);
-            console.log('Sending '+res.length+' tweets to the client.');
+            console.log('Sending ' + res.length + ' tweets to the client.');
             if (msg.db_only) io.to(socket.id).emit('db-search-result', res);
             else io.to(socket.id).emit('feed-search-result', {
                 tweets: res,
