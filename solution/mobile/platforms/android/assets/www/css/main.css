@@ -1,4 +1,3 @@
-
 /* Get fonts */
 @import url(http://fonts.googleapis.com/css?family=Montserrat:400,700);
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600);
@@ -11,9 +10,10 @@
 body {
 	font-family: 'Montserrat', sans-serif;
 	background-color: #fff;
+	outline: none;
 }
 
-/* Tabs design */
+/* Tabs */
 .tabs {
 	position: absolute;
 	top: 1px;
@@ -57,10 +57,10 @@ body {
 	border-radius: 0;
 }
 #search button {
-	height: 39px;
+	height: 40px;
 }
 
-/* Display tweets style */
+/* Tweets */
 .search-tweet, .stream-tweet, .db-tweet {
 	margin-bottom: 15px;
 	padding: 10px;
@@ -116,19 +116,14 @@ body.loading .loader {
     display: block;
 }
 
-/* Form and buttons */
+/* Search field and button */
 .form-control {
 	border: 2px solid #e8ebed;
 	border-radius: 2px;
 	box-shadow: none;
 	padding: 18px 12px;
 }
-.form-control:focus {
-	background: #fff;
-	border-color: #556b8d;
-	box-shadow: none;
-}
-.btn {
+.btn.search, .btn.stream, .btn.db {
 	border: none;
 	font-size: 15px;
 	font-weight: normal;
@@ -151,4 +146,12 @@ body.loading .loader {
 	color: #fff;
 	background-color: #5f779d;
 	border-color: #5f779d;
+}
+.btn, .btn-default:hover, .btn-primary {
+	outline: none;
+}
+/* Stream indicator*/
+.toggle {
+	display:none;
+	height: 37px;
 }

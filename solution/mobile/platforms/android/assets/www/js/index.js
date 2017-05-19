@@ -3,7 +3,7 @@
 */
 var dbHolder;
 var socket;
-var host = '';
+var host = 'http://4e10894e.ngrok.io';
 var app = {
     // Initialise application
     initialize: function() {
@@ -12,19 +12,26 @@ var app = {
           document.addEventListener('deviceready', this.initializeDB);
       } else {
           this.onDeviceReady();
+          this.initializeDB();
       }
     },
 
-    // Event Handler for deviceready
+    // Events Handler for deviceready
     onDeviceReady: function() {
       this.overrideAlert();
-      this.receivedEvent('deviceready');
+      this.receivedEvent();
       document.addEventListener("pause", this.stopStream, false);
       document.addEventListener("pause", this.closeLoadingAnimation, false);
+      document.addEventListener("backbutton", this.stopStream, false);
+      document.addEventListener("backbutton", this.closeLoadingAnimation, false);
+      // Setup Stream Switch
+      this.toggleStreamSwitch(false);
+      // Setup socket channel
       if(io !== undefined) {
         socket = io.connect(host);
       }
     },
+
     // Functions to process user clicks
     onSearchButtonClick: function(e) {
       e.preventDefault();
@@ -33,6 +40,7 @@ var app = {
       }
       var $tab = $('#search-tweet-wrapper');
       var query = $('#search-query').val();
+      // Check for empty queries
       if (query.length<=0 || query.replace(/ /g,'').length<=0) {
         alert('Type in your query');
         $('#search-query').val("");
@@ -45,61 +53,64 @@ var app = {
           socket.on('feed-search-result', function (data) {
             if (data!=null) {
               console.log('Data received from Twitter Search');
-              for (var i = 0, len = data.length; i < len; i++) {
-                // Close loading animation
-                app.closeLoadingAnimation();
-                // Extract tweet data
-                var tweetText = data[i].text
-                var tweetId = data[i].id;
-                var authorName = data[i].author_name
-                var userName = data[i].user_name
-                var profilePage = data[i].profile_url;
-                var link = data[i].tweet_url;
-                var profileImg = data[i].avatar_url;
-                var timeDateList = data[i].date_time;
-                // Split received date for custom design
-                var weekDay = timeDateList.week_day;
-                var month = timeDateList.month;
-                var date = timeDateList.date;
-                var time = timeDateList.time;
-                var year = timeDateList.year;
-                // Create div element that holds tweet data
-                $tab.append(`<div id='id_${i}_search' class='search-tweet'><div><a class='search-tweet-author-page' href='${profilePage}'><img class='search-tweet-author-img' alt='profile' src='${profileImg}' /></a><a class='search-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'><span class='search-tweet-author'></span></a></div><div><span class='search-tweet-text'></span></div><div><span class='search-tweet-time'></span><a class='search-tweet-link' target='_blank' rel='noopener noreferrer' href='${link}'>Open tweet</a></div></div>`);
-                var $div = $(`#id_${i}_search`);
-                // Add tweet data to placeholders
-                $div.find('.search-tweet-text').text(tweetText);
-                $div.find('.search-tweet-author').text(authorName);
-                var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
-                $div.find('.search-tweet-time').text(date_time);
-                // Append 'tweet div' to 'parent div' element
-                $tab.append($div).toggle().toggle();
-              }
-              console.log('Saving to DB...')
-              if (dbHolder == null) {
-                dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
-              }
-              for (var i = 0, len = data.length; i < len; i++) {
-                // Extract tweet data
-                var tweetText = data[i].text
-                var tweetId = data[i].id;
-                var authorName = data[i].author_name
-                var userName = data[i].user_name
-                var profilePage = data[i].profile_url;
-                var link = data[i].tweet_url;
-                var profileImg = data[i].avatar_url;
-                var timeDateList = data[i].date_time;
-                // Split received date for custom design
-                var weekDay = timeDateList.week_day;
-                var month = timeDateList.month;
-                var date = timeDateList.date;
-                var time = timeDateList.time;
-                var year = timeDateList.year;
-                // Get timestamp
-                var timestamp = Date.parse(`${year}-${month}-${date} ${time}+0000`)/1000
-                console.log(timestamp);
-                var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
-                // Save tweet to DB
-                app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, date_time, timestamp);
+              // Close loading animation
+              app.closeLoadingAnimation();
+              if (data.length<=0) {
+                alert(`No results found for ${query}`)
+              } else {
+                for (var i = 0, len = data.length; i < len; i++) {
+                  // Extract tweet data
+                  var tweetText = data[i].text
+                  var tweetId = data[i].id;
+                  var authorName = data[i].author_name
+                  var userName = data[i].user_name
+                  var profilePage = data[i].profile_url;
+                  var link = data[i].tweet_url;
+                  var profileImg = data[i].avatar_url;
+                  var timeDateList = data[i].date_time;
+                  // Split received date for custom design
+                  var weekDay = timeDateList.week_day;
+                  var month = timeDateList.month;
+                  var date = timeDateList.date;
+                  var time = timeDateList.time;
+                  var year = timeDateList.year;
+                  // Create div element that holds tweet data
+                  $tab.append(`<div id='id_${i}_search' class='search-tweet'><div><a class='search-tweet-author-page' href='${profilePage}'><img class='search-tweet-author-img' alt='profile' src='${profileImg}' /></a><a class='search-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'><span class='search-tweet-author'></span></a></div><div><span class='search-tweet-text'></span></div><div><span class='search-tweet-time'></span><a class='search-tweet-link' target='_blank' rel='noopener noreferrer' href='${link}'>Open tweet</a></div></div>`);
+                  var $div = $(`#id_${i}_search`);
+                  // Add tweet data to placeholders
+                  $div.find('.search-tweet-text').text(tweetText);
+                  $div.find('.search-tweet-author').text(authorName);
+                  var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
+                  $div.find('.search-tweet-time').text(date_time);
+                  // Append 'tweet div' to 'parent div' element
+                  $tab.append($div).toggle().toggle();
+                }
+                console.log('Saving to DB...')
+                if (dbHolder == null) {
+                  dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
+                }
+                for (var i = 0, len = data.length; i < len; i++) {
+                  // Extract tweet data
+                  var tweetText = data[i].text
+                  var tweetId = data[i].id;
+                  var authorName = data[i].author_name
+                  var userName = data[i].user_name
+                  var profilePage = data[i].profile_url;
+                  var link = data[i].tweet_url;
+                  var profileImg = data[i].avatar_url;
+                  var timeDateList = data[i].date_time;
+                  // Split received date for custom design
+                  var weekDay = timeDateList.week_day;
+                  var month = timeDateList.month;
+                  var date = timeDateList.date;
+                  var time = timeDateList.time;
+                  var year = timeDateList.year;
+                  // Get timestamp
+                  var timestamp = Date.parse(`${year}-${month}-${date} ${time}+0000`)/1000
+                  var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
+                  // Save tweet to DB
+                  app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, date_time, timestamp);
+                }
               }
             }
           });
@@ -121,15 +132,17 @@ var app = {
       }
       var $tab = $('#search-stream-wrapper');
       var query = $('#stream-query').val();
+      // Check for empty queries
       if (query.length<=0 || query.replace(/ /g,'').length<=0) {
         alert('Type in your query');
         $('#stream-query').val("");
       } else {
-        $("body").addClass("loading");
+        //$('.toggle.btn.btn-default.off').attr('style', 'width: 100%;height: 60px;')
+        $('.toggle.btn.btn-default.off').attr('style', 'display:block');
         console.log(`Query to Stream API ${query}`);
-        socket.emit('close-stream', ''); // Close previous stream, if the one exists
+        app.stopStream();
+        app.toggleStreamSwitch(true);
         socket.emit('stream-query', query); // Emit search query to Stream API
-
         var counter = 0;
         // This listens on the "stream-result" channel and data is received everytime a new tweet is receieved.
         socket.on('stream-result', function (data) {
@@ -164,6 +177,8 @@ var app = {
             $tab.append($div).toggle().toggle();
             //$($div).insertBefore('.stream-tweet').toggle().toggle(); // Append on top of previous tweet [Redundant?]
             counter++;
+          } else {
+            console.log('no data');
           }
         });
 
@@ -184,6 +199,7 @@ var app = {
       }
       var $tab = $('#search-db-wrapper');
       var query = $('#db-query').val();
+      // Check for empty queries
       if (query.length<=0 || query.replace(/ /g,'').length<=0) {
         alert('Type in your query');
         $('#db-query').val("");
@@ -257,7 +273,19 @@ var app = {
       }
     },
 
-    // DB initialisation and helpers
+    toggleStreamSwitch: function(check) {
+      if (check) {
+        $('#stream-switch').bootstrapToggle('enable');
+        $('#stream-switch').bootstrapToggle('on');
+        $('#stream-switch').bootstrapToggle('disable');
+      } else {
+        $('#stream-switch').bootstrapToggle('enable');
+        $('#stream-switch').bootstrapToggle('off');
+        $('#stream-switch').bootstrapToggle('disable');
+      }
+    },
+
+    // DB initialisation and insert
     initializeDB: function() {
       dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
       dbHolder.transaction(function (transaction) {
@@ -281,13 +309,14 @@ var app = {
       });
     },
 
-    // Stop tweets stream function
+    // Stop tweets stream channel
     stopStream: function() {
       console.log('Stop stream is called')
       socket.emit('close-stream', ''); // Close stream once it's not needed
+      app.toggleStreamSwitch(false);
     },
 
-    // Close animation if user put the app on hold ('pause' event)
+    // Close animation
     closeLoadingAnimation: function() {
       if ($("body").hasClass("loading")) {
         $("body").removeClass("loading");
@@ -295,12 +324,11 @@ var app = {
     },
 
     // Update DOM on a Received Event
-    receivedEvent: function(id) {
+    receivedEvent: function() {
       $('.tab-button').on('click', this.onTabClick);
       $("#btn-search-query").on( "click", this.onSearchButtonClick);
       $("#btn-stream-query").on( "click", this.onStreamButtonClick);
       $("#btn-search-db-query").on( "click", this.onDBButtonClick);
-      console.log('Received Event: ' + id);
     },
 
     // Custom alert
