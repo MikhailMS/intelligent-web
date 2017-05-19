@@ -110,7 +110,7 @@ class Database extends Component {
             <div>
                 <Row className="row" type="flex" justify="center">
                     <Col span={18}>
-                        <Tooltip placement="right" title={searchHint}>
+                        <Tooltip placement="bottomRight" title={searchHint}>
                             <Search
                                 className="searchBar"
                                 placeholder="Enter feed query ..."
