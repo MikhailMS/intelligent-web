@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import { Row, Col, Input, Pagination } from 'antd';
+import { Row, Col, Input, Pagination, Tooltip } from 'antd';
 import io from 'socket.io-client';
 import TwitterCard from './TwitterCard';
 import './App.css';
@@ -105,15 +105,18 @@ class Database extends Component {
     }
 
     render() {
+        const searchHint = 'Search by players, teams and author. Example query: "#hazard OR #chelsea BY @WayneRooney"';
         return (
             <div>
                 <Row className="row" type="flex" justify="center">
                     <Col span={18}>
-                        <Search
-                            className="searchBar"
-                            placeholder="Enter database query ..."
-                            onSearch={(value) => this.onSearchDB(value)}
-                        />
+                        <Tooltip placement="right" title={searchHint}>
+                            <Search
+                                className="searchBar"
+                                placeholder="Enter feed query ..."
+                                onSearch={(value) => this.onSearchDB(value)}
+                            />
+                        </Tooltip>
                     </Col>
                 </Row>
                 <Row className="row" type="flex" justify="center">

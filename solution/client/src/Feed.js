@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import { Row, Col, Input, Tabs, Switch, Pagination } from 'antd';
+import { Row, Col, Input, Tabs, Switch, Pagination, Tooltip } from 'antd';
 import RC2 from 'react-chartjs2';
 import Spinner from 'react-spinkit';
 import io from 'socket.io-client';
@@ -317,15 +317,18 @@ class Feed extends Component {
     }
 
     render() {
+        const searchHint = 'Search by players, teams and author. Example query: "#hazard OR #chelsea BY @WayneRooney"';
         return (
             <div>
                 <Row className="row" type="flex" justify="center">
                     <Col span={18}>
-                        <Search
-                            className="searchBar"
-                            placeholder="Enter feed query ..."
-                            onSearch={(value) => this.onSearchFeed(value)}
-                        />
+                        <Tooltip placement="right" title={searchHint}>
+                            <Search
+                                className="searchBar"
+                                placeholder="Enter feed query ..."
+                                onSearch={(value) => this.onSearchFeed(value)}
+                            />
+                        </Tooltip>
                     </Col>
                 </Row>
                 <Row className="row" type="flex" justify="center">

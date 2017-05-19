@@ -42,7 +42,6 @@ io.on('connection', function (socket) {
 
         twitHandler.getPlayerName(msg.query, (playerName) => {
             dbp.getPlayerData(playerName, (player) => {
-                console.log(player);
                 io.to(socket.id).emit('player-card-result', player);
             });
         });
