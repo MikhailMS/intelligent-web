@@ -108,6 +108,15 @@ class Feed extends Component {
     }
 
     /**
+     * Creates a loading spinner
+     */
+    createSpinner = () => (
+        <div className='spinnerWrapper'>
+            <Spinner spinnerName="folding-cube" className="loadingSpinner" />
+        </div>
+    );
+
+    /**
     * Handles a change of search. This includes either Twitter or DB search.
     */
     handleFeedQuery = () => { //eslint-disable-line
@@ -142,8 +151,10 @@ class Feed extends Component {
                     loading: false
                 });
             });
-        };
+        }
     }
+
+
 
     /**
     * Generates the Twitter feed 
@@ -152,13 +163,9 @@ class Feed extends Component {
         const { cardsReady, searchCards, dataSize,
             allSearchCards, currentPage, loading } = this.state;
 
-        if (loading) { // render spinner if data is being prepared
-            return (
-                <div className='spinnerWrapper'>
-                    <Spinner spinnerName="folding-cube" className="loadingSpinner" />
-                </div>
-            );
-        } else if (cardsReady) {
+        // render spinner if data is being prepared
+        if (loading) this.createSpinner();
+        else if (cardsReady) {
             // the JSX to render
             return (
                 <div className="feed">
@@ -242,16 +249,14 @@ class Feed extends Component {
     }
 
     renderStats = () => {
-        const { frequency } = this.state;
+        const { frequency, loading } = this.state;
 
+        if (loading) this.createSpinner();
         if (frequency) {
             // prepare chart data
             // reverse arrays so earlier days and data come first
             const labels = Object.keys(frequency).map(key => key).reverse();
             const data = Object.keys(frequency).map(key => frequency[key]).reverse();
-            console.log(frequency);
-            console.log(labels);
-            console.log(data);
             const chartData = {
                 labels,
                 datasets: [
