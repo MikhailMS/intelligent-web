@@ -22,6 +22,12 @@
   height: 50px;
 }
 
+.freqChart {
+  background-color: #fff;
+  height: 50%;
+  width:50%;
+}
+
 .navWrapper {
   float: right;
 }

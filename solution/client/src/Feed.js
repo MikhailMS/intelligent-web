@@ -269,8 +269,8 @@ class Feed extends Component {
                         borderDash: [],
                         borderDashOffset: 0.0,
                         borderJoinStyle: 'miter',
-                        pointBorderColor: 'rgba(75,192,192,1)',
-                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#000',
+                        pointBackgroundColor: '#000',
                         pointBorderWidth: 1,
                         pointHoverRadius: 5,
                         pointHoverBackgroundColor: 'rgba(75,192,192,1)',
@@ -284,9 +284,11 @@ class Feed extends Component {
                 ]
             };
             return (
-                <RC2 data={chartData} type='line' />
+                <Row className="row" type="flex" justify="center">
+                    <RC2 data={chartData} className="freqChart" type='line' />
+                </Row>
             );
-        } return null;
+        } return null; // nothing to render
     }
 
     render() {
