@@ -1,5 +1,6 @@
 .DS_Store
 .idea/
 /solution/server/node_modules/
+/solution/server/db.sqlite3
 /solution/client/node_modules/
 /solution/mobile/platforms
