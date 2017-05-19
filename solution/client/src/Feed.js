@@ -110,11 +110,10 @@ class Feed extends Component {
     /**
      * Creates a loading spinner
      */
-    createSpinner = () => (
+    createSpinner = () =>
         <div className='spinnerWrapper'>
             <Spinner spinnerName="folding-cube" className="loadingSpinner" />
         </div>
-    );
 
     /**
     * Handles a change of search. This includes either Twitter or DB search.
@@ -164,7 +163,7 @@ class Feed extends Component {
             allSearchCards, currentPage, loading } = this.state;
 
         // render spinner if data is being prepared
-        if (loading) this.createSpinner();
+        if (loading) return this.createSpinner();
         else if (cardsReady) {
             // the JSX to render
             return (
@@ -251,7 +250,7 @@ class Feed extends Component {
     renderStats = () => {
         const { frequency, loading } = this.state;
 
-        if (loading) this.createSpinner();
+        if (loading) return this.createSpinner();
         if (frequency) {
             // prepare chart data
             // reverse arrays so earlier days and data come first
