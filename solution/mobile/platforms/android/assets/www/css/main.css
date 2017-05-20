@@ -40,7 +40,7 @@ body {
 }
 .tabs ul#menu > li.tab-button.active {
 	cursor: default;
-	border-top: 2px solid rgb(42, 42, 131);
+	border-top: 2px solid rgb(95,119,157);
 }
 
 /* Main content */
