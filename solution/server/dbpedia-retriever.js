@@ -32,11 +32,11 @@ function getQuery(name) {
         "?player rdfs:label ?label ."+
         "?player person:height ?height ."+
         "?player dbp:fullname ?fullname ."+
-        "?player dbo:birthPlace ?birthPlace ."+
-        "?birthPlace rdfs:label ?place_name ."+
+        //"?player dbo:birthPlace ?birthPlace ."+
+        //"?birthPlace rdfs:label ?place_name ."+
         "?player dbp:currentclub ?currentclub ."+
         "?currentclub rdfs:label ?club_name ."+
-        "?player dbo:number ?number ."+
+        //"?player dbo:number ?number ."+
         "?player foaf:depiction ?depiction ."+
         "?player dbo:thumbnail ?thumbnail ."+
         "?player a dbo:SoccerPlayer ."+
@@ -46,7 +46,7 @@ function getQuery(name) {
         "FILTER (?label = '"+name+"'@en) ."+
         "FILTER (lang(?pos_label) = 'en') ."+
         "FILTER (lang(?club_name) = 'en') ."+
-        "FILTER (lang(?place_name) = 'en') ."+
+        //"FILTER (lang(?place_name) = 'en') ."+
         "FILTER (lang(?abstract) = 'en') ."+
     "} LIMIT 1";
 }
@@ -56,7 +56,6 @@ function convertToPlayer(playerResult) {
         fullname: playerResult.fullname.value,
         abstract: playerResult.abstract.value,
         height: playerResult.height.value,
-        birthplace: playerResult.place_name.value,
         current_club: playerResult.club_name.value,
         thumbnail_url: playerResult.thumbnail.value,
         depiction_url: playerResult.depiction.value,
@@ -70,16 +69,19 @@ getPlayerData = function(name, callback) {
     client.query(getQuery(name), (err, res) => {
         if(err === null) {
             if (res === undefined) {
-                console.log('Error retrieving data from DBPedia.');
+                LOG.log(LNAME, 'Error retrieving data from DBPedia.');
             } else {
                 let p = res.results.bindings[0];
-                if(p !== undefined) {
+                if(p !== undefined && p !== null) {
                     callback(null, convertToPlayer(p));
                 } else {
                     callback(dbpedia_empty_error, null);
+                    LOG.log(LNAME, 'DBPedia returned empty data');
                 }
             }
         } else {
+            LOG.log(LNAME, 'DBPedia returned an error.');
+            console.log(err);
             callback(dbpedia_error, null);
         }
     });
