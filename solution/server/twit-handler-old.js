@@ -3,7 +3,7 @@
  */
 var Twitter = require('twitter');
 var config = require('./config');
-var db = require('./dbcontrol');
+var db = require('./db-control');
 var Promise = require('bluebird');
 
 //creates the tables anew

@@ -73,7 +73,7 @@ class Feed extends Component {
         const { feedQuery } = this.state;
         this.setState({ streamChecked: checked }); // start stream
         if (checked) {
-            socket.emit('stream-query', feedQuery);
+            socket.emit('open-stream', feedQuery);
             this.handleStream();
         } else { // close stream
             socket.emit('close-stream', '');
@@ -89,7 +89,7 @@ class Feed extends Component {
 
         // create listener for stream results
         if (!(socket.hasListeners('stream-result'))) {
-            socket.on('stream-result', (res) => {
+            socket.on('stream-result', (err, res) => {
                 const { streamResults } = this.state;
                 let newResults;
                 if (streamResults.length === 0) newResults = [res];
@@ -132,10 +132,10 @@ class Feed extends Component {
         }
 
         // emit a feed search query
-        socket.emit('search-query', { query: feedQuery, db_only: false });
+        socket.emit('static-search', { query: feedQuery, db_only: false });
 
         if (!(socket.hasListeners('player-card-result'))) {
-            socket.on('player-card-result', (playerData) => {
+            socket.on('player-card-result', (err, playerData) => {
                 this.setState({
                     playerData,
                     playerReceived: true
@@ -146,7 +146,7 @@ class Feed extends Component {
         // declare a socket listener that updates on feed events
         // check if created so only 1 listener is created
         if (!(socket.hasListeners('feed-search-result'))) {
-            socket.on('feed-search-result', (res) => {
+            socket.on('feed-search-result', (err, res) => {
                 console.log('frequency', res.frequency);
                 const searchResults = res.tweets;
                 const twitCards = searchResults.map(

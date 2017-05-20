@@ -1,10 +1,24 @@
 /**
  * Created by blagoslav on 18.05.17.
  */
+const   SPARQL = require('sparql'),
+        LOG = require('./logger'),
+        LNAME = 'DBPEDIA';
 
-var sparql = require('sparql');
+let client = new SPARQL.Client('http://dbpedia.org/sparql');
 
-getQuery = function(name) {
+const dbpedia_error = {
+    title: 'DBPedia error',
+    msg: 'There was error while attempting to query' +
+    'DBPedia using the SPARQL endpoint.'
+};
+
+const dbpedia_empty_error = {
+    title: 'DBPedia error',
+    msg: 'Results of SPARQL query were empty.'
+};
+
+function getQuery(name) {
     return  ""+
     "PREFIX dbo:<http://dbpedia.org/ontology/>"+
     "PREFIX person:<http://dbpedia.org/ontology/Person/>" +
@@ -35,30 +49,39 @@ getQuery = function(name) {
         "FILTER (lang(?place_name) = 'en') ."+
         "FILTER (lang(?abstract) = 'en') ."+
     "} LIMIT 1";
+}
 
-};
+function convertToPlayer(playerResult) {
+    return {
+        fullname: playerResult.fullname.value,
+        abstract: playerResult.abstract.value,
+        height: playerResult.height.value,
+        birthplace: playerResult.place_name.value,
+        current_club: playerResult.club_name.value,
+        thumbnail_url: playerResult.thumbnail.value,
+        depiction_url: playerResult.depiction.value,
+        birth_date: playerResult.birthDate.value,
+        position: playerResult.pos_label.value
+    };
+}
 
 getPlayerData = function(name, callback) {
-    var client = new sparql.Client('http://dbpedia.org/sparql');
-    console.log('Querying DBPedia for '+name+'.');
-    client.query(getQuery(name), function(err, res) {
-       if(res === undefined) {
-           console.log('Error retrieving data from DBPedia.');
-       } else {
-           var p = res.results.bindings[0];
-           var player = {
-               fullname: p.fullname.value,
-               abstract: p.abstract.value,
-               height: p.height.value,
-               birthplace: p.place_name.value,
-               current_club: p.club_name.value,
-               thumbnail_url: p.thumbnail.value,
-               depiction_url: p.depiction.value,
-               birth_date: p.birthDate.value,
-               position: p.pos_label.value
-           };
-           callback(player);
-       }
+    LOG.log(LNAME, 'Querying DBPedia for '+name+'.');
+    client.query(getQuery(name), (err, res) => {
+        if(err === null) {
+            if (res === undefined) {
+                console.log('Error retrieving data from DBPedia.');
+            } else {
+                let p = res.results.bindings[0];
+                if(p !== undefined) {
+                    callback(null, convertToPlayer(p));
+                } else {
+                    callback(dbpedia_empty_error, null);
+                }
+            }
+        } else {
+            callback(dbpedia_error, null);
+        }
     });
 };
 
