@@ -46,7 +46,7 @@ body {
 /* Main content */
 #tab-content {
 	width: 98%;
-	padding-top: 52px;
+	padding-top: 90px;
 	margin: auto;
 }
 #search {
@@ -116,14 +116,14 @@ body.loading .loader {
     display: block;
 }
 
-/* Search field and button */
+/* Search field and buttons */
 .form-control {
 	border: 2px solid #e8ebed;
 	border-radius: 2px;
 	box-shadow: none;
 	padding: 18px 12px;
 }
-.btn.search, .btn.stream, .btn.db {
+.btn.search, .btn.stream, .btn.db, #btn-help {
 	border: none;
 	font-size: 15px;
 	font-weight: normal;
@@ -149,6 +149,11 @@ body.loading .loader {
 }
 .btn, .btn-default:hover, .btn-primary {
 	outline: none;
+}
+#btn-help {
+	padding-top: 5px;
+	margin-top: 5px;
+	width: 100%;
 }
 /* Stream indicator*/
 .toggle {

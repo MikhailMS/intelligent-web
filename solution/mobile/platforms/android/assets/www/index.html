@@ -29,39 +29,44 @@
                     <li id="search-realtime-tab-button" class="tab-button" data-tab="#search-realtime-tab">Realtime Tweets</li>
                     <li id="search-db-tab-button" class="tab-button" data-tab="#search-db-tab">Search Database</li>
                 </ul>
+                <a href="#" data-toggle="popover" title="Help 'n Tips" data-placement="bottom" data-content="1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney 2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app 3. To close this window, press 'Query examples' again.">
+                    <button class="btn btn-default help" id="btn-help">
+                        Application help
+                    </button>
+                </a>
             </div>
             <div id="tab-content">
-              <div id="search-tweet-wrapper" style='display:block'>
-                  <div id="search">
-                      <div class="input-group">
-                          <input id="search-query" class="form-control" type="textbox" placeholder="Search query...">
-                          <span class="input-group-btn">
-                              <button class="btn btn-default search" id="btn-search-query">Search</button>
-                          </span>
-                      </div>
-                  </div>
-              </div>
-              <div id="search-stream-wrapper" style='display:none'>
-                  <div id="search">
-                      <div class="input-group">
-                          <input id="stream-query" class="form-control" type="textbox" placeholder="Stream query...">
-                          <span class="input-group-btn">
-                              <button class="btn btn-default stream" id="btn-stream-query">Search</button>
-                          </span>
-                      </div>
-                      <input id="stream-switch" type="checkbox" data-toggle="toggle" data-on="Stream On" data-off="Stream off" style='width: 100%; height: 40px;'>
-                  </div>
-              </div>
-              <div id="search-db-wrapper" style='display:none'>
-                  <div id="search">
-                      <div class="input-group">
-                          <input id="db-query" class="form-control" type="textbox" placeholder="Search DB query...">
-                          <span class="input-group-btn">
-                              <button class="btn btn-default db" id="btn-search-db-query">Search</button>
-                          </span>
-                      </div>
-                  </div>
-              </div>
+                <div id="search-tweet-wrapper" style='display:block'>
+                    <div id="search">
+                        <div class="input-group">
+                            <input id="search-query" class="form-control" type="textbox" placeholder="Enter feed query...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default search" id="btn-search-query">Search</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="search-stream-wrapper" style='display:none'>
+                    <div id="search">
+                        <div class="input-group">
+                            <input id="stream-query" class="form-control" type="textbox" placeholder="Enter feed query to search in real-time...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default stream" id="btn-stream-query">Search</button>
+                            </span>
+                        </div>
+                        <input id="stream-switch" type="checkbox" data-toggle="toggle" data-on="Stream On" data-off="Stream off" style='width: 100%; height: 40px;'>
+                    </div>
+                </div>
+                <div id="search-db-wrapper" style='display:none'>
+                    <div id="search">
+                        <div class="input-group">
+                            <input id="db-query" class="form-control" type="textbox" placeholder="Search saved queries...">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default db" id="btn-search-db-query">Search</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="dev-null" style="display: none"></div>

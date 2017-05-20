@@ -329,6 +329,9 @@ var app = {
       $("#btn-search-query").on( "click", this.onSearchButtonClick);
       $("#btn-stream-query").on( "click", this.onStreamButtonClick);
       $("#btn-search-db-query").on( "click", this.onDBButtonClick);
+      $("#btn-help").on( "click", function() {
+        $('[data-toggle="popover"]').popover();
+      });
     },
 
     // Custom alert
