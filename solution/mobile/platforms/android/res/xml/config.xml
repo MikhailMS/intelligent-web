@@ -7,6 +7,9 @@
     <feature name="SQLitePlugin">
         <param name="android-package" value="io.sqlc.SQLitePlugin" />
     </feature>
+    <feature name="Toast">
+        <param name="android-package" value="nl.xservices.plugins.Toast" />
+    </feature>
     <name>Transfer Rumours Tool</name>
     <description>
       Application searches for tweets about football players and teams

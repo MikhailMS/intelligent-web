@@ -140,11 +140,11 @@ body.loading .loader {
 }
 .btn-default {
 	color: #fff;
-	background-color: #556b8d;
+	background-color: #4168C1;
 }
 .btn-default:hover {
 	color: #fff;
-	background-color: #5f779d;
+	background-color: #4168C1;
 	border-color: #5f779d;
 }
 .btn, .btn-default:hover, .btn-primary {
@@ -155,6 +155,7 @@ body.loading .loader {
 	margin-top: 5px;
 	width: 100%;
 }
+
 /* Stream indicator*/
 .toggle {
 	display:none;

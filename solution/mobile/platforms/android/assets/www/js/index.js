@@ -1,9 +1,9 @@
 /*created by Mikhail Molotkov
-  updated on 19/05/2017
+  updated on 20/05/2017
 */
 var dbHolder;
 var socket;
-var host = 'http://4e10894e.ngrok.io';
+var host = '';
 var app = {
     // Initialise application
     initialize: function() {
@@ -42,7 +42,7 @@ var app = {
       var query = $('#search-query').val();
       // Check for empty queries
       if (query.length<=0 || query.replace(/ /g,'').length<=0) {
-        alert('Type in your query');
+        app.customToast('Your query is empty. Try again');
         $('#search-query').val("");
       } else {
         $("body").addClass("loading");
@@ -56,7 +56,7 @@ var app = {
               // Close loading animation
               app.closeLoadingAnimation();
               if (data.length<=0) {
-                alert(`No results found for ${query}`)
+                app.customToast(`No results found for ${query}`)
               } else {
                 for (var i = 0, len = data.length; i < len; i++) {
                   // Extract tweet data
@@ -134,7 +134,7 @@ var app = {
       var query = $('#stream-query').val();
       // Check for empty queries
       if (query.length<=0 || query.replace(/ /g,'').length<=0) {
-        alert('Type in your query');
+        app.customToast('Your query is empty. Try again');
         $('#stream-query').val("");
       } else {
         //$('.toggle.btn.btn-default.off').attr('style', 'width: 100%;height: 60px;')
@@ -201,7 +201,7 @@ var app = {
       var query = $('#db-query').val();
       // Check for empty queries
       if (query.length<=0 || query.replace(/ /g,'').length<=0) {
-        alert('Type in your query');
+        app.customToast('Your query is empty. Try again');
         $('#db-query').val("");
       } else {
         $("body").addClass("loading");
@@ -214,7 +214,7 @@ var app = {
                 app.closeLoadingAnimation();
                 if (results.rows.length===0) {
                   console.log('No results found');
-                  alert('No results found');
+                  app.customToast('No results found');
                   $('#db-query').val("");
                 } else {
                   // Extract tweet data
@@ -346,6 +346,28 @@ var app = {
             );
         };
       }
+    },
+    // Custom toast message
+    customToast: function(msg) {
+      window.plugins.toast.showWithOptions( {
+          message: msg,
+          duration: 2500,
+          position: 'center',
+          styling: {
+            opacity: 0.75, // Default 0.8
+            backgroundColor: '#4168C1', // Default #333333
+            textColor: '#FFFFFF', // Default #FFFFFF
+            textSize: 14.5, // Default is ~ 13.
+            cornerRadius: 16, // iOS default 20, Android default 100
+            horizontalPadding: 20, // iOS default 16, Android default 50
+            verticalPadding: 16 // iOS default 12, Android default 30
+          }
+        },
+        function(a) {     // Success
+          console.log('toast success: ' + a)},
+        function(error) { // Error
+          alert('toast error: ' + error)
+        });
     },
 };
 

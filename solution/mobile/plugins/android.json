@@ -12,6 +12,9 @@
         },
         "cordova-sqlite-storage": {
             "PACKAGE_NAME": "io.cordova.hellocordova"
+        },
+        "cordova-plugin-x-toast": {
+            "PACKAGE_NAME": "io.northernlights.twitter"
         }
     },
     "dependent_plugins": {}
