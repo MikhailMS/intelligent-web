@@ -6,6 +6,7 @@
 #container {
 	width: 100%;
 	margin: auto;
+	outline: none;
 }
 body {
 	font-family: 'Montserrat', sans-serif;
@@ -36,11 +37,14 @@ body {
 	cursor: pointer;
 	border: 1px solid #ccc;
 	border-top: 2px solid #ccc;
-	background:#fff;
+	background-color: #4168C1;
+	color: #fff;
+	outline: none;
 }
 .tabs ul#menu > li.tab-button.active {
 	cursor: default;
-	border-top: 2px solid rgb(95,119,157);
+	border-top: 3px solid rgb(0, 204, 255);
+	outline: none;
 }
 
 /* Main content */
@@ -55,9 +59,11 @@ body {
 #search input,
 #search button {
 	border-radius: 0;
+	outline: none;
 }
 #search button {
 	height: 40px;
+	outline: none;
 }
 
 /* Tweets */
@@ -110,10 +116,11 @@ body {
 }
 body.loading {
     overflow: hidden;
-
+		outline: none;
 }
 body.loading .loader {
     display: block;
+		outline: none;
 }
 
 /* Search field and buttons */
@@ -122,6 +129,7 @@ body.loading .loader {
 	border-radius: 2px;
 	box-shadow: none;
 	padding: 18px 12px;
+	outline: none;
 }
 .btn.search, .btn.stream, .btn.db, #btn-help {
 	border: none;
@@ -137,17 +145,21 @@ body.loading .loader {
 	-webkit-font-smoothing: subpixel-antialiased;
 	-webkit-transition: border 0.25s linear, color 0.25s linear, background-color 0.25s linear;
 	transition: border 0.25s linear, color 0.25s linear, background-color 0.25s linear;
+	outline: none;
 }
 .btn-default {
 	color: #fff;
 	background-color: #4168C1;
+	outline: none;
 }
 .btn-default:hover {
 	color: #fff;
 	background-color: #4168C1;
 	border-color: #5f779d;
+	outline: none;
 }
 .btn, .btn-default:hover, .btn-primary {
+	background-color: #4168C1;
 	outline: none;
 }
 #btn-help {

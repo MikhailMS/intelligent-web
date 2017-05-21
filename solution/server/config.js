@@ -1,5 +1,15 @@
 /**
- * Created by pbarzev on 30/03/2017.
+ * config.js
+ *
+ * This file specifies three
+ * configurations which are used to
+ * talk to the Twitter API. Only
+ * used for testing purposes.
+ *
+ * Written by:  Blagoslav Mihaylov,
+ *              Petar Barzev,
+ *              Mikhail Molotkov
+ * Last updated: 13/05/2017
  */
 const petarConfig = {
   consumer_key: 'wOfPNRD7TlxVezOj9njxt8dxm',
@@ -22,6 +32,4 @@ const mishaConfig = {
   access_token_secret: 'NLFJJirTW2TvhA6s0afzLY64TBJY1jMm3TXjzME1NJ0gc'
 };
 
-const config = petarConfig;
-
-module.exports = config;
+module.exports = blagoConfig; //whoever is currently testing

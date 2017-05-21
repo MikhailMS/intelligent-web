@@ -1,7 +1,12 @@
-# USERNAME          # SCREEN NAME   #DBPedia label
+# This file provides a list of the players who are
+# currently stored in the database. The values in the
+# left column are matched against the query. If a match
+# is found, the server queries DBPedia with the name
+# of the player, which is written on the right.
 
 x - not retreiving
-o - incomplete information
+
+# Match against                     # DBPedia label
 
 #Manchester United
 @D_DeGea David De Gea               David de Gea
