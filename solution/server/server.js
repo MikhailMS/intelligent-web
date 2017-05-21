@@ -16,18 +16,18 @@
  */
 
 //load dependencies
-const   EXPRESS = require('express'),
-        APP = EXPRESS(),
-        SERVER = require('http').Server(APP),
-        IO = require('socket.io')(SERVER),
-        TWIT = require('./twit-manager'),
-        LOG = require('./logger');
+const EXPRESS = require('express'),
+    APP = EXPRESS(),
+    SERVER = require('http').Server(APP),
+    IO = require('socket.io')(SERVER),
+    TWIT = require('./twit-manager'),
+    LOG = require('./logger');
 
 const LNAME = 'SERVER'; //name used for logging
 
 //app-related dependencies
-const   PATH = require('path'),
-        ROUTES = require('./routes/index');
+const PATH = require('path'),
+    ROUTES = require('./routes/index');
 
 APP.set('views', PATH.join(__dirname, 'views'));
 APP.set('view engine', 'pug');
@@ -38,17 +38,15 @@ APP.use('/', ROUTES);
 
 //set up sockets
 IO.on('connection', (socket) => {
-
-    LOG.log(LNAME, 'Socket opened with ID: ' + socket.id);
+    LOG.log(LNAME, `Socket opened with ID: ${socket.id}`);
 
     //used when receiving search queries
     socket.on('static-search', (data) => {
-
         //get search results from the twit manager
         //it will either use the API or the database
         TWIT.search(data, (err, res) => {
-            let destination = data.db_only? 'db-search-result' : 'feed-search-result';
-            LOG.log(LNAME, 'Returning '+res.tweets.length+' tweets to the client.');
+            const destination = data.db_only ? 'db-search-result' : 'feed-search-result';
+            LOG.log(LNAME, `Returning ${res.tweets.length} tweets to the client.`);
             //send back list of tweets
             IO.to(socket.id).emit(destination, err, res);
         });
@@ -77,12 +75,12 @@ IO.on('connection', (socket) => {
 
     //when client has disconnected
     socket.on('disconnect', () => {
-        LOG.log(LNAME, 'Socket closed with ID: ' + socket.id);
+        LOG.log(LNAME, `Socket closed with ID: ${socket.id}`);
     });
 });
 
 //initialize server
-let port = process.env.PORT || 3333;
+const port = process.env.PORT || 3333;
 SERVER.listen(port, () => {
-    LOG.log(LNAME, 'App listening at http://localhost:' + port );
+    LOG.log(LNAME, `App listening at http://localhost:${port}`);
 });

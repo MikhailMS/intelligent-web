@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import { Row, Col, Input, Pagination, Tooltip } from 'antd';
+import { Row, Col, Input, Pagination, message, Tooltip } from 'antd';
 import io from 'socket.io-client';
 import TwitterCard from './TwitterCard';
+import PlayerCard from './PlayerCard';
 import './App.css';
 
 // setup config variables
@@ -14,8 +15,11 @@ class Database extends Component {
         super(props);
         this.state = {
             dbResults: {},
+            dbReceived: false,
             dbCards: [],
             currentPage: 1,
+            playerData: null,
+            playerName: null,
         };
     }
 
@@ -31,15 +35,58 @@ class Database extends Component {
     * Triggered when the user submits a new DB query via the search bar.
     */
     onSearchDB = (dbQuery) => {
-        // emit a db search query
-        socket.emit('search-query', { query: dbQuery, db_only: true });
+        this.setState({
+            dbResults: {},
+            dbReceived: false,
+            dbCards: [],
+            currentPage: 1,
+            playerData: null,
+            playerName: null,
+        });
 
-        // declare a socket listener that updates on DB events
+        // emit a db search query
+        socket.emit('static-search', { query: dbQuery, db_only: true });
+
+        // socket listener that updates on DB search events
         // check if created so only 1 listener is created
         if (!(socket.hasListeners('db-search-result'))) {
-            socket.on('db-search-result', (res) => {
-                this.setState({ dbResults: res });
+            socket.on('db-search-result', (err, res) => {
+                const dbReceived = res.tweets.length > 0;
+                let dbError;
+                if (!dbReceived) dbError = true;
+                this.handleError(err, dbError);
+                this.setState({ dbResults: res.tweets, dbReceived });
             });
+        }
+
+        // socket listener that updates on player found events
+        if (!(socket.hasListeners('player-found'))) {
+            socket.on('player-found', (err, playerName) => {
+                this.handleError(err);
+                this.setState({ playerName });
+            });
+        }
+
+        // socket listener that updates on player found events
+        if (!(socket.hasListeners('player-card-result'))) {
+            socket.on('player-card-result', (err, playerData) => {
+                this.handleError(err);
+                if (err) this.setState({ playerName: false });
+                this.setState({ playerData });
+            });
+        }
+    }
+
+    /**
+     * Displays an error message to the user at the top of the screen.
+     * Fades away in 2 seconds
+     */
+    handleError = (err, dbErr) => {
+        if (err) message.error(`${err.title}: ${err.msg}`);
+        else if (dbErr) {
+            message.error(
+                'No results found in the database!'
+            );
         }
     }
 
@@ -59,38 +106,25 @@ class Database extends Component {
     * Renders the Database results
     */
     renderDB = () => {
-        const { dbResults, dbCards, currentPage } = this.state;
+        const { dbResults, dbReceived, dbCards, currentPage, playerName, playerData } = this.state;
 
-        if (!(Object.keys(dbResults).length === 0 && dbResults.constructor === Object)) {
-            const twitCards = dbResults.map((el) => <TwitterCard key={el.id} tweet={el} />);
-            const dataSize = twitCards.length;
-            let displayedCards; // holds the cards to be displayed
+        // create a player card
+        const playerCard = <PlayerCard title={playerName} playerData={playerData} />;
 
-            // check if searchCards state contains cards to display
-            if (dbCards.length > 0) {
-                displayedCards = dbCards;
-            } else displayedCards = twitCards.slice(0, 10); // take first 10 cards
+        const dbData = () => {
+            if (dbReceived) {
+                const twitCards = dbResults.map((el) => <TwitterCard key={el.id} tweet={el} />);
+                const dataSize = twitCards.length;
+                let displayedCards; // holds the cards to be displayed
 
-            // the JSX to render
-            return (
-                <div className="feed">
-                    <Row className="row" type="flex" justify="center">
-                        <Pagination
-                            onChange={(page, pageSize) =>
-                                this.changeCards(page, pageSize, twitCards)}
-                            current={currentPage} pageSize={10} total={dataSize}
-                        />
-                    </Row>
-                    <Row>
-                        <CSSTransitionGroup
-                            transitionName="tweetAnim"
-                            transitionAppear={true} //eslint-disable-line
-                            transitionEnterTimeout={500}
-                            transitionLeaveTimeout={300}
-                            transitionAppearTimeout={500}
-                        >
-                            {displayedCards}
-                        </CSSTransitionGroup>
+                // check if searchCards state contains cards to display
+                if (dbCards.length > 0) {
+                    displayedCards = dbCards;
+                } else displayedCards = twitCards.slice(0, 10); // take first 10 cards
+
+                // the JSX to render
+                return (
+                    <div className="feed">
                         <Row className="row" type="flex" justify="center">
                             <Pagination
                                 onChange={(page, pageSize) =>
@@ -98,10 +132,35 @@ class Database extends Component {
                                 current={currentPage} pageSize={10} total={dataSize}
                             />
                         </Row>
-                    </Row>
-                </div>
-            );
-        }
+                        <Row>
+                            <CSSTransitionGroup
+                                transitionName="tweetAnim"
+                                transitionAppear={true} //eslint-disable-line
+                                transitionEnterTimeout={500}
+                                transitionLeaveTimeout={300}
+                                transitionAppearTimeout={500}
+                            >
+                                {displayedCards}
+                            </CSSTransitionGroup>
+                            <Row className="row" type="flex" justify="center">
+                                <Pagination
+                                    onChange={(page, pageSize) =>
+                                        this.changeCards(page, pageSize, twitCards)}
+                                    current={currentPage} pageSize={10} total={dataSize}
+                                />
+                            </Row>
+                        </Row>
+                    </div>
+                );
+            } return null;
+        };
+
+        return (
+            <div>
+                {playerCard}
+                {dbData()}
+            </div>
+        );
     }
 
     // main render method

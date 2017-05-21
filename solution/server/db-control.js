@@ -11,10 +11,10 @@
  */
 
 //load dependencies
-const   SQLITE3 = require('sqlite3'),
-        DB = new SQLITE3.Database('db.sqlite3'),
-        LOG = require('./logger'),
-        LNAME = 'DATABASE'; //name used in logging
+const SQLITE3 = require('sqlite3'),
+    DB = new SQLITE3.Database('db.sqlite3'),
+    LOG = require('./logger'),
+    LNAME = 'DATABASE'; //name used in logging
 
 //init errors
 const db_error = {
@@ -23,37 +23,37 @@ const db_error = {
 };
 
 //SQL query for creating tweets table
-const createTableTweets = ""+
+const createTableTweets = "" +
     "CREATE TABLE `tweets` (" +
-        "`id`	INTEGER NOT NULL UNIQUE," +
-        "`text`	TEXT," +
-        "`author_name`	TEXT," +
-        "`user_name`	TEXT," +
-        "`profile_url`	TEXT," +
-        "`avatar_url`	TEXT," +
-        "`tweet_url`	TEXT," +
-        "`week_day`	TEXT," +
-        "`month`	TEXT," +
-        "`date`	TEXT," +
-        "`time`	TEXT," +
-        "`year`	TEXT," +
-        "PRIMARY KEY(id)" +
+    "`id`	INTEGER NOT NULL UNIQUE," +
+    "`text`	TEXT," +
+    "`author_name`	TEXT," +
+    "`user_name`	TEXT," +
+    "`profile_url`	TEXT," +
+    "`avatar_url`	TEXT," +
+    "`tweet_url`	TEXT," +
+    "`week_day`	TEXT," +
+    "`month`	TEXT," +
+    "`date`	TEXT," +
+    "`time`	TEXT," +
+    "`year`	TEXT," +
+    "PRIMARY KEY(id)" +
     ");";
 
 //SQL for creating queries table
-const createTableQueries = ""+
-    "CREATE TABLE `queries` ("+
-        "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"+
-        "`text`	TEXT NOT NULL UNIQUE,"+
-        "`time`	TIMESTAMP NOT NULL"+
+const createTableQueries = "" +
+    "CREATE TABLE `queries` (" +
+    "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE," +
+    "`text`	TEXT NOT NULL UNIQUE," +
+    "`time`	TIMESTAMP NOT NULL" +
     ");";
 
 //SQl for creating dbpedia_names table
 const createTableDBPediaNames = "" +
-    "CREATE TABLE `dbpedia_names` ("+
-        "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"+
-        "`key`	TEXT NOT NULL UNIQUE,"+
-        "`name`	TEXT NOT NULL"+
+    "CREATE TABLE `dbpedia_names` (" +
+    "`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE," +
+    "`key`	TEXT NOT NULL UNIQUE," +
+    "`name`	TEXT NOT NULL" +
     ");";
 
 //SQL for destroying the tables
@@ -85,7 +85,7 @@ createDatabase = function () {
  * Used to delete the database
  * by destroying three tables.
  */
-dropDatabase = function() {
+dropDatabase = function () {
     DB.run(dropTableTweets);
     DB.run(dropTableQueries);
     DB.run(dropTableDBPediaNames);
@@ -168,7 +168,7 @@ function recordTweet(c, tweets) {
         if (res.count < 0)
             DB.prepare(insertTweet).run(tweetToSql(t));
         //continue recursion
-        if(c > 0) recordTweet(c-1, tweets);
+        if (c > 0) recordTweet(c - 1, tweets);
     });
 }
 
@@ -180,7 +180,7 @@ function recordTweet(c, tweets) {
  */
 recordTweets = function (tweets) {
     //if not empty
-    if(tweets.length > 0) {
+    if (tweets.length > 0) {
         LOG.log(LNAME, 'Recording ' + tweets.length + ' tweets in the Database.');
         recordTweet(tweets.length - 1, tweets); //initiate recursion
     }
@@ -194,7 +194,7 @@ recordTweets = function (tweets) {
  * @param msg - query
  * @returns {{keywords: Array, users: Array}}
  */
-tokenize = function(msg) {
+tokenize = function (msg) {
     //filter out commas
     let query = msg.split(',').join('').split(' ');
 
@@ -203,38 +203,37 @@ tokenize = function(msg) {
     let users = [];
 
     //for every word in the query
-    for(let c = 0; c < query.length; c++) {
+    for (let c = 0; c < query.length; c++) {
         let token = query[c];
         //if word is AND/OR/BY, then skip it
         if (['AND', 'OR', 'BY'].indexOf(token) < 0) {
-            getToken()
             //first token does not have a prefix
-            if(c === 0) {
-                keywords.push({pre: '', word: token});
+            if (c === 0) {
+                keywords.push({ pre: '', word: token });
             } else { //for every other token
                 //if previous word was OR, add OR prefix
-                if(query[c-1] === 'OR') {
-                    keywords.push({pre: 'OR', word: token});
-                } else if(query[c-1] === 'BY') {
+                if (query[c - 1] === 'OR') {
+                    keywords.push({ pre: 'OR', word: token });
+                } else if (query[c - 1] === 'BY') {
                     //if previous word was BY, then add
                     //to users array
-                    if(users.length === 0) {
-                        users.push({pre: '', word: token});
+                    if (users.length === 0) {
+                        users.push({ pre: '', word: token });
                     } else {
                         //check the word before the previous one
                         if (c > 1 && query[c - 2] === 'OR')
-                            users.push({pre: 'OR', word: token});
+                            users.push({ pre: 'OR', word: token });
                         else
-                            users.push({pre: 'AND', word: token});
+                            users.push({ pre: 'AND', word: token });
                     }
                 } else { //otherwise prefix is AND
-                    keywords.push({pre: 'AND', word: token});
+                    keywords.push({ pre: 'AND', word: token });
                 }
             }
         }
     }
 
-    return {keywords: keywords, users: users};
+    return { keywords: keywords, users: users };
 };
 
 /**
@@ -255,16 +254,16 @@ function queryToSql(msg) {
     let users = tokens.users;
 
     //convert keywords
-    for(let c = 0; c < keywords.length; c++) {
-        if(c > 0) sql += ' ' + keywords[c].pre;
+    for (let c = 0; c < keywords.length; c++) {
+        if (c > 0) sql += ' ' + keywords[c].pre;
         sql += ' (text LIKE ? OR user_name LIKE ?) ';
         args.push('%' + keywords[c].word + '%');
         args.push('%' + keywords[c].word + '%');
     }
 
     //users are added separately to the query
-    if(users.length > 0) {
-        if(keywords.length !== 0) sql += ' AND ';
+    if (users.length > 0) {
+        if (keywords.length !== 0) sql += ' AND ';
         sql += '(';
         for (c = 0; c < users.length; c++) {
             sql += ' ' + users[c].pre + ' user_name=?';
@@ -300,7 +299,7 @@ retrieveTweets = function (msg, sendBack) {
             results.push(sqlToTweet(t));
     }, (err) => {
         //handle error and send back results
-        if(err !== null) sendBack(db_error, null);
+        if (err !== null) sendBack(db_error, null);
         else sendBack(null, results);
     });
 };
@@ -312,10 +311,10 @@ retrieveTweets = function (msg, sendBack) {
  * @param query - the query
  * @param callback - receives the UTC timestamp
  */
-lastUpdated = function(query, callback) {
+lastUpdated = function (query, callback) {
     //execute query
     DB.prepare(getLastUpdated).get(query, (err, res) => {
-        if(err === null) {
+        if (err === null) {
             //if never executed, return infinity
             let time = res === undefined ? (-Infinity) : res.time;
             callback(null, time);
@@ -330,7 +329,7 @@ lastUpdated = function(query, callback) {
  *
  * @param query - the query
  */
-recordQuery = function(query) {
+recordQuery = function (query) {
     //get timestamp
     let timeStamp = Math.floor(Date.now());
 
@@ -353,28 +352,28 @@ recordQuery = function(query) {
  * @param query - the raw query from the client
  * @param callback - gets back the name of the DBPedia page
  */
-findPlayer = function(query, callback) {
+findPlayer = function (query, callback) {
     let sql = "SELECT name FROM 'dbpedia_names' WHERE ";
     let queryArr = query.split(" ");
     let args = [];
 
     //generate the SQL query
-    for(let i = 0; i < queryArr.length; i++) {
-        if(['AND', 'OR', 'BY'].indexOf(queryArr[i] < 0)) {
-            if(i > 0) sql += " OR ";
+    for (let i = 0; i < queryArr.length; i++) {
+        if (['AND', 'OR', 'BY'].indexOf(queryArr[i] < 0)) {
+            if (i > 0) sql += " OR ";
             sql += "key LIKE ?";
             let word = queryArr[i].split('#').join('').split('@').join('');
-            args.push('%'+word+'%');
+            args.push('%' + word + '%');
         }
     }
     sql += " LIMIT 1;";
 
     //execute query
     DB.prepare(sql).get(args, (err, res) => {
-        if(err === null) {
-            if(res !== undefined) {
+        if (err === null) {
+            if (res !== undefined) {
                 //return DBPedia name for player if found
-                LOG.log(LNAME, 'Found '+res.name+' in database.');
+                LOG.log(LNAME, 'Found ' + res.name + ' in database.');
                 callback(null, res.name);
             } else {
                 LOG.log(LNAME, 'No footballer found in database.');

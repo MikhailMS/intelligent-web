@@ -79,6 +79,9 @@ h3.right {
   flex: 1;
   max-height: 250px;
   display: flex;
+}
+
+.loadingCard, .playerCard {
   margin-bottom: 10px;
 }
 
