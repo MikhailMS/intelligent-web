@@ -15,7 +15,13 @@ class PlayerCard extends Component {
         const birthDateString = `${birthDate[2]}\\${birthDate[1]}\\${birthDate[0]}`;
         // limit abstract to 3 sentences
         const abstract = playerData.abstract.split('. ');
-        const abstractString = `${abstract[0]}. ${abstract[1]}. ${abstract[2]}.`;
+        let abstractString;
+        if (abstract[2]) abstractString = `${abstract[0]}. ${abstract[1]}. ${abstract[2]}.`;
+        else {
+            for (const sentence in abstract) {
+                abstractString.concat(`${sentence}. `);
+            }
+        }
         let position = playerData.position.split(' ');
         position = position[0]; // limit to only 1 word
 

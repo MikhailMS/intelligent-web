@@ -104,6 +104,7 @@ class Database extends Component {
         }
     }
 
+    // main render method
     render() {
         const searchHint = 'Search by players, teams and author. Example query: "#hazard OR #chelsea BY @WayneRooney"';
         return (
