@@ -1,0 +1,63 @@
+# This file provides a list of the players who are
+# currently stored in the database. The values in the
+# left column are matched against the query. If a match
+# is found, the server queries DBPedia with the name
+# of the player, which is written on the right.
+
+x - not retreiving
+
+# Match against                     # DBPedia label
+
+#Manchester United
+@D_DeGea David De Gea               David de Gea
+@ericbailly24 Eric Bailly           Eric Bertrand Bailly
+@PhilJones4 Phil Jones              Phil Jones (footballer, born 1992)
+@MarcosRojo_MUFC Marcos Rojo        Marcos Rojo
+@paulpogba Paul Pogba               Paul Pogba
+@juanmata8 Juan Mata Garcia         Juan Mata
+@Ibra_official Zlatan Ibrahimovic   Zlatan Ibrahimović
+@WayneRooney Wayne Rooney           Wayne Rooney
+@AnthonyMartial Anthony Martial     Anthony Martial
+@ChrisSmalling Chris Smalling       Chris Smalling
+@JesseLingard Jesse Lingard         Jesse Lingard
+@carras16 Michael Carrick           Michael Carrick
+@BlindDaley Daley Blind             Daley Blind
+@youngy18 Ashley Young              Ashley Young
+@MarcusRashford Marcus Rashford     (x)Marcus Rashford
+@CSergioRomero Sergio Romero        Sergio Romero
+@AnderHerrera Ander Herrera         Ander Herrera
+@HenrikhMkh Henrikh Mkhitaryan      (x)Henrikh Mkhitaryan
+@LukeShaw_MUFC Luke Shaw            Luke Shaw
+@tfosumensah Timothy fosu-mensah    Timothy Fosu-Mensah
+@anto_v25 Antonio Valencia          Antonio Valencia
+@Fellaini Marouane Fellaini         Marouane Fellaini
+@samjohnstone50 sam johnstone       Sam Johnstone
+@DarmianOfficial Matteo Darmian     Matteo Darmian
+@ElgatoPereira1 Joel Castro Pereira (x)Joel Castro Pereira
+@DareToBorthwick Borthwick-jackson  (x)Cameron Borthwick-Jackson
+@jeemyw James Wilson                (x)James Wilson
+
+#Chelsea
+@asmir1 Asmir Begovic               Asmir Begović
+@marcosalonso03 Marcos Alonso       Marcos Alonso Mendoza
+@cesc4official Cesc Fabregas Soler  Cesc Fàbregas
+@KurtZouma Kurt Zouma               Kurt Zouma
+@NathanAke Nathan Ake               Nathan Aké
+@nglkante N'Golo Kante              (x)N'Golo Kanté
+@hazardeden10 Eden hazard           Eden Hazard
+@_Pedro17_ Pedro Rodríguez          Pedro (footballer,_born_July_1987)
+@thibautcourtois Thibaut Courtois   Thibaut Courtois
+@rubey_lcheek Ruben Loftus-Cheek    Ruben Loftus-Cheek
+@VictorMoses Victor Moses           Victor Moses
+@keenedy11 Robert Kenedy            (x)Kenedy (footballer)
+@diegocosta Diego Costa             Diego Costa
+@TeamMatic_ID Nemanja Matic         Nemanja Matić
+@willianborges88 Willian            Willian (footballer)
+@mbatshuayi Michy Batshuayi         (x)Michy Batshuayi
+@GaryJCahill Gary Cahill            Gary Cahill
+#JohnTerry John Terry               John Terry
+@CesarAzpi Cesar Azpilicueta        César Azpilicueta
+@chalobah Nathaniel Chalobah        Nathaniel Chalobah
+@DavidLuiz_4 David Luiz             David Luiz
+#musonda Charly Musonda             (x)Charly Musonda
+@DomSolanke Dominic Solanke         Dominic Solanke
