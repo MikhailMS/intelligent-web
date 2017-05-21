@@ -15,7 +15,14 @@
         },
         "cordova-plugin-x-toast": {
             "PACKAGE_NAME": "io.northernlights.twitter"
+        },
+        "cordova-plugin-geolocation": {
+            "PACKAGE_NAME": "io.northernlights.twitter"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "cordova-plugin-compat": {
+            "PACKAGE_NAME": "io.northernlights.twitter"
+        }
+    }
 }

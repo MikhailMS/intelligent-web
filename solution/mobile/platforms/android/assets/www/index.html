@@ -29,7 +29,7 @@
                     <li id="search-realtime-tab-button" class="tab-button" data-tab="#search-realtime-tab">Realtime Tweets</li>
                     <li id="search-db-tab-button" class="tab-button" data-tab="#search-db-tab">Search Database</li>
                 </ul>
-                <a href="#" data-toggle="popover" title="Help 'n Tips" data-placement="bottom" data-content="1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney 2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app 3. To close this window, press 'Query examples' again.">
+                <a id="help-popover" href="#" data-toggle="popover" title="Help 'n Tips" data-placement="bottom" data-content="">
                     <button class="btn btn-default help" id="btn-help">
                         Application help
                     </button>
@@ -76,7 +76,7 @@
         <!-- Main js file with application logic -->
         <script type="text/javascript" src="js/index.js"></script>
         <!-- Socket dependencies -->
-        <script src="host_name/js/socket.io.js"></script>
+        <script src="http://a0e660f2.ngrok.io/js/socket.io.js"></script>
         <script type="text/javascript" src="js/socket.io.js"></script>
         <!-- JQuery dependencies -->
         <script src="js/lib/jquery-3.1.1.min.js"></script>

@@ -1,9 +1,10 @@
 /*created by Mikhail Molotkov
-  updated on 20/05/2017
+  updated on 21/05/2017
 */
 var dbHolder;
 var socket;
 var host = '';
+
 var app = {
     // Initialise application
     initialize: function() {
@@ -17,23 +18,34 @@ var app = {
     },
 
     // Events Handler for deviceready
-    onDeviceReady: function() {
+    onDeviceReady: function() {                  // Triggers when application is loaded
       this.overrideAlert();
       this.receivedEvent();
-      document.addEventListener("pause", this.stopStream, false);
-      document.addEventListener("pause", this.closeLoadingAnimation, false);
-      document.addEventListener("backbutton", this.stopStream, false);
-      document.addEventListener("backbutton", this.closeLoadingAnimation, false);
+      this.repeatLocationSuggestion(true);
+      document.addEventListener("pause", this.onPause, false);
+      document.addEventListener("backbutton", this.onBackButton, false);
       // Setup Stream Switch
       this.toggleStreamSwitch(false);
+      $("#help-popover").popover({content: "1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney\n 2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app\n 3. Allow and turn on GPS to enable query suggestions\n 4. To close this window, press 'Query examples' again."})
       // Setup socket channel
       if(io !== undefined) {
         socket = io.connect(host);
       }
     },
 
+    onBackButton: function() {                   // Triggers when user presses 'backbutton'
+      app.stopStream();
+      app.closeLoadingAnimation();
+    },
+
+    onPause: function() {                        // Triggers when application is stopped
+      app.stopStream();
+      app.closeLoadingAnimation();
+      app.repeatLocationSuggestion(false);
+    },
+
     // Functions to process user clicks
-    onSearchButtonClick: function(e) {
+    onSearchButtonClick: function(e) {           // Triggers when user clicks search button in 'Search Tweets' tab
       e.preventDefault();
       if($(".search-tweet").length) {
         $(".search-tweet").remove();
@@ -47,27 +59,27 @@ var app = {
       } else {
         $("body").addClass("loading");
         console.log(`Query to Search API ${query}`);
-        socket.emit('search-query', { query: query, db_only: false });
+        socket.emit('static-search', { query: query, db_only: false });
         // Once results are prepared and sent by server, process them on client
         if (!(socket.hasListeners('feed-search-result'))) {
-          socket.on('feed-search-result', function (data) {
+          socket.on('feed-search-result', function (error, data) {
             if (data!=null) {
-              console.log('Data received from Twitter Search');
+              console.log(`Data received from Twitter Search - ${data.tweets.length}`);
               // Close loading animation
               app.closeLoadingAnimation();
-              if (data.length<=0) {
+              if (data.tweets.length<=0) {
                 app.customToast(`No results found for ${query}`)
               } else {
-                for (var i = 0, len = data.length; i < len; i++) {
+                for (var i = 0, len = data.tweets.length; i < len; i++) {
                   // Extract tweet data
-                  var tweetText = data[i].text
-                  var tweetId = data[i].id;
-                  var authorName = data[i].author_name
-                  var userName = data[i].user_name
-                  var profilePage = data[i].profile_url;
-                  var link = data[i].tweet_url;
-                  var profileImg = data[i].avatar_url;
-                  var timeDateList = data[i].date_time;
+                  var tweetText = data.tweets[i].text
+                  var tweetId = data.tweets[i].id;
+                  var authorName = data.tweets[i].author_name
+                  var userName = data.tweets[i].user_name
+                  var profilePage = data.tweets[i].profile_url;
+                  var link = data.tweets[i].tweet_url;
+                  var profileImg = data.tweets[i].avatar_url;
+                  var timeDateList = data.tweets[i].date_time;
                   // Split received date for custom design
                   var weekDay = timeDateList.week_day;
                   var month = timeDateList.month;
@@ -89,16 +101,16 @@ var app = {
                 if (dbHolder == null) {
                   dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
                 }
-                for (var i = 0, len = data.length; i < len; i++) {
+                for (var i = 0, len = data.tweets.length; i < len; i++) {
                   // Extract tweet data
-                  var tweetText = data[i].text
-                  var tweetId = data[i].id;
-                  var authorName = data[i].author_name
-                  var userName = data[i].user_name
-                  var profilePage = data[i].profile_url;
-                  var link = data[i].tweet_url;
-                  var profileImg = data[i].avatar_url;
-                  var timeDateList = data[i].date_time;
+                  var tweetText = data.tweets[i].text
+                  var tweetId = data.tweets[i].id;
+                  var authorName = data.tweets[i].author_name
+                  var userName = data.tweets[i].user_name
+                  var profilePage = data.tweets[i].profile_url;
+                  var link = data.tweets[i].tweet_url;
+                  var profileImg = data.tweets[i].avatar_url;
+                  var timeDateList = data.tweets[i].date_time;
                   // Split received date for custom design
                   var weekDay = timeDateList.week_day;
                   var month = timeDateList.month;
@@ -112,6 +124,8 @@ var app = {
                   app.insertDataToDB(dbHolder, query, tweetText, tweetId, authorName, userName, profileImg, date_time, timestamp);
                 }
               }
+            } else {
+              alert('Error while retrieving results from the server');
             }
           });
         }
@@ -125,7 +139,7 @@ var app = {
       }
     },
 
-    onStreamButtonClick: function(e) {
+    onStreamButtonClick: function(e) {           // Triggers when user clicks search button in 'Realtime Tweets' tab
       e.preventDefault();
       if($(".stream-tweet").length) {
         $(".stream-tweet").remove();
@@ -142,10 +156,10 @@ var app = {
         console.log(`Query to Stream API ${query}`);
         app.stopStream();
         app.toggleStreamSwitch(true);
-        socket.emit('stream-query', query); // Emit search query to Stream API
+        socket.emit('open-stream', query); // Emit search query to Stream API
         var counter = 0;
         // This listens on the "stream-result" channel and data is received everytime a new tweet is receieved.
-        socket.on('stream-result', function (data) {
+        socket.on('stream-result', function (error, data) {
           if (data!=null) {
             console.log('Data received from Twitter Stream');
             // Close loading animation
@@ -178,7 +192,7 @@ var app = {
             //$($div).insertBefore('.stream-tweet').toggle().toggle(); // Append on top of previous tweet [Redundant?]
             counter++;
           } else {
-            console.log('no data');
+            alert('Error while retrieving results from the server');
           }
         });
 
@@ -192,7 +206,7 @@ var app = {
       }
     },
 
-    onDBButtonClick: function(e) {
+    onDBButtonClick: function(e) {               // Triggers when user clicks search button in 'Search Database' tab
       e.preventDefault();
       if($(".db-tweet").length) {
         $(".db-tweet").remove();
@@ -246,7 +260,7 @@ var app = {
       }
     },
 
-    onTabClick: function(e) {
+    onTabClick: function(e) {                    // Triggers when user clicks any of the tabs
       e.preventDefault();
       if ($(this).hasClass('active')) {
           return;
@@ -273,7 +287,7 @@ var app = {
       }
     },
 
-    toggleStreamSwitch: function(check) {
+    toggleStreamSwitch: function(check) {        // Triggers when state of the stream channel changes
       if (check) {
         $('#stream-switch').bootstrapToggle('enable');
         $('#stream-switch').bootstrapToggle('on');
@@ -286,20 +300,64 @@ var app = {
     },
 
     // DB initialisation and insert
-    initializeDB: function() {
+    initializeDB: function() {                   // Triggers when application is loaded
       dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
       dbHolder.transaction(function (transaction) {
-          transaction.executeSql('CREATE TABLE IF NOT EXISTS search_query (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, query TEXT, text TEXT, id_str TEXT, authorName TEXT, userName TEXT, profileImg TEXT, created_at TEXT, timestamp TEXT, UNIQUE (query, text, authorName, userName))', [],
-              function (tx, result) {
-                  console.log("Table created successfully");
-              },
-              function (error) {
-                  console.log(`Error occurred while creating the table - ${error}`);
-              });
+        transaction.executeSql('CREATE TABLE IF NOT EXISTS search_query (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, query TEXT, text TEXT, id_str TEXT, authorName TEXT, userName TEXT, profileImg TEXT, created_at TEXT, timestamp TEXT, UNIQUE (query, text, authorName, userName))', [],
+          function (tx, result) {
+            console.log("Table for queries created successfully");
+          },
+          function (error) {
+            console.log(`Error occurred while creating the table - ${error}`);
+          });
+        transaction.executeSql('CREATE TABLE IF NOT EXISTS city_club_suggestions (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, cityName TEXT, footballClubId TEXT, UNIQUE (footballClubId))', [],
+          function (tx, result) {
+            console.log("Table for extra data created successfully");
+          },
+          function (error) {
+            console.log(`Error occurred while creating the table - ${error}`);
+          });
+
+        transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Sheffield', '@swfc'],
+          function (tx, result) {
+            console.log(`Populated database OK ${result}`);
+          },
+          function (error) {
+            console.log(`Transaction ERROR:  - ${error.message}`);
+          });
+          transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Sheffield', '@SUFC_tweets'],
+            function (tx, result) {
+              console.log(`Populated database OK ${result}`);
+            },
+            function (error) {
+              console.log(`Transaction ERROR:  - ${error}`);
+            });
+          transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Manchester', '@ManUtd'],
+            function (tx, result) {
+              console.log(`Populated database OK ${result}`);
+            },
+            function (error) {
+              console.log(`Transaction ERROR:  - ${error}`);
+            });
+          transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Manchester', '@ManCity'],
+            function (tx, result) {
+              console.log(`Populated database OK ${result}`);
+            },
+            function (error) {
+              console.log(`Transaction ERROR:  - ${error}`);
+            });
+          transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Liverpool', '@LFC'],
+            function (tx, result) {
+              console.log(`Populated database OK ${result}`);
+            },
+            function (error) {
+              console.log(`Transaction ERROR:  - ${error}`);
+            });
+
       });
     },
 
-    insertDataToDB: function(holder, query, text, id_str, authorName, userName, profileImg, created_at, timestamp) {
+    insertDataToDB: function(holder, query, text, id_str, authorName, userName, profileImg, created_at, timestamp) { // Triggers when data is received in 'Search Tweets' tab
       holder.transaction(function(tx) {
         tx.executeSql('INSERT INTO search_query (query, text, id_str, authorName, userName, profileImg, created_at, timestamp) VALUES (?,?,?,?,?,?,?,?)', [query, text, id_str, authorName, userName, profileImg, created_at, timestamp]);
       }, function(error) {
@@ -310,21 +368,21 @@ var app = {
     },
 
     // Stop tweets stream channel
-    stopStream: function() {
+    stopStream: function() {                     // Triggers when user closes application or presses 'backbutton'
       console.log('Stop stream is called')
       socket.emit('close-stream', ''); // Close stream once it's not needed
       app.toggleStreamSwitch(false);
     },
 
     // Close animation
-    closeLoadingAnimation: function() {
+    closeLoadingAnimation: function() {          // Triggers when data is loaded or when user closes application or presses 'backbutton'
       if ($("body").hasClass("loading")) {
         $("body").removeClass("loading");
       }
     },
 
     // Update DOM on a Received Event
-    receivedEvent: function() {
+    receivedEvent: function() {                  // Triggers when application receives DOM events
       $('.tab-button').on('click', this.onTabClick);
       $("#btn-search-query").on( "click", this.onSearchButtonClick);
       $("#btn-stream-query").on( "click", this.onStreamButtonClick);
@@ -335,7 +393,7 @@ var app = {
     },
 
     // Custom alert
-    overrideAlert: function() {
+    overrideAlert: function() {                  // Triggers when application encounters errors
       if (navigator.notification) { // Override default HTML alert with native dialog
         window.alert = function (msg) {
           navigator.notification.alert(
@@ -347,8 +405,9 @@ var app = {
         };
       }
     },
-    // Custom toast message
-    customToast: function(msg) {
+
+    // Custom toast messages
+    customToast: function(msg) {                 // Triggers when user performes wrong action
       window.plugins.toast.showWithOptions( {
           message: msg,
           duration: 2500,
@@ -368,6 +427,100 @@ var app = {
         function(error) { // Error
           alert('toast error: ' + error)
         });
+    },
+
+    suggestionToast: function(msg) {             // Triggers at the specified time period
+      window.plugins.toast.showWithOptions( {
+          message: msg,
+          duration: 5500,
+          position: 'top',
+          styling: {
+            opacity: 0.95, // Default 0.8
+            backgroundColor: '#92a8d1', // Default #333333
+            textColor: '#FFFFFF', // Default #FFFFFF
+            textSize: 16.5, // Default is ~ 13.
+            cornerRadius: 16, // iOS default 20, Android default 100
+            horizontalPadding: 20, // iOS default 16, Android default 50
+            verticalPadding: 16 // iOS default 12, Android default 30
+          }
+        },
+        function(a) {     // Success
+          console.log('toast success: ' + a)},
+        function(error) { // Error
+          alert('toast error: ' + error)
+        });
+    },
+
+    // Functions to hanlde user's location
+    onGetLocation: function(position) {          // Triggers if user allowed application to use device's GPS and turned on GPS
+
+      var lat = position.coords.latitude;
+      var lng = position.coords.longitude;
+
+      var queryString = `http://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&sensor=true`
+
+      $.getJSON(queryString, function (results) {
+
+        if (results.results.length) {
+
+            $.getJSON(queryString, function (results) {
+
+                if (results.results.length) {
+                  var addressList = results.results[0].formatted_address.replace(/,/g, '').split(' ');
+                  console.log(addressList[addressList.length-4]);
+                  if (dbHolder == null) {
+                    dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
+                  }
+                  dbHolder.transaction(function (transaction) {
+                      transaction.executeSql('SELECT * FROM city_club_suggestions WHERE cityName=?', [addressList[addressList.length-4]],
+                        function (tx, results) {
+                          // access with results.rows.item(i).<field>
+                          console.log(`Data retrieved from DB - ${results.rows.length}`);
+                          if (results.rows.length===0) {
+                            console.log('No results found');
+                          } else {
+                            var suggestion = '';
+                            for (var i=0;i<results.rows.length;i++) {
+                              if ($.inArray(results.rows.item(i).cityName, addressList)>=0) {
+                                suggestion += results.rows.item(i).footballClubId + '\n';
+                              }
+                            }
+                            app.suggestionToast(`According to your location, following \n search queries are recommended:\n${suggestion}`);
+                          }
+                       }, function(error) {
+                            console.log(`Transaction ERROR: ${error.message}`);
+                      });
+                  });
+                } else {
+                  console.log("No address available for user's location");
+                }
+
+            });
+        } else {
+          console.log('Location is in wrong format');
+        }
+      }).fail(function () {
+          console.log("Error getting location");
+        });
+    },
+
+    onGetLocationError: function(error) {        // Triggers if location cannot be detected
+      console.log('code: '    + error.code    + '\n' +
+                  'message: ' + error.message + '\n');
+    },
+
+    // Function repeats location suggestions
+    repeatLocationSuggestion: function(repeat) { // Triggers once application is loaded
+      var repeatId;
+      var repeatTime = 30*1000 // 30seconds
+
+      if (repeat) {
+        var repeatId = window.setInterval(function() {
+          navigator.geolocation.getCurrentPosition(app.onGetLocation, app.onGetLocationError, { enableHighAccuracy: true });
+        }, repeatTime);
+      } else {
+        clearInterval(repeatId);
+      }
     },
 };
 
