@@ -27,7 +27,9 @@ var app = {
       // Setup Stream Switch
       this.toggleStreamSwitch(false);
       // Setup text in the popover menu
-      $("#help-popover").popover({content: "1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney\n 2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app\n 3. Allow and turn on GPS to enable query suggestions\n 4. To close this window, press 'Query examples' again."})
+      $("#help-popover").popover({container: 'body',
+                                  html: true,
+                                  content: "<ul style='list-style: none; margin-left: -25px'><li class='popover-item'>1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney</li><li class='popover-item'>2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app</li><li class='popover-item'>3. Allow and turn on GPS to enable query suggestions</li><li class='popover-item'>4. To close this window, press 'Query examples' again</li></ul>"})
       // Setup socket channel
       if(io !== undefined) {
         socket = io.connect(host);
