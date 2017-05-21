@@ -13,7 +13,6 @@ body {
 	background-color: #fff;
 	outline: none;
 }
-
 /* Tabs */
 .tabs {
 	position: absolute;
@@ -65,13 +64,47 @@ body {
 	height: 40px;
 	outline: none;
 }
-
+/* Player data */
+.player-photo {
+  display: block;
+  max-width:200px;
+  max-height:75px;
+  width: auto;
+	height: auto;
+}
+.player-title {
+	font-size: 1em;
+	margin-left: 30px;
+	width: 60%;
+  height: 45px;
+}
+.panel-default>.panel-heading {
+    color: #fff;
+    background-color: #4168C1;
+    border-color: #5f779d;
+		border-radius: 4px;
+		padding:10px 15px
+}
+.panel-group .panel {
+    margin-bottom: 0;
+    border-radius: 4px;
+}
+.panel-default {
+    border-color: #ccc;
+}
+.removeradius {
+	border-bottom-left-radius:0px!important;
+	border-bottom-right-radius:0px!important
+}
 /* Tweets */
-.search-tweet, .stream-tweet, .db-tweet {
+.search-tweet, .stream-tweet, .db-tweet{
 	margin-bottom: 15px;
 	padding: 10px;
 	background: #F3FCFD;
 	font-family: "Open Sans", Helvetica, Arial;
+}
+.player-wrapper {
+	background: #6db8f9;
 }
 .search-tweet-link, .stream-tweet-link, .db-tweet-link {
 	margin-left: 10px;

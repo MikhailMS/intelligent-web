@@ -207,7 +207,6 @@ tokenize = function(msg) {
         let token = query[c];
         //if word is AND/OR/BY, then skip it
         if (['AND', 'OR', 'BY'].indexOf(token) < 0) {
-            getToken()
             //first token does not have a prefix
             if(c === 0) {
                 keywords.push({pre: '', word: token});

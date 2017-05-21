@@ -3,7 +3,7 @@
 */
 var dbHolder;
 var socket;
-var host = '';
+var host = 'http://93e621ee.ngrok.io';
 
 var app = {
     // Initialise application
@@ -56,9 +56,10 @@ var app = {
         $('#search-query').val("");
       } else {
         // If previously fetched data is on the screen, delete it
-        if($(".search-tweet").length) {
+        if ($(".search-tweet").length) {
           $(".search-tweet").remove();
         }
+        $('.player-wrapper').attr('style', 'display:none');
         $("body").addClass("loading");  // Start loading animation
         console.log(`Query to Search API ${query}`);
         // Emit search query to server
@@ -116,13 +117,39 @@ var app = {
             }
           });
         }
-        // Listens for a success response from the server to
-        // say the connection was successful.
-        socket.on("connected", function(r) {
-          // Now that we are connected to the server let's tell
-          // the server we are ready to start receiving tweets.
-          socket.emit("start tweets");
-        });
+
+        // Check if channel has been created so only 1 listener per client exists
+        if (!(socket.hasListeners('player-card-result'))) {
+          socket.on('player-card-result', function (error, data) {
+            if (data!=null) {
+              console.log(`Data received from Twitter Search - ${data.length}`);
+              if (data.length<=0) {
+                console.log(`No player found for ${query}`)
+              } else {
+                console.log("Displaying player's info")
+                console.log(data)
+                // Process player's data
+                var playerName = data.fullname;
+                var playerAbstract = data.abstract;
+                var playerPosition = data.position;
+                var playerClub = data.current_club;
+                var playerPhoto = data.thumbnail_url;
+                // Insert data into placeholders
+                var $div = $('.player-wrapper');
+                // Add tweet data to placeholders
+                $div.find('.player-photo-link').attr('href', `${playerPhoto}`);
+                $div.find('.player-photo').attr('src', `${playerPhoto}`);
+                $div.find('.player-name').text(playerName);
+                $div.find('.player-club').text(playerClub);
+                $div.find('.player-position').text(playerPosition);
+                $div.find('.player-abstract').text(playerAbstract);
+                $div.attr('style', 'display:block').toggle().toggle();
+                }
+            } else {
+              alert('Error while retrieving results from the server');
+            }
+          });
+        }
       }
     },
 
