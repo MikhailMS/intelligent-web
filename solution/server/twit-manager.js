@@ -18,6 +18,7 @@
 const   TWIT_API = require('./twit-retriever'),
         DB = require('./db-control'),
         DBP = require('./dbpedia-retriever'),
+        ERR = require('./errors'),
         LOG = require('./logger');
 
 //how much time (in ms) should have passed before
@@ -26,11 +27,6 @@ const THRESHOLD = 5 * 60 * 1000; //5 minutes
 
 //logging name
 const LNAME = 'TWIT';
-
-const invalid_query_err = {
-    title: 'Server side error',
-    msg: 'The query received was of invalid format.'
-};
 
 /**
  * This function tells us whether a given
@@ -110,7 +106,7 @@ search = function(data, sendBack) {
 
     //check whether the query is empty
     if(query.length === 0) {
-        sendBack(invalid_query_err, tweetResponse([], false));
+        sendBack(ERR.INVALID_QUERY, tweetResponse([], false));
         return;
     }
 
@@ -166,7 +162,7 @@ openStream = function(query, streamBack) {
     query = query.trim().replace(/\s+/g, " ");
     //check whether the query is empty
     if(query.length === 0) {
-        streamBack(invalid_query_err, {});
+        streamBack(ERR.INVALID_QUERY, {});
         return;
     }
 

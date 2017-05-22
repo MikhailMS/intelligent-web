@@ -15,30 +15,9 @@
 const Twitter = require('twitter'),
     config = require('./config'),
     LOG = require('./logger'),
+    ERR = require('./errors'),
     LNAME = 'TWITTER API', //name used in logging
     BATCHES = 6;
-
-//define errors
-const twit_rest_err = {
-    title: 'Twitter API Error',
-    msg: 'There was an error retrieving the tweets using the Twitter REST API.'
-};
-
-const twit_stream_err = {
-    title: 'Twitter API Error',
-    msg: 'There was an error while streaming using the Twitter API.'
-
-};
-
-const no_tweets_err = {
-    title: 'Twitter API Error',
-    msg: 'The Twitter API returned 0 tweets for the given query.'
-};
-
-const twitter_420_err = {
-    title: 'Twitter API Error',
-    msg: 'Too many stream requests (rate limited).'
-};
 
 //declare stream
 let currentStream;
@@ -136,7 +115,7 @@ function getTweetBatch(c, procQuery, tweets, sendBack) {
             if(err === null)
                 sendBack(null, tweets); //return tweets
             else
-                sendBack(twit_rest_err, null); //return error
+                sendBack(ERR.TWIT_REST, null); //return error
         } else { //continue recursion
             getTweetBatch(c - 1, procQuery, tweets, sendBack);
         }
@@ -156,7 +135,7 @@ getTweets = function(query, sendBack) {
     //call recursive function
     getTweetBatch(BATCHES, procQuery, [], (err, tweets) => {
         if(tweets.length === 0)
-            err = no_tweets_err;
+            err = ERR.TWIT_EMPTY;
         sendBack(err, tweets);
     });
 };
@@ -219,9 +198,9 @@ openStream = function (users, filter, streamBack) {
         //send back error
         stream.on('error', (error) => {
             if(error.message.includes('420'))
-                streamBack(twitter_420_err, {});
+                streamBack(ERR.TWIT_RATE_LIM, {});
             else
-                streamBack(twit_stream_err, {});
+                streamBack(ERR.TWIT_STREAM, {});
             closeStream();
         });
     });

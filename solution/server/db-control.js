@@ -14,18 +14,8 @@
 const SQLITE3 = require('sqlite3'),
     DB = new SQLITE3.Database('db.sqlite3'),
     LOG = require('./logger'),
+    ERR = require('./errors'),
     LNAME = 'DATABASE'; //name used in logging
-
-//init errors
-const db_error = {
-    title: 'Database error',
-    msg: 'There was an error reaching the database.'
-};
-
-const db_no_result_error = {
-    title: 'Database error',
-    msg: 'No results were found in the database for this query.'
-};
 
 //SQL query for creating tweets table
 const createTableTweets = "" +
@@ -305,11 +295,11 @@ retrieveTweets = function (msg, sendBack) {
     }, (err) => {
         //handle error and send back results
         if (err !== null) {
-            sendBack(db_error, null);
+            sendBack(ERR.DB_GENERIC, null);
         } else {
             //check if there are any results
             if(results.length === 0)
-                sendBack(db_no_result_error, results);
+                sendBack(ERR.DB_EMPTY, results);
             else
                 sendBack(null, results);
         }
@@ -331,7 +321,7 @@ lastUpdated = function (query, callback) {
             let time = res === undefined ? (-Infinity) : res.time;
             callback(null, time);
         } else {
-            callback(db_error, null);
+            callback(ERR.DB_GENERIC, null);
         }
     });
 };
@@ -391,7 +381,7 @@ findPlayer = function (query, callback) {
                 LOG.log(LNAME, 'No footballer found in database.');
             }
         } else {
-            callback(db_error, null);
+            callback(ERR.DB_GENERIC, null);
         }
     });
 };
