@@ -32,6 +32,7 @@ class Feed extends Component {
         super(props);
         this.state = {
             feedQuery: '',
+            renderSearch: false,
             streamChecked: false,
             allTwitCards: [],
             streamResults: [],
@@ -70,16 +71,20 @@ class Feed extends Component {
     */
     onSearchFeed = (feedQuery) => {
         const { selectedTab } = this.state;
-        const isStreaming = selectedTab === '2';
+
+        // only render search data if that tab is selected
+        const renderSearch = selectedTab === '1';
+
         this.setState({
             feedQuery,
+            renderSearch,
             allTwitCards: [],
             displayCards: [],
             cardsReady: false,
             playerName: null,
             playerData: null,
             frequency: null,
-            loading: isStreaming !== true,
+            loading: true,
         }, () => {
             if (selectedTab === '2') this.onStreamSwitch(true);
             else this.doSearchQuery(); // wait for setState to finish and execute
@@ -96,6 +101,7 @@ class Feed extends Component {
         this.setState({ streamChecked: checked }); // switch stream
         if (checked) {
             socket.emit('open-stream', feedQuery);
+            this.setState({ streamLoading: true });
             this.handleStream();
         } else { // close stream
             socket.emit('close-stream', '');
@@ -111,17 +117,14 @@ class Feed extends Component {
         if (!(socket.hasListeners('stream-result'))) {
             socket.on('stream-result', (err, res) => {
                 this.handleError(err);
+                // if no error is found add data to stream results
                 if (!err) {
                     const { streamResults } = this.state;
                     let newResults;
                     if (streamResults.length === 0) newResults = [res];
                     else newResults = [res].concat(streamResults);
-                    this.setState({ streamResults: newResults });
-                } else {
-                    this.setState({
-                        streamChecked: false
-                    });
-                }
+                    this.setState({ streamResults: newResults, streamLoading: false });
+                } else this.setState({ streamChecked: false }); // else uncheck switch
             });
         }
     }
@@ -201,7 +204,8 @@ class Feed extends Component {
                 this.handleError(err); // throw an error if there's any
                 const searchResults = res.tweets;
                 const twitCards = searchResults.map(
-                    el => <TwitterCard key={el.id} tweet={el} />); // create all twitter cards from data
+                    // create all twitter cards from data
+                    el => <TwitterCard key={el.id} tweet={el} />);
                 const cardsReady = twitCards.length > 0; // check if twitter cards have been found
                 const newdisplayCards = twitCards.slice(0, 10); // take first 10 cards
                 this.setState({
@@ -223,14 +227,12 @@ class Feed extends Component {
      */
     renderSearch = () => {
         const { cardsReady, displayCards, dataSize,
-            allTwitCards, playerName, playerData, currentPage, loading } = this.state;
+            allTwitCards, playerName, playerData, currentPage, renderSearch } = this.state;
 
-        let twitterCards;
+        let twitterCards = [];
 
         // create a player card
-        const playerCard = (
-            <PlayerCard title={playerName} playerData={playerData} />
-        );
+        const playerCard = (<PlayerCard title={playerName} playerData={playerData} />);
 
         if (cardsReady) {
             twitterCards = (
@@ -262,15 +264,16 @@ class Feed extends Component {
                     </Row>
                 </div>
             );
-        } else twitterCards = null;
-
-        const spinner = loading ? this.createSpinner() : null;
+        } else if (renderSearch) {
+            for (let i = 0; i < 10; i++) {
+                twitterCards.push(<TwitterCard key={i} />);
+            }
+        } else twitterCards = null; // search hasn't been triggered yet
 
         // render scene if data is loaded
         return (
             <div>
                 {playerCard}
-                {spinner}
                 {twitterCards}
             </div>
         );
@@ -281,7 +284,7 @@ class Feed extends Component {
      * Returns the JSX stream components to render.
      */
     renderStream = () => {
-        const { streamResults, streamChecked } = this.state;
+        const { streamResults, streamChecked, streamLoading } = this.state;
 
         // a stream switch. JSX element
         const toggle = (
@@ -317,7 +320,7 @@ class Feed extends Component {
                     </CSSTransitionGroup>
                 </Row>
             );
-        }
+        } else if (streamLoading) stream = this.createSpinner();
 
         // return feed
         return (

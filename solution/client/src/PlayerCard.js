@@ -72,7 +72,7 @@ class PlayerCard extends Component {
             return (
                 <Card className="loadingCard" loading title={title} style={{ width: '100%' }}>
                     This is a loading card
-             </Card>
+                </Card>
             );
         } return null; // render nothing
     }

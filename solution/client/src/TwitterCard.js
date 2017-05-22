@@ -24,57 +24,65 @@ class TwitterCard extends Component {
      */
     render() {
         const { tweet } = this.props; // tweet prop supplied from parent
-        // create card title
-        const cardTitle = (
-            <Row>
-                <Badge>
-                    <a href={tweet.profile_url}>
-                        <img
-                            className="profileImg"
-                            alt="profile"
-                            src={tweet.avatar_url}
-                        />
-                    </a>
-                </Badge>
-                <a target="_blank" rel="noopener noreferrer" href={tweet.profile_url}>
-                    {tweet.author_name}
-                </a>
-            </Row>
-        );
-        // link to twitter component. Open link in a new tab.
-        const tweetLink = (
-            <a target="_blank" rel="noopener noreferrer" href={tweet.tweet_url}>Link</a>
-        );
-        // take tweet time and split into array, so only minutes and seconds can be extracted
-        const tweetTime = tweet.date_time.time.split(':');
 
-        // make card
-        return (
-            <Card
-                className="card"
-                title={cardTitle}
-                extra={tweetLink}
-            >
+        if (tweet) {
+            // create card title
+            const cardTitle = (
                 <Row>
-                    <Col span={22}>
-                        <Linkify properties={linkifyProperties} >{tweet.text}</Linkify>
-                    </Col>
-                    <Col span={2}>
-                        <Row>
-                            <p>
-                                {tweet.date_time.week_day},
+                    <Badge>
+                        <a href={tweet.profile_url}>
+                            <img
+                                className="profileImg"
+                                alt="profile"
+                                src={tweet.avatar_url}
+                            />
+                        </a>
+                    </Badge>
+                    <a target="_blank" rel="noopener noreferrer" href={tweet.profile_url}>
+                        {tweet.author_name}
+                    </a>
+                </Row>
+            );
+            // link to twitter component. Open link in a new tab.
+            const tweetLink = (
+                <a target="_blank" rel="noopener noreferrer" href={tweet.tweet_url}>Link</a>
+            );
+            // take tweet time and split into array, so only minutes and seconds can be extracted
+            const tweetTime = tweet.date_time.time.split(':');
+
+            // make card
+            return (
+                <Card
+                    className="card"
+                    title={cardTitle}
+                    extra={tweetLink}
+                >
+                    <Row>
+                        <Col span={22}>
+                            <Linkify properties={linkifyProperties} >{tweet.text}</Linkify>
+                        </Col>
+                        <Col span={2}>
+                            <Row>
+                                <p>
+                                    {tweet.date_time.week_day},
                   {tweet.date_time.date} {tweet.date_time.month} {tweet.date_time.year}
-                            </p>
-                        </Row>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={22} />
-                    <Col span={2}>
-                        <Row><p>{tweetTime[0]}:{tweetTime[1]} GMT</p></Row>
-                    </Col>
-                </Row>
-            </Card>
+                                </p>
+                            </Row>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={22} />
+                        <Col span={2}>
+                            <Row><p>{tweetTime[0]}:{tweetTime[1]} GMT</p></Row>
+                        </Col>
+                    </Row>
+                </Card>
+            );
+        }
+        return (
+            <Card className="loadingCard" loading style={{ width: '100%' }}>
+                This is a loading card
+             </Card>
         );
     }
 }
