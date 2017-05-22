@@ -107,8 +107,6 @@ class Feed extends Component {
     * Handles the server Twitter search response. Saves user query to app state.
     */
     handleStream = () => {
-        this.setState({ streaming: true }); // switch steaming
-
         // create listener for stream results
         if (!(socket.hasListeners('stream-result'))) {
             socket.on('stream-result', (err, res) => {
@@ -121,8 +119,7 @@ class Feed extends Component {
                     this.setState({ streamResults: newResults });
                 } else {
                     this.setState({
-                        streamChecked: false,
-                        streaming: false
+                        streamChecked: false
                     });
                 }
             });
@@ -302,7 +299,7 @@ class Feed extends Component {
         // tweet results
         let stream = null;
 
-        // create the stream feed if stream results are generated
+        // create the stream feed if any stream cards have arrived
         if (!(Object.keys(streamResults).length === 0)) {
             const streamCards = streamResults.map(
                 (el) => <div key={el.id}><TwitterCard tweet={el} /></div>);
@@ -360,6 +357,7 @@ class Feed extends Component {
                         <Search
                             className="searchBar"
                             placeholder="Enter feed query ..."
+                            onChange={(event) => this.setState({ feedQuery: event.target.value })}
                             onSearch={(value) => this.onSearchFeed(value)}
                         />
                     </Col>
