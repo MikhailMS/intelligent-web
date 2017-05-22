@@ -35,6 +35,11 @@ const no_tweets_err = {
     msg: 'The Twitter API returned 0 tweets for the given query.'
 };
 
+const twitter_420_err = {
+    title: 'Twitter API Error',
+    msg: 'Too many stream requests (rate limited).'
+};
+
 //declare stream
 let currentStream;
 
@@ -213,10 +218,10 @@ openStream = function (users, filter, streamBack) {
         stream.on('data', (data) => streamBack(null, processTweet(data)));
         //send back error
         stream.on('error', (error) => {
-            console.log(error.msg);
-            ///if(err.code === 420)
-               // console.log('ebaha ti maikata brad');
-            streamBack(twit_stream_err, {});
+            if(error.message.includes('420'))
+                streamBack(twitter_420_err, {});
+            else
+                streamBack(twit_stream_err, {});
             closeStream();
         });
     });
