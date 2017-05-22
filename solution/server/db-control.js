@@ -359,11 +359,11 @@ findPlayer = function (query, callback) {
 
     //generate the SQL query
     for (let i = 0; i < queryArr.length; i++) {
-        if (['AND', 'OR', 'BY'].indexOf(queryArr[i] < 0)) {
+        if (['AND', 'OR', 'BY'].indexOf(queryArr[i]) < 0) {
             if (i > 0) sql += " OR ";
             sql += "key LIKE ?";
             let word = queryArr[i].split('#').join('').split('@').join('');
-            args.push('%' + word + '%');
+            args.push('% ' + word + ' %');
         }
     }
     sql += " LIMIT 1;";
