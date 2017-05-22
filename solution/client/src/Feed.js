@@ -115,10 +115,14 @@ class Feed extends Component {
         // create listener for stream results
         if (!(socket.hasListeners('stream-result'))) {
             socket.on('stream-result', (err, res) => {
+                this.handleError(err);
                 const { streamResults } = this.state;
                 let newResults;
                 if (streamResults.length === 0) newResults = [res];
                 else newResults = [res].concat(streamResults);
+                if (err) {
+                    this.setState({ streamChecked: false });
+                }
                 this.setState({ streamResults: newResults });
             });
         }
