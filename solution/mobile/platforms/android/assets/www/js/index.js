@@ -3,7 +3,7 @@
 */
 var dbHolder;
 var socket;
-var host = '';
+var host = 'http://c91931d5.ngrok.io';
 
 var app = {
     // Initialise application
@@ -61,7 +61,7 @@ var app = {
         if ($(".search-tweet").length) {
           $(".search-tweet").remove();
         }
-        $('.player-wrapper').attr('style', 'display:none');
+        app.togglePlayerInfoBtn(false);
         $("body").addClass("loading");  // Start loading animation
         console.log(`Query to Search API ${query}`);
         // Emit search query to server
@@ -129,7 +129,6 @@ var app = {
                 console.log(`No player found for ${query}`)
               } else {
                 console.log("Displaying player's info")
-                console.log(data)
                 // Process player's data
                 var playerName = data.fullname;
                 var playerAbstract = data.abstract;
@@ -145,7 +144,7 @@ var app = {
                 $div.find('.player-club').text(playerClub);
                 $div.find('.player-position').text(playerPosition);
                 $div.find('.player-abstract').text(playerAbstract);
-                $div.attr('style', 'display:block').toggle().toggle();
+                app.togglePlayerInfoBtn(true);
                 }
             } else {
               alert('Error while retrieving results from the server');
@@ -320,6 +319,16 @@ var app = {
         $('#stream-switch').bootstrapToggle('enable');
         $('#stream-switch').bootstrapToggle('off');
         $('#stream-switch').bootstrapToggle('disable');
+      }
+    },
+
+    togglePlayerInfoBtn: function(is_on) {
+      if (is_on) {
+        $(".btn.btn-default.player-btn").attr('style', 'display:block');
+        $('.player-wrapper').attr('style', 'display:block').toggle().toggle();
+      } else {
+        $(".btn.btn-default.player-btn").attr('style', 'display:none');
+        $('.player-wrapper').attr('style', 'display:none').toggle().toggle();
       }
     },
 

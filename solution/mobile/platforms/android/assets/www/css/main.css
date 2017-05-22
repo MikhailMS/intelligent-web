@@ -13,10 +13,17 @@ body {
 	background-color: #fff;
 	outline: none;
 }
-/* Popover menu */
+
+/* Popover menu and button */
+#btn-help {
+	padding-top: 5px;
+	margin-top: 5px;
+	width: 100%;
+}
 .popover-item {
 	text-align: left;
 }
+
 /* Tabs */
 .tabs {
 	position: absolute;
@@ -68,7 +75,10 @@ body {
 	height: 40px;
 	outline: none;
 }
-/* Player data */
+/* Player data and button */
+.player-wrapper {
+	background: #6db8f9;
+}
 .player-photo {
   display: block;
   max-width:200px;
@@ -100,15 +110,15 @@ body {
 	border-bottom-left-radius:0px!important;
 	border-bottom-right-radius:0px!important
 }
+.player-btn {
+	width: 100%;
+}
 /* Tweets */
 .search-tweet, .stream-tweet, .db-tweet{
 	margin-bottom: 15px;
 	padding: 10px;
 	background: #F3FCFD;
 	font-family: "Open Sans", Helvetica, Arial;
-}
-.player-wrapper {
-	background: #6db8f9;
 }
 .search-tweet-link, .stream-tweet-link, .db-tweet-link {
 	margin-left: 10px;
@@ -168,7 +178,7 @@ body.loading .loader {
 	padding: 18px 12px;
 	outline: none;
 }
-.btn.search, .btn.stream, .btn.db, #btn-help {
+.btn.search, .btn.stream, .btn.db, .player-btn, #btn-help {
 	border: none;
 	font-size: 15px;
 	font-weight: normal;
@@ -185,25 +195,12 @@ body.loading .loader {
 	background-color: #4168C1;
 	outline: none;
 }
-.btn-default {
-	color: #fff;
-	background-color: #4168C1;
-	outline: none;
-}
-.btn-default:hover {
+/* Default and hover buttons behaviour */
+.btn, .btn-default, .btn-primary, .btn-default:hover, .btn-default:active {
 	color: #fff;
 	background-color: #4168C1;
 	border-color: #5f779d;
 	outline: none;
-}
-.btn, .btn-default:hover, .btn-primary {
-	background-color: #4168C1;
-	outline: none;
-}
-#btn-help {
-	padding-top: 5px;
-	margin-top: 5px;
-	width: 100%;
 }
 
 /* Stream indicator*/

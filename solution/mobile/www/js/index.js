@@ -1,5 +1,5 @@
 /*created by Mikhail Molotkov
-  updated on 21/05/2017
+  updated on 22/05/2017
 */
 var dbHolder;
 var socket;
@@ -61,7 +61,7 @@ var app = {
         if ($(".search-tweet").length) {
           $(".search-tweet").remove();
         }
-        $('.player-wrapper').attr('style', 'display:none');
+        app.togglePlayerInfoBtn(false); // Hide player's content button and collapsible div
         $("body").addClass("loading");  // Start loading animation
         console.log(`Query to Search API ${query}`);
         // Emit search query to server
@@ -78,6 +78,7 @@ var app = {
                 app.customToast(`No results found for ${query}`)
               } else {
                 console.log('Processing tweets and saving them to DB...')
+                // Check if DB connection is opened and open if it's needed
                 if (dbHolder == null) {
                   dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
                 }
@@ -103,7 +104,7 @@ var app = {
                   // Create div element that holds tweet data
                   $tab.append(`<div id='id_${i}_search' class='search-tweet'><div><a class='search-tweet-author-page' href='${profilePage}'><img class='search-tweet-author-img' alt='profile' src='${profileImg}' /></a><a class='search-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'><span class='search-tweet-author'></span></a></div><div><span class='search-tweet-text'></span></div><div><span class='search-tweet-time'></span><a class='search-tweet-link' target='_blank' rel='noopener noreferrer' href='${link}'>Open tweet</a></div></div>`);
                   var $div = $(`#id_${i}_search`);
-                  // Add tweet data to placeholders
+                  // Add tweet data into placeholders
                   $div.find('.search-tweet-text').text(tweetText);
                   $div.find('.search-tweet-author').text(authorName);
                   var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
@@ -119,7 +120,6 @@ var app = {
             }
           });
         }
-
         // Check if channel has been created so only 1 listener per client exists
         if (!(socket.hasListeners('player-card-result'))) {
           socket.on('player-card-result', function (error, data) {
@@ -129,7 +129,6 @@ var app = {
                 console.log(`No player found for ${query}`)
               } else {
                 console.log("Displaying player's info")
-                console.log(data)
                 // Process player's data
                 var playerName = data.fullname;
                 var playerAbstract = data.abstract;
@@ -138,14 +137,14 @@ var app = {
                 var playerPhoto = data.thumbnail_url;
                 // Insert data into placeholders
                 var $div = $('.player-wrapper');
-                // Add tweet data to placeholders
+                // Add player's data into placeholders
                 $div.find('.player-photo-link').attr('href', `${playerPhoto}`);
                 $div.find('.player-photo').attr('src', `${playerPhoto}`);
                 $div.find('.player-name').text(playerName);
                 $div.find('.player-club').text(playerClub);
                 $div.find('.player-position').text(playerPosition);
                 $div.find('.player-abstract').text(playerAbstract);
-                $div.attr('style', 'display:block').toggle().toggle();
+                app.togglePlayerInfoBtn(true); // Present player's content button and collapsible div
                 }
             } else {
               alert('Error while retrieving results from the server');
@@ -320,6 +319,16 @@ var app = {
         $('#stream-switch').bootstrapToggle('enable');
         $('#stream-switch').bootstrapToggle('off');
         $('#stream-switch').bootstrapToggle('disable');
+      }
+    },
+
+    togglePlayerInfoBtn: function(is_on) {       // Triggers when application receives player's data
+      if (is_on) {  // If there is a data, then show button and collapsible div
+        $(".btn.btn-default.player-btn").attr('style', 'display:block');
+        $('.player-wrapper').attr('style', 'display:block').toggle().toggle();
+      } else {      // If there is no data or user performs new search, hide button and collapsible div
+        $(".btn.btn-default.player-btn").attr('style', 'display:none');
+        $('.player-wrapper').attr('style', 'display:none').toggle().toggle();
       }
     },
 

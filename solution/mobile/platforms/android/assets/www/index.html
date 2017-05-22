@@ -30,7 +30,7 @@
                     <li id="search-db-tab-button" class="tab-button" data-tab="#search-db-tab">Search Database</li>
                 </ul>
                 <a id="help-popover" href="#" data-toggle="popover" title="Help 'n Tips" data-placement="bottom" data-content="">
-                    <button class="btn btn-default help" id="btn-help">
+                    <button id="btn-help" class="btn btn-default help" >
                         Application help
                     </button>
                 </a>
@@ -45,13 +45,9 @@
                             </span>
                         </div>
                     </div>
-                    <div class="panel-group player-wrapper" style='display:none'>
+                    <button class="btn btn-default player-btn" type="button" data-toggle="collapse" data-target="#collapse1" style='display:none'>Player information</button>
+                    <div id='player-wrapper'class="panel-group player-wrapper" style='display:none'>
                       <div class="panel panel-default">
-                        <div class="panel-heading">
-                          <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapse1" style='text-decoration: none'>Player information</a>
-                          </h4>
-                        </div>
                         <div id="collapse1" class="panel-collapse collapse">
                           <div class="panel-body" style='background: #87bdd8'>
                             <div style='display: inline-flex'>
@@ -104,7 +100,7 @@
         <!-- Main js file with application logic -->
         <script type="text/javascript" src="js/index.js"></script>
         <!-- Socket dependencies -->
-        <script src="host_name/js/socket.io.js"></script>
+        <script src="http://c91931d5.ngrok.io/js/socket.io.js"></script>
         <script type="text/javascript" src="js/socket.io.js"></script>
         <!-- JQuery dependencies -->
         <script src="js/lib/jquery-3.1.1.min.js"></script>
