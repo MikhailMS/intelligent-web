@@ -14,7 +14,7 @@
 
 import React, { Component } from 'react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import { Row, Col, Input, Tabs, Switch, message, Pagination, Tooltip } from 'antd';
+import { Row, Col, Input, Icon, Tabs, Switch, message, Pagination, Tooltip } from 'antd';
 import Spinner from 'react-spinkit';
 import io from 'socket.io-client';
 import TwitterCard from './TwitterCard';
@@ -352,14 +352,19 @@ class Feed extends Component {
         return (
             <div>
                 <Row className="row" type="flex" justify="center">
-                    <Col span={18}>
-                        <Tooltip placement="bottomRight" title={searchHint}>
-                            <Search
-                                className="searchBar"
-                                placeholder="Enter feed query ..."
-                                onSearch={(value) => this.onSearchFeed(value)}
-                            />
-                        </Tooltip>
+                    <Col span={17}>
+                        <Search
+                            className="searchBar"
+                            placeholder="Enter feed query ..."
+                            onSearch={(value) => this.onSearchFeed(value)}
+                        />
+                    </Col>
+                    <Col span={1}>
+                        <div className="hint">
+                            <Tooltip placement="bottomRight" title={searchHint}>
+                                <Icon className="questionIcon" type="question-circle-o" />
+                            </Tooltip>
+                        </div>
                     </Col>
                 </Row>
                 <Row className="row" type="flex" justify="center">

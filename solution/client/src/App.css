@@ -1,3 +1,12 @@
+/**
+* App.css
+* Main css file that provides all styles across the whole SPA
+*
+* @author Petar Barzev
+*
+* Last updated: 22/05/2017
+**/
+
 .content {
   margin-top: 20px;
 }
@@ -136,6 +145,16 @@ h3.right {
   height: 75%;
   width: 75%;
   border-radius: 3px;
+}
+
+.questionIcon {
+  padding: 16px 0;
+  margin-left: 10px;
+  font-size: 18px;
+}
+
+.hint {
+  height: 50px;
 }
 
 .card {
