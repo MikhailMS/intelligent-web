@@ -32,7 +32,8 @@ class Feed extends Component {
         super(props);
         this.state = {
             feedQuery: '',
-            renderSearch: false,
+            searchLoading: false,
+            streamLoading: false,
             streamChecked: false,
             allTwitCards: [],
             streamResults: [],
@@ -73,11 +74,11 @@ class Feed extends Component {
         const { selectedTab } = this.state;
 
         // only render search data if that tab is selected
-        const renderSearch = selectedTab === '1';
+        const searchLoading = selectedTab === '1';
 
         this.setState({
             feedQuery,
-            renderSearch,
+            searchLoading,
             allTwitCards: [],
             displayCards: [],
             cardsReady: false,
@@ -105,7 +106,7 @@ class Feed extends Component {
             this.handleStream();
         } else { // close stream
             socket.emit('close-stream', '');
-            this.setState({ streaming: false });
+            this.setState({ streaming: false, streamLoading: false });
         }
     };
 
@@ -123,8 +124,10 @@ class Feed extends Component {
                     let newResults;
                     if (streamResults.length === 0) newResults = [res];
                     else newResults = [res].concat(streamResults);
-                    this.setState({ streamResults: newResults, streamLoading: false });
+                    this.setState({ streamResults: newResults });
                 } else this.setState({ streamChecked: false }); // else uncheck switch
+                // whatver the outcome, stop the spinner
+                this.setState({ streamLoading: false });
             });
         }
     }
@@ -207,6 +210,7 @@ class Feed extends Component {
                     // create all twitter cards from data
                     el => <TwitterCard key={el.id} tweet={el} />);
                 const cardsReady = twitCards.length > 0; // check if twitter cards have been found
+                const searchLoading = cardsReady; // search isn't loading if no cards have been created
                 const newdisplayCards = twitCards.slice(0, 10); // take first 10 cards
                 this.setState({
                     frequency: res.frequency,
@@ -215,7 +219,8 @@ class Feed extends Component {
                     dataSize: twitCards.length,
                     displayCards: newdisplayCards,
                     cardsReady,
-                    loading: false
+                    loading: false,
+                    searchLoading
                 });
             });
         }
@@ -227,7 +232,7 @@ class Feed extends Component {
      */
     renderSearch = () => {
         const { cardsReady, displayCards, dataSize,
-            allTwitCards, playerName, playerData, currentPage, renderSearch } = this.state;
+            allTwitCards, playerName, playerData, currentPage, searchLoading } = this.state;
 
         let twitterCards = [];
 
@@ -264,7 +269,7 @@ class Feed extends Component {
                     </Row>
                 </div>
             );
-        } else if (renderSearch) {
+        } else if (searchLoading) {
             for (let i = 0; i < 10; i++) {
                 twitterCards.push(<TwitterCard key={i} />);
             }
