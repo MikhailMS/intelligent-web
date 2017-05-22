@@ -22,6 +22,11 @@ const db_error = {
     msg: 'There was an error reaching the database.'
 };
 
+const db_no_result_error = {
+    title: 'Database error',
+    msg: 'No results were found in the database for this query.'
+};
+
 //SQL query for creating tweets table
 const createTableTweets = "" +
     "CREATE TABLE `tweets` (" +
@@ -295,12 +300,22 @@ retrieveTweets = function (msg, sendBack) {
     let results = [];
     DB.each(sql, args, (err, t) => {
         //add tweet to array
+        console.log(t);
         if (t !== undefined)
             results.push(sqlToTweet(t));
     }, (err) => {
+        console.log('No results');
+        console.log(err);
         //handle error and send back results
-        if (err !== null) sendBack(db_error, null);
-        else sendBack(null, results);
+        if (err !== null) {
+            sendBack(db_error, null);
+        } else {
+            //check if there are any results
+            if(results.length === 0)
+                sendBack(db_no_result_error, results);
+            else
+                sendBack(null, results);
+        }
     });
 };
 
@@ -360,7 +375,7 @@ findPlayer = function (query, callback) {
     //generate the SQL query
     for (let i = 0; i < queryArr.length; i++) {
         if (['AND', 'OR', 'BY'].indexOf(queryArr[i]) < 0) {
-            if (i > 0) sql += " OR ";
+            if (args.length !== 0) sql += " OR ";
             sql += "key LIKE ?";
             let word = queryArr[i].split('#').join('').split('@').join('');
             args.push('% ' + word + ' %');

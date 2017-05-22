@@ -27,6 +27,11 @@ const THRESHOLD = 5 * 60 * 1000; //5 minutes
 //logging name
 const LNAME = 'TWIT';
 
+const invalid_query_err = {
+    title: 'Server side error',
+    msg: 'The query received was of invalid format.'
+};
+
 /**
  * This function tells us whether a given
  * query has not been updated in a while and
@@ -75,10 +80,8 @@ function tweetResponse(tweets, from_db) {
 function updateTweets(query, sendBack) {
     //get list of tweets using the Twitter API
     TWIT_API.getTweets(query, (err, tweets) => {
-        if(err === null) {
-            DB.recordTweets(tweets);
-            DB.recordQuery(query);
-        }
+        if(err === null) DB.recordTweets(tweets);
+        DB.recordQuery(query);
         sendBack(err, tweetResponse(tweets, false));
     });
 }
@@ -102,8 +105,14 @@ function retrieveTweets(query, sendBack) {
  * @param sendBack - callback receiving tweets
  */
 search = function(data, sendBack) {
-    let query = data.query;
+    let query = data.query.trim().replace(/\s+/g, " ");
     LOG.log(LNAME, 'Search query received: ' + query);
+
+    //check whether the query is empty
+    if(query.length === 0) {
+        sendBack(invalid_query_err, tweetResponse([], false));
+        return;
+    }
 
     //if user has specified explicitly
     //that results should be from DB

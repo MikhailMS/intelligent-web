@@ -30,6 +30,11 @@ const twit_stream_err = {
 
 };
 
+const no_tweets_err = {
+    title: 'Twitter API Error',
+    msg: 'The Twitter API returned 0 tweets for the given query.'
+};
+
 //declare stream
 let currentStream;
 
@@ -145,6 +150,8 @@ getTweets = function(query, sendBack) {
     const procQuery = query.split('BY ').join('from:');
     //call recursive function
     getTweetBatch(BATCHES, procQuery, [], (err, tweets) => {
+        if(tweets.length === 0)
+            err = no_tweets_err;
         sendBack(err, tweets);
     });
 };
