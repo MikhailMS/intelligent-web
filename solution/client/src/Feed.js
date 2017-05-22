@@ -1,3 +1,17 @@
+/**
+ * Feed.js
+ * 
+ * Represents the Feed section/page of the
+ * SPA. It provides an interface for the user
+ * to search and stream data from Twitter. Also,
+ * it provides facilities for trends tracking via
+ * the tweet frequency chart component.
+ * 
+ * @author Petar Barzev
+ * 
+ * Last updated: 22/05/2017
+ */
+
 import React, { Component } from 'react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { Row, Col, Input, Tabs, Switch, message, Pagination, Tooltip } from 'antd';
@@ -33,10 +47,20 @@ class Feed extends Component {
         };
     }
 
+    /**
+     * React lifecycle method. 
+     * Fires before the mounting (first launch) of the component.
+     * Opens a socket object for the app entity to use.
+     */
     componentWillMount() {
         socket = io('/');
     }
 
+    /**
+     * React lifecycle method.
+     * Fires before the component is unmounted.
+     * Closes the socket object used by this app entity.
+     */
     componentWillUnmount() {
         socket.close();
     }
@@ -193,8 +217,9 @@ class Feed extends Component {
     }
 
     /**
-    * Generates the Twitter feed 
-    */
+     * A method that prepares the Search tab render.
+     * Returns the JSX stream components to render.
+     */
     renderSearch = () => {
         const { cardsReady, searchCards, dataSize,
             allSearchCards, playerName, playerData, currentPage, loading } = this.state;
@@ -250,6 +275,10 @@ class Feed extends Component {
         );
     }
 
+    /**
+     * A method that prepares the Stream tab render.
+     * Returns the JSX stream components to render.
+     */
     renderStream = () => {
         const { streamResults, streamChecked } = this.state;
 
@@ -300,6 +329,7 @@ class Feed extends Component {
 
     /**
      * Creates the necessary data displayed in the Statistics tab
+     * Returns the JSX components to be rendered.
      */
     renderStats = () => {
         const { frequency, loading } = this.state;
@@ -313,6 +343,10 @@ class Feed extends Component {
         );
     }
 
+    /**
+     * Main React render method.
+     * Called every time the state updates.
+     */
     render() {
         const searchHint = 'Search by players, teams and author. Example query: "#hazard OR #chelsea BY @WayneRooney"';
         return (

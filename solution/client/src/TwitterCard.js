@@ -1,3 +1,15 @@
+/**
+ * TwitterCard.js
+ * 
+ * Represents a twitter card displayed in Feed, Stream and Database
+ * sections. It includes avatar, author, link to tweet, tweet text and
+ * date/time data. 
+ * 
+ * @author Petar Barzev
+ * 
+ * Last updated: 15/05/2017
+ */
+
 import React, { Component } from 'react';
 import { Card, Row, Badge, Col } from 'antd';
 import Linkify from 'react-linkify';
@@ -8,7 +20,7 @@ const linkifyProperties = { target: '_blank' };
 class TwitterCard extends Component {
 
     /**
-     * Renders a Twitter Card
+     * Main react render method. Fires every time component receives props
      */
     render() {
         const { tweet } = this.props; // tweet prop supplied from parent
@@ -29,11 +41,11 @@ class TwitterCard extends Component {
                 </a>
             </Row>
         );
-        // link to twitter
+        // link to twitter component. Open link in a new tab.
         const tweetLink = (
             <a target="_blank" rel="noopener noreferrer" href={tweet.tweet_url}>Link</a>
         );
-        // time tweeted
+        // take tweet time and split into array, so only minutes and seconds can be extracted
         const tweetTime = tweet.date_time.time.split(':');
 
         // make card

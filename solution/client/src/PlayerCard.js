@@ -1,10 +1,23 @@
+/**
+ * PlayerCard.js
+ * 
+ * A component that creates a player card,
+ * displayed at the top of Feed Search section.
+ * It takes DBPedia player data from the server, 
+ * and either renders a loading or a populated card.
+ * 
+ * @author Petar Barzev
+ * 
+ * Last updated: 22/05/2017
+ */
+
 import React, { Component } from 'react';
 import { Card, Row, Col } from 'antd';
 
 class PlayerCard extends Component {
 
     /**
-     * Renders a player card
+     * Main React render method, executed every time state/props update.
      */
     render() {
         const { playerData, title } = this.props; // data supplied as prop from parent
@@ -19,17 +32,16 @@ class PlayerCard extends Component {
             // limit abstract to 3 sentences
             const abstract = playerData.abstract.split('. ');
             const NUM_OF_SEN = 3; // maximum 3 sentences from abstract
-            let counter = 0;
             let abstractString = '';
-            while (counter <= NUM_OF_SEN) {
-                if (!(typeof abstract[counter] === 'undefined')) {
-                    counter++;
-                    abstractString = `${abstractString}${abstract[counter]}. `;
+            for (let i = 0; i < NUM_OF_SEN; i++) {
+                if (typeof abstract[i] !== 'undefined') {
+                    abstractString = `${abstractString}${abstract[i]}. `;
                 }
             }
 
-            let position = playerData.position.split(' ');
-            position = position[0]; // limit to only 1 word
+            // extract only 1 word from position field
+            const position = playerData.position.split(' ')[0];
+
             return (
                 <Card className="playerCard" bodyStyle={{ padding: 0 }}>
                     <Col span={6} className="cardLeft">

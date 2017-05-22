@@ -1,3 +1,15 @@
+/**
+ * Database.js
+ * 
+ * Represents the Database section/page
+ * of the SPA. It provides an interface for the
+ * user to search the database.
+ * 
+ * @author Petar Barzev
+ * 
+ * Last updated: 22/05/2017
+ */
+
 import React, { Component } from 'react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { Row, Col, Input, Pagination, message, Tooltip } from 'antd';
@@ -23,10 +35,20 @@ class Database extends Component {
         };
     }
 
+    /**
+     * React lifecycle method. 
+     * Fires before the mounting (first launch) of the component.
+     * Opens a socket object for the app entity to use.
+     */
     componentWillMount() {
         socket = io('/');
     }
 
+    /**
+     * React lifecycle method.
+     * Fires before the component is unmounted.
+     * Closes the socket object used by this app entity.
+     */
     componentWillUnmount() {
         socket.close();
     }

@@ -1,3 +1,16 @@
+/**
+ * TweetChart.js
+ * 
+ * An interactive chart component that
+ * presents the tweet frequency of a  
+ * specific query in a specific date range.
+ * Used in Statistics tab of Feed component.
+ * 
+ * @author Petar Barzev
+ * 
+ * Last updated: 22/05/2017
+ */
+
 import React, { Component } from 'react';
 import { Row } from 'antd';
 import RC2 from 'react-chartjs2';

@@ -1,3 +1,16 @@
+/**
+ * App.js
+ * 
+ * Sets the skeleton of the SPA. Injects a router,
+ * which allows creating sections in the app.
+ * This component organises the web app and declares
+ * all necessary layout components
+ * 
+ * @author Petar Barzev
+ * 
+ * Last updated: 22/05/2017
+ */
+
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link, Redirect } from 'react-router-dom';
 import { Layout, Row, Col, Tag, Menu } from 'antd';
