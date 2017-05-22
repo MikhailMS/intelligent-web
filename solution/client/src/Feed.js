@@ -109,21 +109,22 @@ class Feed extends Component {
     handleStream = () => {
         this.setState({ streaming: true }); // switch steaming
 
-        // create player listeners if they aren't open
-        this.playerListeners();
-
         // create listener for stream results
         if (!(socket.hasListeners('stream-result'))) {
             socket.on('stream-result', (err, res) => {
                 this.handleError(err);
-                const { streamResults } = this.state;
-                let newResults;
-                if (streamResults.length === 0) newResults = [res];
-                else newResults = [res].concat(streamResults);
-                if (err) {
-                    this.setState({ streamChecked: false });
+                if (!err) {
+                    const { streamResults } = this.state;
+                    let newResults;
+                    if (streamResults.length === 0) newResults = [res];
+                    else newResults = [res].concat(streamResults);
+                    this.setState({ streamResults: newResults });
+                } else {
+                    this.setState({
+                        streamChecked: false,
+                        streaming: false
+                    });
                 }
-                this.setState({ streamResults: newResults });
             });
         }
     }
