@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
-import { Row, Col, Input, Tabs, Switch, Pagination, Tooltip } from 'antd';
-import RC2 from 'react-chartjs2';
+import { Row, Col, Input, Tabs, Switch, message, Pagination, Tooltip } from 'antd';
 import Spinner from 'react-spinkit';
 import io from 'socket.io-client';
 import TwitterCard from './TwitterCard';
 import PlayerCard from './PlayerCard';
+import TweetChart from './TweetChart';
 import './App.css';
 
 // setup config variables
@@ -27,8 +27,8 @@ class Feed extends Component {
             selectedTab: '1',
             cardsReady: false,
             dataSize: null,
-            playerData: {},
-            playerReceived: false,
+            playerData: null,
+            playerName: null,
             loading: false,
         };
     }
@@ -47,20 +47,18 @@ class Feed extends Component {
     onSearchFeed = (feedQuery) => {
         const { selectedTab } = this.state;
         const isStreaming = selectedTab === '2';
-        let loading;
-        if (isStreaming) {
-            loading = false;
-        } else loading = true;
         this.setState({
             feedQuery,
             allSearchCards: [],
             searchCards: [],
             cardsReady: false,
-            loading,
-            playerReceived: false,
+            playerName: null,
+            playerData: null,
+            frequency: null,
+            loading: isStreaming !== true,
         }, () => {
             if (selectedTab === '2') this.onStreamSwitch(true);
-            else this.handleFeedQuery(); // wait for setState to finish and execute
+            else this.doSearchQuery(); // wait for setState to finish and execute
         });
     }
 
@@ -71,7 +69,7 @@ class Feed extends Component {
     */
     onStreamSwitch = (checked) => {
         const { feedQuery } = this.state;
-        this.setState({ streamChecked: checked }); // start stream
+        this.setState({ streamChecked: checked }); // switch stream
         if (checked) {
             socket.emit('open-stream', feedQuery);
             this.handleStream();
@@ -85,7 +83,10 @@ class Feed extends Component {
     * Handles the server Twitter search response. Saves user query to app state.
     */
     handleStream = () => {
-        this.setState({ streaming: true }); // start steaming
+        this.setState({ streaming: true }); // switch steaming
+
+        // create player listeners if they aren't open
+        this.playerListeners();
 
         // create listener for stream results
         if (!(socket.hasListeners('stream-result'))) {
@@ -104,11 +105,19 @@ class Feed extends Component {
     */
     changeCards = (page, pageSize, allSearchCards) => {
         const endPoint = page * pageSize;
-        const startPoint = endPoint - pageSize;
+        const switchPoint = endPoint - pageSize;
         this.setState({
-            searchCards: allSearchCards.slice(startPoint, endPoint),
+            searchCards: allSearchCards.slice(switchPoint, endPoint),
             currentPage: page
         });
+    }
+
+    /**
+    * Displays an error message to the user at the top of the screen.
+    * Fades away in 2 seconds.
+    */
+    handleError = (err) => {
+        if (err) message.error(`${err.title}: ${err.msg}`);
     }
 
     /**
@@ -120,9 +129,31 @@ class Feed extends Component {
         </div>
 
     /**
+     * Creates playername and card result listeners if they do not exist.
+     * Listeners wait for player data coming from the server and update state when it arrives
+     */
+    playerListeners = () => {
+        // socket listener that updates on player found events
+        if (!(socket.hasListeners('player-found'))) {
+            socket.on('player-found', (err, playerName) => {
+                this.handleError(err);
+                this.setState({ playerName });
+            });
+        }
+
+        if (!(socket.hasListeners('player-card-result'))) {
+            socket.on('player-card-result', (err, playerData) => {
+                this.handleError(err);
+                if (err) this.setState({ playerName: false });
+                this.setState({ playerData });
+            });
+        }
+    }
+
+    /**
     * Handles a change of search. This includes either Twitter or DB search.
     */
-    handleFeedQuery = () => { //eslint-disable-line
+    doSearchQuery = () => { //eslint-disable-line
         const { feedQuery, streamChecked } = this.state;
 
         // close stream if such is open
@@ -134,19 +165,14 @@ class Feed extends Component {
         // emit a feed search query
         socket.emit('static-search', { query: feedQuery, db_only: false });
 
-        if (!(socket.hasListeners('player-card-result'))) {
-            socket.on('player-card-result', (err, playerData) => {
-                this.setState({
-                    playerData,
-                    playerReceived: true
-                });
-            });
-        }
+        // handle player listeners
+        this.playerListeners();
 
         // declare a socket listener that updates on feed events
         // check if created so only 1 listener is created
         if (!(socket.hasListeners('feed-search-result'))) {
             socket.on('feed-search-result', (err, res) => {
+                this.handleError(err);
                 console.log('frequency', res.frequency);
                 const searchResults = res.tweets;
                 const twitCards = searchResults.map(
@@ -171,14 +197,14 @@ class Feed extends Component {
     */
     renderSearch = () => {
         const { cardsReady, searchCards, dataSize,
-            allSearchCards, playerReceived, playerData, currentPage, loading } = this.state;
+            allSearchCards, playerName, playerData, currentPage, loading } = this.state;
 
-        let playerCard;
         let twitterCards;
 
-        if (playerReceived) {
-            playerCard = <PlayerCard playerData={playerData} />;
-        } else playerCard = null;
+        // create a player card
+        const playerCard = (
+            <PlayerCard title={playerName} playerData={playerData} />
+        );
 
         if (cardsReady) {
             twitterCards = (
@@ -212,13 +238,13 @@ class Feed extends Component {
             );
         } else twitterCards = null;
 
-        // render spinner if data is being prepared
-        if (loading) return this.createSpinner();
+        const spinner = loading ? this.createSpinner() : null;
 
         // render scene if data is loaded
         return (
             <div>
                 {playerCard}
+                {spinner}
                 {twitterCards}
             </div>
         );
@@ -227,8 +253,8 @@ class Feed extends Component {
     renderStream = () => {
         const { streamResults, streamChecked } = this.state;
 
-        // a stream start. JSX element
-        const start = (
+        // a stream switch. JSX element
+        const toggle = (
             <Row>
                 <Switch
                     checked={streamChecked}
@@ -266,54 +292,25 @@ class Feed extends Component {
         // return feed
         return (
             <div className="feed">
-                {start}
+                {toggle}
                 {stream}
             </div>
         );
     }
 
+    /**
+     * Creates the necessary data displayed in the Statistics tab
+     */
     renderStats = () => {
         const { frequency, loading } = this.state;
+        const spinner = loading ? this.createSpinner() : null;
 
-        if (loading) return this.createSpinner();
-        if (frequency) {
-            // prepare chart data
-            // reverse arrays so earlier days and data come first
-            const labels = Object.keys(frequency).map(key => key).reverse();
-            const data = Object.keys(frequency).map(key => frequency[key]).reverse();
-            const chartData = {
-                labels,
-                datasets: [
-                    {
-                        label: 'Tweet frequency',
-                        fill: false,
-                        lineTension: 0.1,
-                        backgroundColor: 'rgba(75,192,192,0.4)',
-                        borderColor: 'rgba(75,192,192,1)',
-                        borderCapStyle: 'butt',
-                        borderDash: [],
-                        borderDashOffset: 0.0,
-                        borderJoinStyle: 'miter',
-                        pointBorderColor: '#000',
-                        pointBackgroundColor: '#000',
-                        pointBorderWidth: 1,
-                        pointHoverRadius: 5,
-                        pointHoverBackgroundColor: 'rgba(75,192,192,1)',
-                        pointHoverBorderColor: 'rgba(220,220,220,1)',
-                        pointHoverBorderWidth: 2,
-                        pointRadius: 1,
-                        pointHitRadius: 10,
-                        data,
-                        spanGaps: false,
-                    }
-                ]
-            };
-            return (
-                <Row className="row" type="flex" justify="center">
-                    <RC2 data={chartData} className="freqChart" type='line' />
-                </Row>
-            );
-        } return null; // nothing to render
+        return (
+            <div>
+                {spinner}
+                <TweetChart frequency={frequency} />
+            </div>
+        );
     }
 
     render() {
@@ -337,9 +334,9 @@ class Feed extends Component {
                             defaultActiveKey="1"
                             onChange={(tab) => this.setState({ selectedTab: tab })}
                         >
-                            <TabPane tab="Search" key="1" className="tabPane">{this.renderSearch()}</TabPane>
+                            <TabPane tab="Search" key="1">{this.renderSearch()}</TabPane>
                             <TabPane tab="Stream" key="2">{this.renderStream()}</TabPane>
-                            <TabPane tab="Statistics" className="tabPane" key="3">{this.renderStats()}</TabPane>
+                            <TabPane tab="Statistics" key="3">{this.renderStats()}</TabPane>
                         </Tabs>
                     </Col>
                 </Row>
