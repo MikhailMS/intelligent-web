@@ -3,7 +3,7 @@
 */
 var dbHolder;
 var socket;
-var host = 'http://c91931d5.ngrok.io';
+var host = 'http://c1b27748.ngrok.io';
 
 var app = {
     // Initialise application
@@ -29,7 +29,27 @@ var app = {
       // Setup text in the popover menu
       $("#help-popover").popover({container: 'body',
                                   html: true,
-                                  content: "<ul style='list-style: none; margin-left: -25px'><li class='popover-item'>1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney</li><li class='popover-item'>2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app</li><li class='popover-item'>3. Allow and turn on GPS to enable query suggestions</li><li class='popover-item'>4. To close this window, press 'Query examples' again</li></ul>"})
+                                  content: "<ul style='list-style: none; margin-left: -25px'><li class='popover-item'>1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney</li><li class='popover-item'>2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app</li><li class='popover-item'>3. Allow and turn on GPS to enable query suggestions</li><li class='popover-item'>4. To close this window, press 'Query examples' again</li></ul>"
+                                });
+      // Enable Lazy load for 'Search Tweets' & 'Search Database' tabs
+      $('.search-tweet').Lazy({
+        // Lazy config
+        scrollDirection: 'vertical',
+        effect: 'fadeIn',
+        visibleOnly: true,
+        onError: function(element) {
+          console.log('error loading ' + element.data('src'));
+        }
+      });
+      $('.db-tweet').Lazy({
+        // Lazy config
+        scrollDirection: 'vertical',
+        effect: 'fadeIn',
+        visibleOnly: true,
+        onError: function(element) {
+          console.log('error loading ' + element.data('src'));
+        }
+      });
       // Setup socket channel
       if(io !== undefined) {
         socket = io.connect(host);
@@ -63,7 +83,7 @@ var app = {
         }
         app.togglePlayerInfoBtn(false); // Hide player's content button and collapsible div
         $("body").addClass("loading");  // Start loading animation
-        console.log(`Query to Search API ${query}`);
+        console.log('Query to Search API ' + query);
         // Emit search query to server
         socket.emit('static-search', { query: query, db_only: false });
         // Check if channel has been created so only 1 listener per client exists
@@ -71,11 +91,11 @@ var app = {
           // Once results are prepared and sent by server, process them on client
           socket.on('feed-search-result', function (error, data) {
             if (data!=null) {
-              console.log(`Data received from Twitter Search - ${data.tweets.length}`);
+              console.log('Data received from Twitter Search - ' + data.tweets.length);
               // Close loading animation
               app.closeLoadingAnimation();
               if (data.tweets.length<=0) {
-                var msg = `No results found for ${query}`;
+                var msg = 'No results found for ' + query;
                 console.log(msg);
                 app.customToast(msg);
                 $('#search-query').val("");
@@ -102,15 +122,15 @@ var app = {
                   var time = timeDateList.time;
                   var year = timeDateList.year;
                   // Get timestamp
-                  var timestamp = Date.parse(`${year}-${month}-${date} ${time}+0000`)/1000
-                  var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
+                  var timestamp = Date.parse(year + '-' + month + '-' + date + ' ' + time + '' + 0000)/1000
+                  var date_time = weekDay + ',' + date + '.' + month + '.' + year + ' ' + time + ' ' + 'GMT';
                   // Create div element that holds tweet data
-                  $tab.append(`<div id='id_${i}_search' class='search-tweet'><div><a class='search-tweet-author-page' href='${profilePage}'><img class='search-tweet-author-img' alt='profile' src='${profileImg}' /></a><a class='search-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'><span class='search-tweet-author'></span></a></div><div><span class='search-tweet-text'></span></div><div><span class='search-tweet-time'></span><a class='search-tweet-link' target='_blank' rel='noopener noreferrer' href='${link}'>Open tweet</a></div></div>`);
-                  var $div = $(`#id_${i}_search`);
+                  $tab.append("<div id='id_" + i + "_search' class='search-tweet'><div><a class='search-tweet-author-page' href='" + profilePage + "'><img class='search-tweet-author-img' alt='profile' src='" + profileImg + "' /></a><a class='search-tweet-author-link' target='_blank' rel='noopener noreferrer' href='" + profilePage + "'><span class='search-tweet-author'></span></a></div><div><span class='search-tweet-text'></span></div><div><span class='search-tweet-time'></span><a class='search-tweet-link' target='_blank' rel='noopener noreferrer' href='" + link + "'>Open tweet</a></div></div>");
+                  var $div = $('#id_' + i + '_search');
                   // Add tweet data into placeholders
                   $div.find('.search-tweet-text').text(tweetText);
                   $div.find('.search-tweet-author').text(authorName);
-                  var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
+                  var date_time = weekDay + ',' + date + '.' + month + '.' + year + ' ' + time + ' ' + 'GMT';
                   $div.find('.search-tweet-time').text(date_time);
                   // Append 'tweet div' to 'parent div' element
                   $tab.append($div).toggle().toggle();
@@ -127,9 +147,8 @@ var app = {
         if (!(socket.hasListeners('player-card-result'))) {
           socket.on('player-card-result', function (error, data) {
             if (data!=null) {
-              console.log(`Data received from Twitter Search - ${data.length}`);
               if (data.length<=0) {
-                console.log(`No player found for ${query}`)
+                console.log('No player found for ' + query)
               } else {
                 console.log("Displaying player's info")
                 // Process player's data
@@ -141,8 +160,8 @@ var app = {
                 // Insert data into placeholders
                 var $div = $('.player-wrapper');
                 // Add player's data into placeholders
-                $div.find('.player-photo-link').attr('href', `${playerPhoto}`);
-                $div.find('.player-photo').attr('src', `${playerPhoto}`);
+                $div.find('.player-photo-link').attr('href', playerPhoto);
+                $div.find('.player-photo').attr('src', playerPhoto);
                 $div.find('.player-name').text(playerName);
                 $div.find('.player-club').text(playerClub);
                 $div.find('.player-position').text(playerPosition);
@@ -171,7 +190,7 @@ var app = {
           $(".stream-tweet").remove();
         }
         $('.toggle.btn.btn-default.off').attr('style', 'display:block');
-        console.log(`Query to Stream API ${query}`);
+        console.log('Query to Stream API ' + query);
         app.stopStream();
         app.toggleStreamSwitch(true);
         // Emit search query to Stream API
@@ -185,10 +204,10 @@ var app = {
             // Close loading animation
             app.closeLoadingAnimation();
             // Extract tweet data
-            var tweetText = data.text
+            var tweetText = data.text;
             var tweetId = data.id;
-            var authorName = data.author_name
-            var userName = data.user_name
+            var authorName = data.author_name;
+            var userName = data.user_name;
             var profilePage = data.profile_url;
             var link = data.tweet_url;
             var profileImg = data.avatar_url;
@@ -200,12 +219,12 @@ var app = {
             var time = timeDateList.time;
             var year = timeDateList.year;
             // Create div element that holds tweet data
-            $tab.append(`<div id='id_${counter}_stream' class='stream-tweet'><div><a class='stream-tweet-author-page' href='${profilePage}'><img class='stream-tweet-author-img' alt='profile' src='${profileImg}' /></a><a class='stream-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'><span class='stream-tweet-author'></span></a></div><div><span class='stream-tweet-text'></span></div><div><span class='stream-tweet-time'></span><a class='stream-tweet-link' target='_blank' rel='noopener noreferrer' href='${link}'>Open tweet</a></div></div>`);
-            var $div = $(`#id_${counter}_stream`);
+            $tab.append("<div id='id_" + i + "_stream' class='stream-tweet'><div><a class='stream-tweet-author-page' href='" + profilePage + "'><img class='stream-tweet-author-img' alt='profile' src='" + profileImg + "' /></a><a class='stream-tweet-author-link' target='_blank' rel='noopener noreferrer' href='" + profilePage + "'><span class='stream-tweet-author'></span></a></div><div><span class='stream-tweet-text'></span></div><div><span class='stream-tweet-time'></span><a class='stream-tweet-link' target='_blank' rel='noopener noreferrer' href='" + link + "'>Open tweet</a></div></div>");
+            var $div = $('#id_' + counter + '_stream');
             // Add tweet data to placeholders
             $div.find('.stream-tweet-text').text(tweetText);
             $div.find('.stream-tweet-author').text(authorName);
-            var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
+            var date_time = weekDay + ',' + date + '.' + month + '.' + year + ' ' + time + ' ' + 'GMT';
             $div.find('.stream-tweet-time').text(date_time);
             // Append 'tweet div' to 'parent div' element
             $tab.append($div).toggle().toggle();
@@ -246,27 +265,27 @@ var app = {
             transaction.executeSql('SELECT * FROM search_query WHERE query=? ORDER BY timestamp DESC', [query],
               function (tx, results) {
                 // access with results.rows.item(i).<field>
-                console.log(`Data retrieved from DB - ${results.rows.length}`);
+                console.log('Data retrieved from DB - ' + results.rows.length);
                 // Close loading animation
                 app.closeLoadingAnimation();
                 if (results.rows.length===0) {
                   console.log('No results found');
-                  app.customToast(`No results found in DB for ${query}`);
+                  app.customToast('No results found in DB for ' + query);
                   $('#db-query').val("");
                 } else {
                   // Extract and display tweet data
                   for (var i = 0, len = results.rows.length; i < len; i++) {
-                    var tweetText = results.rows.item(i).text
+                    var tweetText = results.rows.item(i).text;
                     var tweetId = results.rows.item(i).id_str;
-                    var authorName = results.rows.item(i).authorName
-                    var userName = results.rows.item(i).userName
-                    var profilePage = `http://twitter.com/${userName}`;
-                    var link = `http://twitter.com/anyuser/status/${tweetId}`;
+                    var authorName = results.rows.item(i).authorName;
+                    var userName = results.rows.item(i).userName;
+                    var profilePage = 'http://twitter.com/' + userName;
+                    var link = '`http://twitter.com/anyuser/status/' + tweetId;
                     var profileImg = results.rows.item(i).profileImg;
                     var timeDate = results.rows.item(i).created_at;
                     // Create div element that holds tweet data
-                    $tab.append(`<div id='id_${i}_db' class='db-tweet'><div><a class='db-tweet-author-page' href='${profilePage}'><img class='db-tweet-author-img' alt='profile' src='${profileImg}' /></a><a class='db-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'><span class='db-tweet-author'></span></a></div><div><span class='db-tweet-text'></span></div><div><span class='db-tweet-time'></span><a class='db-tweet-link' target='_blank' rel='noopener noreferrer' href='${link}'>Open tweet</a></div></div>`);
-                    var $div = $(`#id_${i}_db`);
+                    $tab.append("<div id='id_" + i + "_db' class='db-tweet'><div><a class='db-tweet-author-page' href='" + profilePage + "'><img class='db-tweet-author-img' alt='profile' src='" + profileImg + "' /></a><a class='db-tweet-author-link' target='_blank' rel='noopener noreferrer' href='" + profilePage + "'><span class='db-tweet-author'></span></a></div><div><span class='db-tweet-text'></span></div><div><span class='db-tweet-time'></span><a class='db-tweet-link' target='_blank' rel='noopener noreferrer' href='" + link + "'>Open tweet</a></div></div>");
+                    var $div = $('#id_' + i +'_db');
                     // Add tweet data to placeholders
                     $div.find('.db-tweet-text').text(tweetText);
                     $div.find('.db-tweet-author').text(authorName);
@@ -276,8 +295,8 @@ var app = {
                   }
                 }
              }, function(error) {
-                  console.log(`Transaction ERROR: ${error.message}`);
-                  alert(`Transaction ERROR: ${error.message}`);
+                  console.log('Transaction ERROR: ' + error.message);
+                  alert('Transaction ERROR: ' + error.message);
             });
         });
       }
@@ -347,7 +366,7 @@ var app = {
             console.log("Table for queries created successfully");
           },
           function (error) {
-            console.log(`Error occurred while creating the table - ${error}`);
+            console.log('Error occurred while creating the table - ' + error);
           });
         // Create table, that stores extra information, used for geolocation suggestions
         transaction.executeSql('CREATE TABLE IF NOT EXISTS city_club_suggestions (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, cityName TEXT, footballClubId TEXT, UNIQUE (footballClubId))', [],
@@ -355,43 +374,43 @@ var app = {
             console.log("Table for extra data created successfully");
           },
           function (error) {
-            console.log(`Error occurred while creating the table - ${error}`);
+            console.log('Error occurred while creating the table - ' + error);
           });
         // Populate city_club_suggestions table with initial data set
         transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Sheffield', '@swfc'],
           function (tx, result) {
-            console.log(`Populated database OK ${result}`);
+            console.log('Populated database OK ' + result);
           },
           function (error) {
-            console.log(`Transaction ERROR:  - ${error.message}`);
+            console.log('Transaction ERROR:  - ' + error.message);
           });
           transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Sheffield', '@SUFC_tweets'],
             function (tx, result) {
-              console.log(`Populated database OK ${result}`);
+              console.log('Populated database OK ' + result);
             },
             function (error) {
-              console.log(`Transaction ERROR:  - ${error}`);
+              console.log('Transaction ERROR:  - ' + error.message);
             });
           transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Manchester', '@ManUtd'],
             function (tx, result) {
-              console.log(`Populated database OK ${result}`);
+              console.log('Populated database OK ' + result);
             },
             function (error) {
-              console.log(`Transaction ERROR:  - ${error}`);
+              console.log('Transaction ERROR:  - ' + error.message);
             });
           transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Manchester', '@ManCity'],
             function (tx, result) {
-              console.log(`Populated database OK ${result}`);
+              console.log('Populated database OK ' + result);
             },
             function (error) {
-              console.log(`Transaction ERROR:  - ${error}`);
+              console.log('Transaction ERROR:  - ' + error.message);
             });
           transaction.executeSql('INSERT INTO city_club_suggestions (cityName, footballClubId) VALUES (?,?)', ['Liverpool', '@LFC'],
             function (tx, result) {
-              console.log(`Populated database OK ${result}`);
+              console.log('Populated database OK ' + result);
             },
             function (error) {
-              console.log(`Transaction ERROR:  - ${error}`);
+              console.log('Transaction ERROR:  - ' + error.message);
             });
 
       });
@@ -404,7 +423,7 @@ var app = {
       }, function(error) {
         console.log('Transaction ERROR: ' + error.message);
       }, function() {
-        console.log(`Populated database OK ${id_str}`);
+        console.log('Populated database OK ' + id_str);
       });
     },
 
@@ -499,7 +518,7 @@ var app = {
       var lng = position.coords.longitude;  // Get user's longitude
 
       // Create a query to Google Maps API
-      var queryString = `http://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&sensor=true`
+      var queryString = 'http://maps.googleapis.com/maps/api/geocode/json?latlng=' + lat + ',' + lng + '&sensor=true'
 
       // Send query to obtain user's address
       $.getJSON(queryString, function (results) {
@@ -511,7 +530,7 @@ var app = {
                 if (results.results.length) {
                   var addressList = results.results[0].formatted_address.replace(/,/g, '').split(' ');
                   console.log(addressList);
-                  console.log(`City name: ${addressList[addressList.length-4]}`);
+                  console.log('City name: ' + addressList[addressList.length-4]);
                   if (dbHolder == null) {
                     dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
                   }
@@ -520,7 +539,7 @@ var app = {
                       transaction.executeSql('SELECT * FROM city_club_suggestions WHERE cityName=?', [addressList[addressList.length-4]],
                         function (tx, results) {
                           // access with results.rows.item(i).<field>
-                          console.log(`Data retrieved from DB - ${results.rows.length}`);
+                          console.log('Data retrieved from DB - ' + results.rows.length);
                           if (results.rows.length===0) {
                             console.log('No results found');
                           } else {
@@ -532,10 +551,10 @@ var app = {
                               }
                             }
                             // Display suggestion to the user
-                            app.suggestionToast(`According to your location, following \n search queries are recommended:\n${suggestion}`);
+                            app.suggestionToast('According to your location, following \n search queries are recommended:\n' + suggestion);
                           }
                        }, function(error) {
-                            console.log(`Transaction ERROR: ${error.message}`);
+                            console.log('Transaction ERROR: ' + error.message);
                       });
                   });
                 } else {
