@@ -163,7 +163,6 @@ playerSearch = function(data, signalPlayerFound, sendPlayerData) {
 openStream = function(query, streamBack) {
     //close old stream if working
     TWIT_API.closeStream();
-
     query = query.trim().replace(/\s+/g, " ");
     //check whether the query is empty
     if(query.length === 0) {
@@ -181,7 +180,6 @@ openStream = function(query, streamBack) {
 
         if (keyword.pre === 'AND') filter += ' ';
         else if (keyword.pre === 'OR') filter += ',';
-        console.log(keyword.pre);
         filter += keyword.word;
     }
 
