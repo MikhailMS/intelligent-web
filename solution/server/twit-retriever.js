@@ -212,7 +212,13 @@ openStream = function (users, filter, streamBack) {
         //stream back data
         stream.on('data', (data) => streamBack(null, processTweet(data)));
         //send back error
-        stream.on('error', (err) => streamBack(twit_stream_err, null));
+        stream.on('error', (error) => {
+            console.log(error.msg);
+            ///if(err.code === 420)
+               // console.log('ebaha ti maikata brad');
+            streamBack(twit_stream_err, {});
+            closeStream();
+        });
     });
 };
 
@@ -220,9 +226,11 @@ openStream = function (users, filter, streamBack) {
  * Used to close the current stream.
  */
 closeStream = function() {
-    LOG.log(LNAME, 'Closing stream.');
-    if (currentStream !== undefined)
+    if (currentStream !== undefined) {
+        LOG.log(LNAME, 'Closing stream.');
         currentStream.destroy(); // close stream
+        currentStream = undefined;
+    }
 };
 
 //export functions

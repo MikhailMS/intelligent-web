@@ -170,7 +170,7 @@ function recordTweet(c, tweets) {
     //see if tweet is already in database
     DB.prepare(tweetCount).get(t.id, (err, res) => {
         //if not present, insert it
-        if (res.count < 0)
+        if (res.count === 0)
             DB.prepare(insertTweet).run(tweetToSql(t));
         //continue recursion
         if (c > 0) recordTweet(c - 1, tweets);
@@ -300,12 +300,9 @@ retrieveTweets = function (msg, sendBack) {
     let results = [];
     DB.each(sql, args, (err, t) => {
         //add tweet to array
-        console.log(t);
         if (t !== undefined)
             results.push(sqlToTweet(t));
     }, (err) => {
-        console.log('No results');
-        console.log(err);
         //handle error and send back results
         if (err !== null) {
             sendBack(db_error, null);
