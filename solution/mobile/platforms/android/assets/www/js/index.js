@@ -1,5 +1,5 @@
 /*created by Mikhail Molotkov
-  updated on 21/05/2017
+  updated on 22/05/2017
 */
 var dbHolder;
 var socket;
@@ -21,7 +21,7 @@ var app = {
     onDeviceReady: function() {                  // Triggers when application is loaded
       this.overrideAlert();                    // Override default browser alerts
       this.receivedEvent();                    // Bind DOM events listener
-      this.repeatLocationSuggestion(true);     // Start suggestions
+      //this.repeatLocationSuggestion(true);     // Start suggestions
       document.addEventListener("pause", this.onPause, false);
       document.addEventListener("backbutton", this.onBackButton, false);
       // Setup Stream Switch
@@ -61,7 +61,7 @@ var app = {
         if ($(".search-tweet").length) {
           $(".search-tweet").remove();
         }
-        app.togglePlayerInfoBtn(false);
+        app.togglePlayerInfoBtn(false); // Hide player's content button and collapsible div
         $("body").addClass("loading");  // Start loading animation
         console.log(`Query to Search API ${query}`);
         // Emit search query to server
@@ -75,9 +75,13 @@ var app = {
               // Close loading animation
               app.closeLoadingAnimation();
               if (data.tweets.length<=0) {
-                app.customToast(`No results found for ${query}`)
+                var msg = `No results found for ${query}`;
+                console.log(msg);
+                app.customToast(msg);
+                $('#search-query').val("");
               } else {
                 console.log('Processing tweets and saving them to DB...')
+                // Check if DB connection is opened and open if it's needed
                 if (dbHolder == null) {
                   dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
                 }
@@ -103,7 +107,7 @@ var app = {
                   // Create div element that holds tweet data
                   $tab.append(`<div id='id_${i}_search' class='search-tweet'><div><a class='search-tweet-author-page' href='${profilePage}'><img class='search-tweet-author-img' alt='profile' src='${profileImg}' /></a><a class='search-tweet-author-link' target="_blank" rel="noopener noreferrer" href='${profilePage}'><span class='search-tweet-author'></span></a></div><div><span class='search-tweet-text'></span></div><div><span class='search-tweet-time'></span><a class='search-tweet-link' target='_blank' rel='noopener noreferrer' href='${link}'>Open tweet</a></div></div>`);
                   var $div = $(`#id_${i}_search`);
-                  // Add tweet data to placeholders
+                  // Add tweet data into placeholders
                   $div.find('.search-tweet-text').text(tweetText);
                   $div.find('.search-tweet-author').text(authorName);
                   var date_time = `${weekDay}, ${date}.${month}.${year} ${time} GMT`;
@@ -119,7 +123,6 @@ var app = {
             }
           });
         }
-
         // Check if channel has been created so only 1 listener per client exists
         if (!(socket.hasListeners('player-card-result'))) {
           socket.on('player-card-result', function (error, data) {
@@ -137,14 +140,14 @@ var app = {
                 var playerPhoto = data.thumbnail_url;
                 // Insert data into placeholders
                 var $div = $('.player-wrapper');
-                // Add tweet data to placeholders
+                // Add player's data into placeholders
                 $div.find('.player-photo-link').attr('href', `${playerPhoto}`);
                 $div.find('.player-photo').attr('src', `${playerPhoto}`);
                 $div.find('.player-name').text(playerName);
                 $div.find('.player-club').text(playerClub);
                 $div.find('.player-position').text(playerPosition);
                 $div.find('.player-abstract').text(playerAbstract);
-                app.togglePlayerInfoBtn(true);
+                app.togglePlayerInfoBtn(true); // Present player's content button and collapsible div
                 }
             } else {
               alert('Error while retrieving results from the server');
@@ -210,6 +213,8 @@ var app = {
             counter++;
           } else {
             alert('Error while retrieving results from the server');
+            app.stopStream();
+            app.toggleStreamSwitch(true);
           }
         });
 
@@ -246,7 +251,7 @@ var app = {
                 app.closeLoadingAnimation();
                 if (results.rows.length===0) {
                   console.log('No results found');
-                  app.customToast('No results found');
+                  app.customToast(`No results found in DB for ${query}`);
                   $('#db-query').val("");
                 } else {
                   // Extract and display tweet data
@@ -322,11 +327,11 @@ var app = {
       }
     },
 
-    togglePlayerInfoBtn: function(is_on) {
-      if (is_on) {
+    togglePlayerInfoBtn: function(is_on) {       // Triggers when application receives player's data
+      if (is_on) {  // If there is a data, then show button and collapsible div
         $(".btn.btn-default.player-btn").attr('style', 'display:block');
         $('.player-wrapper').attr('style', 'display:block').toggle().toggle();
-      } else {
+      } else {      // If there is no data or user performs new search, hide button and collapsible div
         $(".btn.btn-default.player-btn").attr('style', 'display:none');
         $('.player-wrapper').attr('style', 'display:none').toggle().toggle();
       }
@@ -449,10 +454,10 @@ var app = {
           duration: 2500,
           position: 'center',
           styling: {
-            opacity: 0.75, // Default 0.8
+            opacity: 0.95, // Default 0.8
             backgroundColor: '#4168C1', // Default #333333
             textColor: '#FFFFFF', // Default #FFFFFF
-            textSize: 14.5, // Default is ~ 13.
+            textSize: 16.5, // Default is ~ 13.
             cornerRadius: 16, // iOS default 20, Android default 100
             horizontalPadding: 20, // iOS default 16, Android default 50
             verticalPadding: 16 // iOS default 12, Android default 30
@@ -505,7 +510,8 @@ var app = {
 
                 if (results.results.length) {
                   var addressList = results.results[0].formatted_address.replace(/,/g, '').split(' ');
-                  console.log(addressList[addressList.length-4]);
+                  console.log(addressList);
+                  console.log(`City name: ${addressList[addressList.length-4]}`);
                   if (dbHolder == null) {
                     dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
                   }
@@ -525,7 +531,7 @@ var app = {
                                 suggestion += results.rows.item(i).footballClubId + '\n';
                               }
                             }
-                            // Display suggestion to the client
+                            // Display suggestion to the user
                             app.suggestionToast(`According to your location, following \n search queries are recommended:\n${suggestion}`);
                           }
                        }, function(error) {

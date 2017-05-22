@@ -196,7 +196,9 @@ body.loading .loader {
 	outline: none;
 }
 /* Default and hover buttons behaviour */
-.btn, .btn-default, .btn-primary, .btn-default:hover, .btn-default:active, .btn-success:active:focus {
+.btn, .btn-default, .btn-default:hover, .btn-default:active, .btn-default:active:focus,
+.btn-success, .btn-success:hover, .btn-success:active:focus,
+.btn-primary, .btn-primary:hover, .btn-primary:active:focus {
 	color: #fff;
 	background-color: #4168C1;
 	border-color: #5f779d;

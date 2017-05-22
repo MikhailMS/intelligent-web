@@ -3,7 +3,7 @@
 */
 var dbHolder;
 var socket;
-var host = '';
+var host = 'http://c91931d5.ngrok.io';
 
 var app = {
     // Initialise application
@@ -21,7 +21,7 @@ var app = {
     onDeviceReady: function() {                  // Triggers when application is loaded
       this.overrideAlert();                    // Override default browser alerts
       this.receivedEvent();                    // Bind DOM events listener
-      this.repeatLocationSuggestion(true);     // Start suggestions
+      //this.repeatLocationSuggestion(true);     // Start suggestions
       document.addEventListener("pause", this.onPause, false);
       document.addEventListener("backbutton", this.onBackButton, false);
       // Setup Stream Switch
@@ -75,7 +75,10 @@ var app = {
               // Close loading animation
               app.closeLoadingAnimation();
               if (data.tweets.length<=0) {
-                app.customToast(`No results found for ${query}`)
+                var msg = `No results found for ${query}`;
+                console.log(msg);
+                app.customToast(msg);
+                $('#search-query').val("");
               } else {
                 console.log('Processing tweets and saving them to DB...')
                 // Check if DB connection is opened and open if it's needed
@@ -210,6 +213,8 @@ var app = {
             counter++;
           } else {
             alert('Error while retrieving results from the server');
+            app.stopStream();
+            app.toggleStreamSwitch(true);
           }
         });
 
@@ -246,7 +251,7 @@ var app = {
                 app.closeLoadingAnimation();
                 if (results.rows.length===0) {
                   console.log('No results found');
-                  app.customToast('No results found');
+                  app.customToast(`No results found in DB for ${query}`);
                   $('#db-query').val("");
                 } else {
                   // Extract and display tweet data
@@ -449,10 +454,10 @@ var app = {
           duration: 2500,
           position: 'center',
           styling: {
-            opacity: 0.75, // Default 0.8
+            opacity: 0.95, // Default 0.8
             backgroundColor: '#4168C1', // Default #333333
             textColor: '#FFFFFF', // Default #FFFFFF
-            textSize: 14.5, // Default is ~ 13.
+            textSize: 16.5, // Default is ~ 13.
             cornerRadius: 16, // iOS default 20, Android default 100
             horizontalPadding: 20, // iOS default 16, Android default 50
             verticalPadding: 16 // iOS default 12, Android default 30
@@ -505,7 +510,8 @@ var app = {
 
                 if (results.results.length) {
                   var addressList = results.results[0].formatted_address.replace(/,/g, '').split(' ');
-                  console.log(addressList[addressList.length-4]);
+                  console.log(addressList);
+                  console.log(`City name: ${addressList[addressList.length-4]}`);
                   if (dbHolder == null) {
                     dbHolder = window.sqlitePlugin.openDatabase({name: "localStorage.db", location: 'default'});
                   }
@@ -525,7 +531,7 @@ var app = {
                                 suggestion += results.rows.item(i).footballClubId + '\n';
                               }
                             }
-                            // Display suggestion to the client
+                            // Display suggestion to the user
                             app.suggestionToast(`According to your location, following \n search queries are recommended:\n${suggestion}`);
                           }
                        }, function(error) {

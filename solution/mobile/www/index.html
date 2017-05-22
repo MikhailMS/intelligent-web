@@ -10,7 +10,7 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src *; img-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval' data: gap: https://ssl.gstatic.com data: content:;" />
+        <meta http-equiv="Content-Security-Policy" content="default-src gap://ready file://* *; img-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval' data: gap: https://ssl.gstatic.com data: content:;" />
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
@@ -100,7 +100,7 @@
         <!-- Main js file with application logic -->
         <script type="text/javascript" src="js/index.js"></script>
         <!-- Socket dependencies -->
-        <script src="host_name/js/socket.io.js"></script>
+        <script src="http://c91931d5.ngrok.io/js/socket.io.js"></script>
         <script type="text/javascript" src="js/socket.io.js"></script>
         <!-- JQuery dependencies -->
         <script src="js/lib/jquery-3.1.1.min.js"></script>
