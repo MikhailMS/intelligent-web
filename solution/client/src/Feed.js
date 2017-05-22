@@ -33,10 +33,10 @@ class Feed extends Component {
         this.state = {
             feedQuery: '',
             streamChecked: false,
-            allSearchCards: [],
+            allTwitCards: [],
             streamResults: [],
             frequency: null,
-            searchCards: [],
+            displayCards: [],
             currentPage: 1,
             selectedTab: '1',
             cardsReady: false,
@@ -73,8 +73,8 @@ class Feed extends Component {
         const isStreaming = selectedTab === '2';
         this.setState({
             feedQuery,
-            allSearchCards: [],
-            searchCards: [],
+            allTwitCards: [],
+            displayCards: [],
             cardsReady: false,
             playerName: null,
             playerData: null,
@@ -127,11 +127,11 @@ class Feed extends Component {
     /**
     * Pagination distributor. Returns the calculated cards to display
     */
-    changeCards = (page, pageSize, allSearchCards) => {
+    changeCards = (page, pageSize, allTwitCards) => {
         const endPoint = page * pageSize;
         const switchPoint = endPoint - pageSize;
         this.setState({
-            searchCards: allSearchCards.slice(switchPoint, endPoint),
+            displayCards: allTwitCards.slice(switchPoint, endPoint),
             currentPage: page
         });
     }
@@ -196,20 +196,19 @@ class Feed extends Component {
         // check if created so only 1 listener is created
         if (!(socket.hasListeners('feed-search-result'))) {
             socket.on('feed-search-result', (err, res) => {
-                this.handleError(err);
-                console.log('frequency', res.frequency);
+                this.handleError(err); // throw an error if there's any
                 const searchResults = res.tweets;
                 const twitCards = searchResults.map(
-                    el => <TwitterCard key={el.id} tweet={el} />);
-                const newSearchCards = twitCards.slice(0, 10); // take first 10 cards
+                    el => <TwitterCard key={el.id} tweet={el} />); // create all twitter cards from data
+                const cardsReady = twitCards.length > 0; // check if twitter cards have been found
+                const newdisplayCards = twitCards.slice(0, 10); // take first 10 cards
                 this.setState({
                     frequency: res.frequency,
-                    allSearchCards: twitCards,
+                    allTwitCards: twitCards,
                     currentPage: 1,
-                    twitCards,
                     dataSize: twitCards.length,
-                    searchCards: newSearchCards,
-                    cardsReady: true,
+                    displayCards: newdisplayCards,
+                    cardsReady,
                     loading: false
                 });
             });
@@ -221,8 +220,8 @@ class Feed extends Component {
      * Returns the JSX stream components to render.
      */
     renderSearch = () => {
-        const { cardsReady, searchCards, dataSize,
-            allSearchCards, playerName, playerData, currentPage, loading } = this.state;
+        const { cardsReady, displayCards, dataSize,
+            allTwitCards, playerName, playerData, currentPage, loading } = this.state;
 
         let twitterCards;
 
@@ -237,7 +236,7 @@ class Feed extends Component {
                     <Row className="row" type="flex" justify="center">
                         <Pagination
                             onChange={(page, pageSize) =>
-                                this.changeCards(page, pageSize, allSearchCards)}
+                                this.changeCards(page, pageSize, allTwitCards)}
                             current={currentPage} pageSize={10} total={dataSize}
                         />
                     </Row>
@@ -249,12 +248,12 @@ class Feed extends Component {
                             transitionLeaveTimeout={300}
                             transitionAppearTimeout={500}
                         >
-                            {searchCards}
+                            {displayCards}
                         </CSSTransitionGroup>
                         <Row className="row" type="flex" justify="center">
                             <Pagination
                                 onChange={(page, pageSize) =>
-                                    this.changeCards(page, pageSize, allSearchCards)}
+                                    this.changeCards(page, pageSize, allTwitCards)}
                                 current={currentPage} pageSize={10} total={dataSize}
                             />
                         </Row>
