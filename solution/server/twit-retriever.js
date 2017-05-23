@@ -132,7 +132,7 @@ function getTweetBatch(c, procQuery, tweets, sendBack) {
  * @param query - raw query supplied by client
  * @param sendBack - callback (takes tweet list)
  */
-getTweets = function (query, sendBack) {
+const getTweets = function (query, sendBack) {
     //process query
     const procQuery = query.split('BY ').join('from:');
     //call recursive function
@@ -153,7 +153,7 @@ getTweets = function (query, sendBack) {
  * @param users - list of user names
  * @param carryOn - callback
  */
-findUserIds = function (c, userStr, users, carryOn) {
+const findUserIds = function (c, userStr, users, carryOn) {
     //if not reached the end of the array
     if (c < users.length) {
         //ask the Twitter API for the user id
@@ -182,7 +182,7 @@ findUserIds = function (c, userStr, users, carryOn) {
  * @param filter - string of comma-separated words
  * @param streamBack - callback (returns single tweet)
  */
-openStream = function (users, filter, streamBack) {
+const openStream = function (users, filter, streamBack) {
     LOG.log(LNAME, 'Opening stream with filter: ' + filter);
 
     //initialize parameters
@@ -233,7 +233,7 @@ openStream = function (users, filter, streamBack) {
 /**
  * Used to close the current stream.
  */
-closeStream = function () {
+const closeStream = function () {
     if (currentStream !== undefined) {
         LOG.log(LNAME, 'Closing stream.');
         currentStream.destroy(); // close stream
