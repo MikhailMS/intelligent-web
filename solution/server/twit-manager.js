@@ -15,11 +15,11 @@
  */
 
 //load dependencies
-const   TWIT_API = require('./twit-retriever'),
-        DB = require('./db-control'),
-        DBP = require('./dbpedia-retriever'),
-        ERR = require('./errors'),
-        LOG = require('./logger');
+const TWIT_API = require('./twit-retriever'),
+    DB = require('./db-control'),
+    DBP = require('./dbpedia-retriever'),
+    ERR = require('./errors'),
+    LOG = require('./logger');
 
 //how much time (in ms) should have passed before
 //results are updated using the Twitter API
@@ -41,7 +41,7 @@ function needsUpdating(query, callback) {
     DB.lastUpdated(query, (err, lastUpdated) => {
         //find difference
         let diff = Math.floor(Date.now()) - lastUpdated;
-        LOG.log(LNAME, 'Query was last run '+Math.round(diff / 60000)+' minutes ago.');
+        LOG.log(LNAME, 'Query was last run ' + Math.round(diff / 60000) + ' minutes ago.');
         //send back true/false whether the difference
         //is higher than the threshold
         callback(err, diff > THRESHOLD);
@@ -57,7 +57,7 @@ function needsUpdating(query, callback) {
  * @returns {{tweets: *, frequency: *, from_db: *}}
  */
 function tweetResponse(tweets, from_db) {
-    LOG.log(LNAME, 'Sorting '+tweets.length+' tweets.');
+    LOG.log(LNAME, 'Sorting ' + tweets.length + ' tweets.');
     tweets.sort((a, b) => b.id - a.id); //sort the tweets by ID
     return {
         tweets: tweets,
@@ -76,7 +76,7 @@ function tweetResponse(tweets, from_db) {
 function updateTweets(query, sendBack) {
     //get list of tweets using the Twitter API
     TWIT_API.getTweets(query, (err, tweets) => {
-        if(err === null) DB.recordTweets(tweets);
+        if (err === null) DB.recordTweets(tweets);
         DB.recordQuery(query);
         sendBack(err, tweetResponse(tweets, false));
     });
@@ -100,19 +100,19 @@ function retrieveTweets(query, sendBack) {
  * @param data - input from client
  * @param sendBack - callback receiving tweets
  */
-search = function(data, sendBack) {
+const search = function (data, sendBack) {
     let query = data.query.trim().replace(/\s+/g, " ");
     LOG.log(LNAME, 'Search query received: ' + query);
 
     //check whether the query is empty
-    if(query.length === 0) {
+    if (query.length === 0) {
         sendBack(ERR.INVALID_QUERY, tweetResponse([], false));
         return;
     }
 
     //if user has specified explicitly
     //that results should be from DB
-    if(data.db_only)
+    if (data.db_only)
         retrieveTweets(query, sendBack);
     else //otherwise see if tweets need to be updated
         needsUpdating(query, (err, needs) => {
@@ -131,11 +131,11 @@ search = function(data, sendBack) {
  *                         currently being queried for in DBPedia
  * @param sendPlayerData - send data back to client
  */
-playerSearch = function(data, signalPlayerFound, sendPlayerData) {
+const playerSearch = function (data, signalPlayerFound, sendPlayerData) {
     let query = data.query;
     //use query to find a player match in the database
     DB.findPlayer(query, (err, playerName) => {
-        if(err === null) {
+        if (err === null) {
             //let client know that a player has been found
             //ans is currently being queried for
             signalPlayerFound(null, playerName);
@@ -156,12 +156,12 @@ playerSearch = function(data, signalPlayerFound, sendPlayerData) {
  * @param query - the query
  * @param streamBack - callback (receives tweets back one at a time)
  */
-openStream = function(query, streamBack) {
+const openStream = function (query, streamBack) {
     //close old stream if working
     TWIT_API.closeStream();
     query = query.trim().replace(/\s+/g, " ");
     //check whether the query is empty
-    if(query.length === 0) {
+    if (query.length === 0) {
         streamBack(ERR.INVALID_QUERY, {});
         return;
     }
@@ -183,7 +183,7 @@ openStream = function(query, streamBack) {
     TWIT_API.findUserIds(0, users, tokens.users, (userStr) => {
         //initiate the stream
         TWIT_API.openStream(userStr, filter, (err, tweet) => {
-            if(err === null) DB.recordTweets([tweet]);
+            if (err === null) DB.recordTweets([tweet]);
             streamBack(err, tweet);
         });
     });
@@ -193,7 +193,7 @@ openStream = function(query, streamBack) {
  * Used to close a stream currently in
  * use by the Twitter API.
  */
-closeStream = function() {
+const closeStream = function () {
     TWIT_API.closeStream();
 };
 
@@ -206,9 +206,9 @@ closeStream = function() {
  * @returns {{}} - dictionary
  */
 function getFreq(tweets) {
-     let freq = {};
+    let freq = {};
 
-     for (let i in tweets) {
+    for (let i in tweets) {
         let t = tweets[i];
         let y = t.date_time.year;
         let m = t.date_time.month;
@@ -218,9 +218,9 @@ function getFreq(tweets) {
         //if date has not been used yet, initialize it
         if (freq[key] === undefined) freq[key] = 0;
         freq[key]++; //increment
-     }
+    }
 
-     return freq;
+    return freq;
 }
 
 //export functions

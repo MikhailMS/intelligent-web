@@ -7,7 +7,7 @@
  * tweets from Twitter and also to
  * start and stop streaming.
  *
- * Written by:  Blagoslav Mihaylov
+ * Written by:  Blagoslav Mihaylov, Petar Barzev
  * Last updated: 21/05/2017
  */
 
@@ -105,7 +105,7 @@ function getTweetBatch(c, procQuery, tweets, sendBack) {
 
     //ask the Twitter API for a list of tweets
     TWIT.get('search/tweets', params, (err, data) => {
-        LOG.log(LNAME, 'Received batch of '+data.statuses.length+' tweets.');
+        LOG.log(LNAME, 'Received batch of ' + data.statuses.length + ' tweets.');
 
         //add new tweets to the list
         const newTweets = data.statuses.map((el) => processTweet(el));
@@ -115,7 +115,7 @@ function getTweetBatch(c, procQuery, tweets, sendBack) {
         //or if batch returned an incomplete batch (means no more are left)
         //or if there was an error
         if (c === 1 || newTweets.length < 1 || err !== null) {
-            if(err === null)
+            if (err === null)
                 sendBack(null, tweets); //return tweets
             else
                 sendBack(ERR.TWIT_REST, null); //return error
@@ -132,12 +132,12 @@ function getTweetBatch(c, procQuery, tweets, sendBack) {
  * @param query - raw query supplied by client
  * @param sendBack - callback (takes tweet list)
  */
-getTweets = function(query, sendBack) {
+getTweets = function (query, sendBack) {
     //process query
     const procQuery = query.split('BY ').join('from:');
     //call recursive function
     getTweetBatch(BATCHES, procQuery, [], (err, tweets) => {
-        if(tweets.length === 0)
+        if (tweets.length === 0)
             err = ERR.TWIT_EMPTY;
         sendBack(err, tweets);
     });
@@ -153,7 +153,7 @@ getTweets = function(query, sendBack) {
  * @param users - list of user names
  * @param carryOn - callback
  */
-findUserIds = function(c, userStr, users, carryOn) {
+findUserIds = function (c, userStr, users, carryOn) {
     //if not reached the end of the array
     if (c < users.length) {
         //ask the Twitter API for the user id
@@ -200,7 +200,7 @@ openStream = function (users, filter, streamBack) {
 
         //stream back data
         stream.on('data', (data) => {
-            if(data.created_at !== undefined) {
+            if (data.created_at !== undefined) {
                 tweetPool.push(processTweet(data));
                 let now = Date.now();
                 if (now - lastStreamed > STREAM_INTERVAL) {
@@ -210,7 +210,7 @@ openStream = function (users, filter, streamBack) {
 
                     //log stream frequency
                     let lmsg = 'Stream received ' + tweetPool.length +
-                            ' in the last ' + STREAM_INTERVAL/1000 + ' secs.';
+                        ' in the last ' + STREAM_INTERVAL / 1000 + ' secs.';
                     LOG.log(LNAME, lmsg);
 
                     //reset vars
@@ -221,7 +221,7 @@ openStream = function (users, filter, streamBack) {
         });
         //send back error
         stream.on('error', (error) => {
-            if(error.message.includes('420'))
+            if (error.message.includes('420'))
                 streamBack(ERR.TWIT_RATE_LIM, {});
             else
                 streamBack(ERR.TWIT_STREAM, {});
@@ -233,7 +233,7 @@ openStream = function (users, filter, streamBack) {
 /**
  * Used to close the current stream.
  */
-closeStream = function() {
+closeStream = function () {
     if (currentStream !== undefined) {
         LOG.log(LNAME, 'Closing stream.');
         currentStream.destroy(); // close stream
