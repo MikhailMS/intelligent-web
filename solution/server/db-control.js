@@ -20,7 +20,7 @@ const SQLITE3 = require('sqlite3'),
 //SQL query for creating tweets table
 const createTableTweets = "" +
     "CREATE TABLE `tweets` (" +
-    "`id`	INTEGER NOT NULL UNIQUE," +
+    "`id`	INTEGER NOT NULL," +
     "`text`	TEXT," +
     "`author_name`	TEXT," +
     "`user_name`	TEXT," +
