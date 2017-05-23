@@ -124,6 +124,7 @@ class Feed extends Component {
                     let newResults;
                     if (streamResults.length === 0) newResults = [res];
                     else newResults = [res].concat(streamResults);
+                    if (newResults.length > 50) newResults.splice(50, 1); // limit array to 50 stream results
                     this.setState({ streamResults: newResults });
                 } else this.setState({ streamChecked: false }); // else uncheck switch
                 // whatver the outcome, stop the spinner
