@@ -11,7 +11,6 @@ var app = {
       if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
           document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
           document.addEventListener('deviceready', this.initializeDB);
-          document.addEventListener('deviceready', this.initializeDB);
       } else {
           this.onDeviceReady();
           this.initializeDB();
@@ -22,7 +21,7 @@ var app = {
     onDeviceReady: function() {                              // Triggers when application is loaded
       this.overrideAlert();                                  // Override default browser alerts
       this.receivedEvent();                                  // Bind DOM events listener
-      this.repeatLocationSuggestion(true);       // Start suggestions
+      this.repeatLocationSuggestion(true);                   // Start suggestions
       document.addEventListener("pause", this.onPause, false);
       document.addEventListener("backbutton", this.onBackButton, false);
       // Setup Stream Switch
@@ -586,7 +585,7 @@ var app = {
     // Function repeats location suggestions
     repeatLocationSuggestion: function(repeat) { // Triggers once application is loaded
       var repeatId;             // Variable stores setInterval ID
-      var repeatTime = 90*1000  // 90 seconds
+      var repeatTime = 90*1000  // 90 seconds interval
 
       if (repeat) { // If True, then start repeating
         var repeatId = window.setInterval(function() {  // Repeat getCurrentPosition to suggest queries to user

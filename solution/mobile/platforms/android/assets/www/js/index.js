@@ -3,8 +3,7 @@
 */
 var dbHolder;
 var socket;
-var host = 'http://44329f96.ngrok.io';
-var repeatSuggestion = true;
+var host_name = '';
 
 var app = {
     // Initialise application
@@ -23,7 +22,7 @@ var app = {
     onDeviceReady: function() {                              // Triggers when application is loaded
       this.overrideAlert();                                  // Override default browser alerts
       this.receivedEvent();                                  // Bind DOM events listener
-      this.repeatLocationSuggestion(repeatSuggestion);       // Start suggestions
+      this.repeatLocationSuggestion(true);       // Start suggestions
       document.addEventListener("pause", this.onPause, false);
       document.addEventListener("backbutton", this.onBackButton, false);
       // Setup Stream Switch
@@ -31,7 +30,7 @@ var app = {
       // Setup text in the popover menu
       $("#help-popover").popover({container: 'body',
                                   html: true,
-                                  content: "<ul style='list-style: none; margin-left: -25px'><li class='popover-item'>1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney</li><li class='popover-item'>2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app</li><li class='popover-item'>3. Allow and turn on GPS to enable query suggestions</li><li class='popover-item'>4. To close suggestion toast, click it</li><li class='popover-item'>5. To close this window, press 'Application help' again</li></ul>"
+                                  content: "<ul style='list-style: none; margin-left: -25px'><li class='popover-item'>1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney</li><li class='popover-item'>2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app</li><li class='popover-item'>3. Allow and turn on GPS to enable query suggestions</li><li class='popover-item'>4. To close suggestion toast, click it. To turn off suggestions, turn off GPS.</li><li class='popover-item'>5. To close this window, press 'Application help' again</li></ul>"
                                 });
       // Enable Lazy load for 'Search Tweets' & 'Search Database' tabs
       $('.search-tweet').Lazy({
@@ -54,7 +53,7 @@ var app = {
       });
       // Setup socket channel
       if(io !== undefined) {
-        socket = io.connect(host);
+        socket = io.connect(host_name);
       }
     },
 
@@ -371,7 +370,7 @@ var app = {
             console.log('Error occurred while creating the table - ' + error);
           });
         // Create table, that stores extra information, used for geolocation suggestions
-        transaction.executeSql('CREATE TABLE IF NOT EXISTS city_club_suggestions (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, cityName TEXT, footballClubId TEXT, UNIQUE (footballClubId))', [],
+        transaction.executeSql('CREATE TABLE IF NOT EXISTS city_club_suggestions (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, cityName TEXT, footballClubId TEXT, timestamp TEXT, UNIQUE (footballClubId))', [],
           function (tx, result) {
             console.log("Table for extra data created successfully");
           },
@@ -511,8 +510,6 @@ var app = {
           if (result && result.event) {
             if (result.event === 'touch') {
               console.log('Toast has been touched');
-              repeatSuggestion = false;
-              app.repeatLocationSuggestion(repeatSuggestion); // Stop suggestion if user sees it
               window.plugins.toast.hide();                    // Hide toast when it's touched
             }
           }
@@ -589,7 +586,7 @@ var app = {
     // Function repeats location suggestions
     repeatLocationSuggestion: function(repeat) { // Triggers once application is loaded
       var repeatId;             // Variable stores setInterval ID
-      var repeatTime = 30*1000  // 30 seconds
+      var repeatTime = 90*1000  // 90 seconds
 
       if (repeat) { // If True, then start repeating
         var repeatId = window.setInterval(function() {  // Repeat getCurrentPosition to suggest queries to user
