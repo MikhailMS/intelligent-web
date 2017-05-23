@@ -1,15 +1,17 @@
 /*created by Mikhail Molotkov
-  updated on 22/05/2017
+  updated on 23/05/2017
 */
 var dbHolder;
 var socket;
-var host = 'http://c1b27748.ngrok.io';
+var host = 'http://44329f96.ngrok.io';
+var repeatSuggestion = true;
 
 var app = {
     // Initialise application
     initialize: function() {
       if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
           document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+          document.addEventListener('deviceready', this.initializeDB);
           document.addEventListener('deviceready', this.initializeDB);
       } else {
           this.onDeviceReady();
@@ -18,10 +20,10 @@ var app = {
     },
 
     // Events Handler for deviceready
-    onDeviceReady: function() {                  // Triggers when application is loaded
-      this.overrideAlert();                    // Override default browser alerts
-      this.receivedEvent();                    // Bind DOM events listener
-      //this.repeatLocationSuggestion(true);     // Start suggestions
+    onDeviceReady: function() {                              // Triggers when application is loaded
+      this.overrideAlert();                                  // Override default browser alerts
+      this.receivedEvent();                                  // Bind DOM events listener
+      this.repeatLocationSuggestion(repeatSuggestion);       // Start suggestions
       document.addEventListener("pause", this.onPause, false);
       document.addEventListener("backbutton", this.onBackButton, false);
       // Setup Stream Switch
@@ -29,7 +31,7 @@ var app = {
       // Setup text in the popover menu
       $("#help-popover").popover({container: 'body',
                                   html: true,
-                                  content: "<ul style='list-style: none; margin-left: -25px'><li class='popover-item'>1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney</li><li class='popover-item'>2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app</li><li class='popover-item'>3. Allow and turn on GPS to enable query suggestions</li><li class='popover-item'>4. To close this window, press 'Application help' again</li></ul>"
+                                  content: "<ul style='list-style: none; margin-left: -25px'><li class='popover-item'>1. Search examples: #hazard OR #chelsea BY @WayneRooney , #chelsea AND @WayneRooney , #manutd , @Rooney</li><li class='popover-item'>2. To close 'Real-time Tweets' channel once it's opened, press 'back button' or close app</li><li class='popover-item'>3. Allow and turn on GPS to enable query suggestions</li><li class='popover-item'>4. To close suggestion toast, click it</li><li class='popover-item'>5. To close this window, press 'Application help' again</li></ul>"
                                 });
       // Enable Lazy load for 'Search Tweets' & 'Search Database' tabs
       $('.search-tweet').Lazy({
@@ -504,8 +506,17 @@ var app = {
             verticalPadding: 16 // iOS default 12, Android default 30
           }
         },
-        function(a) {     // Success
-          console.log('toast success: ' + a)},
+        function(result) {     // Success
+          console.log('toast success: ' + result)
+          if (result && result.event) {
+            if (result.event === 'touch') {
+              console.log('Toast has been touched');
+              repeatSuggestion = false;
+              app.repeatLocationSuggestion(repeatSuggestion); // Stop suggestion if user sees it
+              window.plugins.toast.hide();                    // Hide toast when it's touched
+            }
+          }
+        },
         function(error) { // Error
           alert('toast error: ' + error)
         });
