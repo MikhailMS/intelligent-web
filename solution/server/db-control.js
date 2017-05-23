@@ -210,6 +210,7 @@ tokenize = function (msg) {
                 if (query[c - 1] === 'OR') {
                     keywords.push({ pre: 'OR', word: token });
                 } else if (query[c - 1] === 'BY') {
+                    token = token.split('#').join('').split('@').join('');
                     //if previous word was BY, then add
                     //to users array
                     if (users.length === 0) {
