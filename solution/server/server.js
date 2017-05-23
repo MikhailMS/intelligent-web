@@ -76,6 +76,7 @@ IO.on('connection', (socket) => {
     //when client has disconnected
     socket.on('disconnect', () => {
         LOG.log(LNAME, `Socket closed with ID: ${socket.id}`);
+        TWIT.closeStream();
     });
 });
 

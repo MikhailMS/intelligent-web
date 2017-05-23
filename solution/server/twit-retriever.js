@@ -17,10 +17,13 @@ const Twitter = require('twitter'),
     LOG = require('./logger'),
     ERR = require('./errors'),
     LNAME = 'TWITTER API', //name used in logging
-    BATCHES = 6;
+    BATCHES = 6,
+    STREAM_INTERVAL = 1000;
 
-//declare stream
+//declare stream vars
 let currentStream;
+let tweetPool = [];
+let lastStreamed = 0;
 
 //load keys
 const TWIT = new Twitter({
@@ -190,11 +193,32 @@ openStream = function (users, filter, streamBack) {
     //start stream
     TWIT.stream('statuses/filter', params, (stream) => {
 
+        //reset tweet pool
+        tweetPool = [];
         //remember current stream
         currentStream = stream;
 
         //stream back data
-        stream.on('data', (data) => streamBack(null, processTweet(data)));
+        stream.on('data', (data) => {
+            if(data.created_at !== undefined) {
+                tweetPool.push(processTweet(data));
+                let now = Date.now();
+                if (now - lastStreamed > STREAM_INTERVAL) {
+                    //stream back random tweet
+                    let tid = Math.floor(Math.random() * tweetPool.length);
+                    streamBack(null, tweetPool[tid]);
+
+                    //log stream frequency
+                    let lmsg = 'Stream received ' + tweetPool.length +
+                            ' in the last ' + STREAM_INTERVAL/1000 + ' secs.';
+                    LOG.log(LNAME, lmsg);
+
+                    //reset vars
+                    tweetPool = [];
+                    lastStreamed = now;
+                }
+            }
+        });
         //send back error
         stream.on('error', (error) => {
             if(error.message.includes('420'))

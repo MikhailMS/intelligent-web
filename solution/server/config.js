@@ -32,4 +32,4 @@ const mishaConfig = {
   access_token_secret: 'NLFJJirTW2TvhA6s0afzLY64TBJY1jMm3TXjzME1NJ0gc'
 };
 
-module.exports = petarConfig; //whoever is currently testing
+module.exports = blagoConfig; //whoever is currently testing
