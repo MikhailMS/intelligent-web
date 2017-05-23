@@ -114,7 +114,7 @@ function getTweetBatch(c, procQuery, tweets, sendBack) {
         //stop recursion if reached number of batches,
         //or if batch returned an incomplete batch (means no more are left)
         //or if there was an error
-        if (c === 1 || newTweets.length < 100 || err !== null) {
+        if (c === 1 || newTweets.length < 1 || err !== null) {
             if(err === null)
                 sendBack(null, tweets); //return tweets
             else
